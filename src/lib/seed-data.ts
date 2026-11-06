@@ -7,6 +7,20 @@ import {
   UserProfile,
   VocabCard,
 } from "@/types/language";
+import {
+  ANIMALS_NATURE_CURRICULUM,
+  TRAVEL_DINING_CURRICULUM,
+  WORK_OFFICE_CURRICULUM,
+  TopicCurriculumDataset,
+} from "./curriculum-animals-travel-work";
+import {
+  TECH_DIGITAL_CURRICULUM,
+  FOOD_CULINARY_CURRICULUM,
+} from "./curriculum-tech-food";
+import {
+  SHOPPING_LIFESTYLE_CURRICULUM,
+  CORE_ACADEMIC_CURRICULUM,
+} from "./curriculum-shop-academic";
 
 export const DEFAULT_USER_ID = "user_local_founder_01";
 const SEED_DATE = "2026-01-01T08:00:00.000Z";
@@ -77,70 +91,99 @@ export const TOPICS: TopicMeta[] = [
     titleVi: "Giao tiếp hằng ngày",
     subtitleVi: "Lộ trình 10 ngày (100 từ): Từ chào hỏi cơ bản Ngày 1 đến phản xạ hội thoại tự nhiên",
     iconName: "message",
-    levelLabel: "A1 → B2 (10 Ngày)",
+    levelLabel: "A1 → B2 (10 Ngày • 100 từ)",
     totalDays: 10,
     wordsPerDay: 10,
     order: 1,
+    dayThemes: {
+      1: "Chào hỏi & Phép lịch sự nền tảng (A1)",
+      2: "Gia đình, Lời mời & Thói quen mỗi ngày (A1)",
+      3: "Thời gian, Thời tiết & Hoạt động thường nhật (A2)",
+      4: "Cảm xúc, Tính cách & Sự quan tâm (A2)",
+      5: "Nhà cửa, Hàng xóm & Cuộc sống quanh ta (A2)",
+      6: "Sức khỏe, Vận động & Chăm sóc bản thân (B1)",
+      7: "Hẹn hò, Gặp gỡ & Kết nối bạn bè (B1)",
+      8: "Giải quyết tình huống & Nhờ giúp đỡ (B1)",
+      9: "Chia sẻ quan điểm, Ước mơ & Kế hoạch (B2)",
+      10: "Thành ngữ & Phản xạ Giao tiếp Tự nhiên (B2)",
+    },
+  },
+  {
+    id: "animals_nature",
+    titleVi: "Thế giới Động vật & Sinh thái",
+    subtitleVi: "Lộ trình 10 ngày (100 từ): Học phân loại gốc → Thú cưng, Trang trại, Hoang dã, Dưới nước, Chim, Côn trùng, Bò sát → Học thuật IELTS",
+    iconName: "paw",
+    levelLabel: "A1 → C1 (10 Ngày • 100 từ)",
+    totalDays: 10,
+    wordsPerDay: 10,
+    order: 2,
+    dayThemes: ANIMALS_NATURE_CURRICULUM.dayThemes,
   },
   {
     id: "travel_dining",
     titleVi: "Du lịch & Di chuyển",
-    subtitleVi: "Sân bay, khách sạn, hỏi đường và khám phá văn hóa bản địa theo từng ngày",
+    subtitleVi: "Lộ trình 10 ngày (100 từ): Phân loại chuyến đi, Phương tiện, Sân bay, Khách sạn, Hỏi đường, Cảnh quan đến Du lịch học thuật",
     iconName: "compass",
-    levelLabel: "A1 → B2 (10 Ngày)",
+    levelLabel: "A1 → C1 (10 Ngày • 100 từ)",
     totalDays: 10,
     wordsPerDay: 10,
-    order: 2,
+    order: 3,
+    dayThemes: TRAVEL_DINING_CURRICULUM.dayThemes,
   },
   {
     id: "work_office",
     titleVi: "Công sở & Sự nghiệp",
-    subtitleVi: "Giao tiếp nơi làm việc, viết email, họp nhóm và thuyết trình dự án",
+    subtitleVi: "Lộ trình 10 ngày (100 từ): Phân loại nghề nghiệp, Chức danh, Văn phòng, Họp nhóm, Dự án, Email, Phỏng vấn đến Quản trị C1",
     iconName: "briefcase",
-    levelLabel: "A2 → C1 (10 Ngày)",
+    levelLabel: "A1 → C1 (10 Ngày • 100 từ)",
     totalDays: 10,
     wordsPerDay: 10,
-    order: 3,
+    order: 4,
+    dayThemes: WORK_OFFICE_CURRICULUM.dayThemes,
   },
   {
     id: "tech_digital",
     titleVi: "Công nghệ & Đời sống số",
-    subtitleVi: "Từ vựng về máy tính, phần mềm, AI, mạng xã hội và làm việc từ xa",
+    subtitleVi: "Lộ trình 10 ngày (100 từ): Phân loại Phần cứng/Phần mềm, Thiết bị, Ứng dụng, Bảo mật, Lập trình, Đám mây đến Trí tuệ nhân tạo AI",
     iconName: "cpu",
-    levelLabel: "A2 → B2 (10 Ngày)",
+    levelLabel: "A1 → C1 (10 Ngày • 100 từ)",
     totalDays: 10,
     wordsPerDay: 10,
-    order: 4,
+    order: 5,
+    dayThemes: TECH_DIGITAL_CURRICULUM.dayThemes,
   },
   {
     id: "food_culinary",
     titleVi: "Ẩm thực & Nhà hàng",
-    subtitleVi: "Gọi đồ uống, món ăn, hương vị và trò chuyện tại bàn ăn",
+    subtitleVi: "Lộ trình 10 ngày (100 từ): Phân loại Thực phẩm, Rau củ quả, Thịt cá, Hương vị, Đồ uống, Chế biến, Nhà hàng đến Dinh dưỡng học thuật",
     iconName: "utensils",
-    levelLabel: "A1 → B1 (10 Ngày)",
+    levelLabel: "A1 → C1 (10 Ngày • 100 từ)",
     totalDays: 10,
     wordsPerDay: 10,
-    order: 5,
+    order: 6,
+    dayThemes: FOOD_CULINARY_CURRICULUM.dayThemes,
   },
   {
     id: "shopping_lifestyle",
     titleVi: "Mua sắm & Phong cách sống",
-    subtitleVi: "Hỏi giá, chọn trang phục, thanh toán và thói quen chi tiêu",
+    subtitleVi: "Lộ trình 10 ngày (100 từ): Phân loại Cửa hàng, Trang phục, Phụ kiện, Chất liệu, Giá cả, Thanh toán, Đổi trả đến Kinh tế tiêu dùng",
     iconName: "shopping",
-    levelLabel: "A1 → B1 (10 Ngày)",
+    levelLabel: "A1 → C1 (10 Ngày • 100 từ)",
     totalDays: 10,
     wordsPerDay: 10,
-    order: 6,
+    order: 7,
+    dayThemes: SHOPPING_LIFESTYLE_CURRICULUM.dayThemes,
   },
   {
     id: "core_academic",
     titleVi: "Học thuật & Tư duy phản biện",
-    subtitleVi: "Trình bày quan điểm, phân tích vấn đề và tranh luận sắc bén",
+    subtitleVi: "Lộ trình 10 ngày (100 từ): Phân loại Tri thức, Đại học, Bài luận, Nghiên cứu, Phân tích, Nguyên nhân - Hệ quả đến Học thuật IELTS C1",
     iconName: "graduation",
-    levelLabel: "B1 → C1 (10 Ngày)",
+    levelLabel: "A2 → C1 (10 Ngày • 100 từ)",
     totalDays: 10,
     wordsPerDay: 10,
-    order: 7,
+    order: 8,
+    dayThemes: CORE_ACADEMIC_CURRICULUM.dayThemes,
   },
   {
     id: "custom_saved",
@@ -150,7 +193,7 @@ export const TOPICS: TopicMeta[] = [
     levelLabel: "Cá nhân hóa",
     totalDays: 10,
     wordsPerDay: 10,
-    order: 8,
+    order: 9,
   },
 ];
 
@@ -859,249 +902,54 @@ EN_DAILY_DAYS.forEach((dayList, dIdx) => {
   });
 });
 
-// 2. Add starter progressive days for other English topics so every topic has structured Day 1 & Day 2+ words
-const OTHER_EN_TOPICS: Array<{ topicId: TopicId; words: RawSeedWord[] }> = [
-  {
-    topicId: "travel_dining",
-    words: [
-      {
-        term: "Ticket",
-        phonetic: "/ˈtɪk.ɪt/",
-        partOfSpeech: "noun",
-        meaningVi: "Vé (máy bay, tàu xe, tham quan)",
-        naturalContextVi: "Từ cơ bản đầu tiên khi đi du lịch.",
-        exampleTarget: "Here is my train ticket.",
-        exampleVi: "Đây là vé tàu của mình.",
-        level: "A1 • Ngày 1",
-      },
-      {
-        term: "Airport",
-        phonetic: "/ˈer.pɔːrt/",
-        partOfSpeech: "noun",
-        meaningVi: "Sân bay",
-        naturalContextVi: "Điểm khởi đầu của các chuyến bay.",
-        exampleTarget: "We arrived at the airport early.",
-        exampleVi: "Chúng mình đã đến sân bay sớm.",
-        level: "A1 • Ngày 1",
-      },
-      {
-        term: "Hotel",
-        phonetic: "/hoʊˈtel/",
-        partOfSpeech: "noun",
-        meaningVi: "Khách sạn",
-        naturalContextVi: "Dùng khi đặt phòng hoặc hỏi đường về nơi nghỉ.",
-        exampleTarget: "This hotel is very clean and quiet.",
-        exampleVi: "Khách sạn này rất sạch sẽ và yên tĩnh.",
-        level: "A1 • Ngày 1",
-      },
-      {
-        term: "Passport",
-        phonetic: "/ˈpæs.pɔːrt/",
-        partOfSpeech: "noun",
-        meaningVi: "Hộ chiếu",
-        naturalContextVi: "Giấy tờ quan trọng nhất khi xuất nhập cảnh.",
-        exampleTarget: "Please show me your passport.",
-        exampleVi: "Vui lòng cho mình xem hộ chiếu của bạn.",
-        level: "A1 • Ngày 1",
-      },
-      {
-        term: "Hidden gem",
-        phonetic: "/ˌhɪd.ən ˈdʒem/",
-        partOfSpeech: "noun phrase",
-        meaningVi: "Địa điểm tuyệt đẹp nhưng ít người biết",
-        naturalContextVi: "Dùng ở Ngày 2 để nâng cấp vốn từ khám phá du lịch.",
-        exampleTarget: "That small cafe is a hidden gem.",
-        exampleVi: "Quán cà phê nhỏ đó đúng là một viên ngọc ẩn.",
-        level: "B1 • Ngày 2",
-      },
-    ],
-  },
-  {
-    topicId: "work_office",
-    words: [
-      {
-        term: "Meeting",
-        phonetic: "/ˈmiː.tɪŋ/",
-        partOfSpeech: "noun",
-        meaningVi: "Cuộc họp",
-        naturalContextVi: "Từ cơ bản nhất nơi công sở.",
-        exampleTarget: "We have a team meeting at nine.",
-        exampleVi: "Chúng mình có cuộc họp nhóm lúc chín giờ.",
-        level: "A1 • Ngày 1",
-      },
-      {
-        term: "Project",
-        phonetic: "/ˈprɑː.dʒekt/",
-        partOfSpeech: "noun",
-        meaningVi: "Dự án",
-        naturalContextVi: "Dùng khi nói về kế hoạch công việc đang thực hiện.",
-        exampleTarget: "Our new project is going well.",
-        exampleVi: "Dự án mới của tụi mình đang tiến triển tốt.",
-        level: "A1 • Ngày 1",
-      },
-      {
-        term: "Deadline",
-        phonetic: "/ˈded.laɪn/",
-        partOfSpeech: "noun",
-        meaningVi: "Hạn chót hoàn thành công việc",
-        naturalContextVi: "Meet the deadline = kịp hạn chót.",
-        exampleTarget: "Tomorrow is the deadline for this task.",
-        exampleVi: "Ngày mai là hạn chót cho nhiệm vụ này.",
-        level: "A2 • Ngày 1",
-      },
-      {
-        term: "On the same page",
-        phonetic: "/ɑːn ðə seɪm peɪdʒ/",
-        partOfSpeech: "idiom",
-        meaningVi: "Thống nhất chung ý kiến với nhau",
-        naturalContextVi: "Dùng ở Ngày 2 khi thảo luận nhóm.",
-        exampleTarget: "We are all on the same page now.",
-        exampleVi: "Bây giờ cả nhóm mình đều đã thống nhất ý kiến.",
-        level: "B2 • Ngày 2",
-      },
-    ],
-  },
-  {
-    topicId: "tech_digital",
-    words: [
-      {
-        term: "Screen",
-        phonetic: "/skriːn/",
-        partOfSpeech: "noun",
-        meaningVi: "Màn hình",
-        naturalContextVi: "Màn hình điện thoại hoặc máy tính.",
-        exampleTarget: "Let me share my screen with you.",
-        exampleVi: "Để mình chia sẻ màn hình với bạn nhé.",
-        level: "A1 • Ngày 1",
-      },
-      {
-        term: "Update",
-        phonetic: "/ʌpˈdeɪt/",
-        partOfSpeech: "verb / noun",
-        meaningVi: "Cập nhật; bản cập nhật",
-        naturalContextVi: "Nâng cấp phần mềm hoặc cập nhật thông tin.",
-        exampleTarget: "Please update the app to the latest version.",
-        exampleVi: "Vui lòng cập nhật ứng dụng lên phiên bản mới nhất.",
-        level: "A2 • Ngày 1",
-      },
-      {
-        term: "Password",
-        phonetic: "/ˈpæs.wɜːrd/",
-        partOfSpeech: "noun",
-        meaningVi: "Mật khẩu",
-        naturalContextVi: "Bảo mật tài khoản cá nhân.",
-        exampleTarget: "Keep your password safe.",
-        exampleVi: "Hãy giữ mật khẩu của bạn an toàn nhé.",
-        level: "A1 • Ngày 1",
-      },
-    ],
-  },
-  {
-    topicId: "food_culinary",
-    words: [
-      {
-        term: "Menu",
-        phonetic: "/ˈmen.juː/",
-        partOfSpeech: "noun",
-        meaningVi: "Thực đơn",
-        naturalContextVi: "Xin xem thực đơn khi vào nhà hàng.",
-        exampleTarget: "Could I see the menu, please?",
-        exampleVi: "Cho mình xem thực đơn được không ạ?",
-        level: "A1 • Ngày 1",
-      },
-      {
-        term: "Delicious",
-        phonetic: "/dɪˈlɪʃ.əs/",
-        partOfSpeech: "adjective",
-        meaningVi: "Ngon miệng, thơm ngon",
-        naturalContextVi: "Lời khen dành cho món ăn ngon.",
-        exampleTarget: "This noodle soup is delicious!",
-        exampleVi: "Món phở này ngon tuyệt vời!",
-        level: "A1 • Ngày 1",
-      },
-      {
-        term: "On the house",
-        phonetic: "/ɑːn ðə haʊs/",
-        partOfSpeech: "idiom",
-        meaningVi: "Được nhà hàng mời miễn phí",
-        naturalContextVi: "Cụm từ thú vị ở Ngày 2 chủ đề Ẩm thực.",
-        exampleTarget: "This coffee is on the house!",
-        exampleVi: "Ly cà phê này quán xin mời bạn!",
-        level: "B1 • Ngày 2",
-      },
-    ],
-  },
-  {
-    topicId: "shopping_lifestyle",
-    words: [
-      {
-        term: "Price",
-        phonetic: "/praɪs/",
-        partOfSpeech: "noun",
-        meaningVi: "Giá tiền",
-        naturalContextVi: "Hỏi giá khi đi mua sắm.",
-        exampleTarget: "The price is very reasonable.",
-        exampleVi: "Mức giá này rất hợp lý.",
-        level: "A1 • Ngày 1",
-      },
-      {
-        term: "Discount",
-        phonetic: "/ˈdɪs.kaʊnt/",
-        partOfSpeech: "noun",
-        meaningVi: "Giảm giá, chiết khấu",
-        naturalContextVi: "Ask for a discount = Hỏi xin giảm giá.",
-        exampleTarget: "Is there any student discount?",
-        exampleVi: "Có chương trình giảm giá cho sinh viên không ạ?",
-        level: "A2 • Ngày 1",
-      },
-    ],
-  },
-  {
-    topicId: "core_academic",
-    words: [
-      {
-        term: "Idea",
-        phonetic: "/aɪˈdiː.ə/",
-        partOfSpeech: "noun",
-        meaningVi: "Ý tưởng",
-        naturalContextVi: "Từ nền tảng ở Ngày 1 trước khi học từ học thuật nâng cao.",
-        exampleTarget: "That is a brilliant idea!",
-        exampleVi: "Đó là một ý tưởng xuất sắc!",
-        level: "A1 • Ngày 1",
-      },
-      {
-        term: "Method",
-        phonetic: "/ˈmeθ.əd/",
-        partOfSpeech: "noun",
-        meaningVi: "Phương pháp, cách thức",
-        naturalContextVi: "Dùng trong học tập và nghiên cứu.",
-        exampleTarget: "This learning method is very effective.",
-        exampleVi: "Phương pháp học tập này rất hiệu quả.",
-        level: "A2 • Ngày 1",
-      },
-      {
-        term: "Pragmatic",
-        phonetic: "/præɡˈmæt.ɪk/",
-        partOfSpeech: "adjective",
-        meaningVi: "Thực tế, ưu tiên hiệu quả thực tiễn",
-        naturalContextVi: "Từ vựng nâng cao ở Ngày 2.",
-        exampleTarget: "We need a pragmatic solution.",
-        exampleVi: "Chúng ta cần một giải pháp thực tế.",
-        level: "C1 • Ngày 2",
-      },
-    ],
-  },
+// 2. Add all 10 Days (100 words each) for the other 7 core English topics (Taxonomy-First Progression: A1 -> C1)
+const FULL_EN_CURRICULUMS: TopicCurriculumDataset[] = [
+  ANIMALS_NATURE_CURRICULUM,
+  TRAVEL_DINING_CURRICULUM,
+  WORK_OFFICE_CURRICULUM,
+  TECH_DIGITAL_CURRICULUM,
+  FOOD_CULINARY_CURRICULUM,
+  SHOPPING_LIFESTYLE_CURRICULUM,
+  CORE_ACADEMIC_CURRICULUM,
 ];
 
-for (const group of OTHER_EN_TOPICS) {
-  let d1Idx = 1;
-  let d2Idx = 1;
-  for (const w of group.words) {
-    const isDay2 = w.level.includes("Ngày 2");
-    const dayNum = isDay2 ? 2 : 1;
-    const orderIdx = isDay2 ? d2Idx++ : d1Idx++;
-    builtCards.push(buildCard("en", group.topicId, dayNum, orderIdx, w));
-  }
+function getCefrForDay(dayNum: number): string {
+  if (dayNum <= 2) return `A1 • Ngày ${dayNum}`;
+  if (dayNum <= 5) return `A2 • Ngày ${dayNum}`;
+  if (dayNum <= 8) return `B1 • Ngày ${dayNum}`;
+  if (dayNum === 9) return `B2 • Ngày ${dayNum}`;
+  return `C1 • Ngày ${dayNum}`;
+}
+
+for (const curriculum of FULL_EN_CURRICULUMS) {
+  curriculum.days.forEach((dayTuples, dIdx) => {
+    const dayNum = dIdx + 1;
+    const themeLabel = curriculum.dayThemes[dayNum] || `Ngày ${dayNum}`;
+    dayTuples.forEach((tuple, wIdx) => {
+      const [
+        term,
+        phonetic,
+        partOfSpeech,
+        meaningVi,
+        naturalContextVi,
+        exampleTarget,
+        exampleVi,
+      ] = tuple;
+      builtCards.push(
+        buildCard("en", curriculum.topicId, dayNum, wIdx + 1, {
+          term,
+          phonetic,
+          partOfSpeech,
+          meaningVi,
+          naturalContextVi,
+          exampleTarget,
+          exampleVi,
+          notes: `Nhóm phân loại Ngày ${dayNum}: ${themeLabel}`,
+          level: getCefrForDay(dayNum),
+        })
+      );
+    });
+  });
 }
 
 // 3. Add Chinese Simplified Day 1 & Day 2

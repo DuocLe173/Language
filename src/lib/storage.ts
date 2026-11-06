@@ -144,15 +144,37 @@ function loadAllVocabCardsRaw(): VocabCard[] {
       return INITIAL_VOCAB_CARDS;
     }
 
-    const existingIds = new Set(parsed.map((c) => c.id));
-    let addedMissing = false;
+    const existingMap = new Map<string, number>();
+    parsed.forEach((c, idx) => existingMap.set(c.id, idx));
+
+    let changed = false;
     for (const seedCard of INITIAL_VOCAB_CARDS) {
-      if (!existingIds.has(seedCard.id)) {
+      const idx = existingMap.get(seedCard.id);
+      if (idx === undefined) {
         parsed.push(seedCard);
-        addedMissing = true;
+        changed = true;
+      } else {
+        const cur = parsed[idx];
+        if (
+          cur.term !== seedCard.term ||
+          cur.notes !== seedCard.notes ||
+          cur.meaningVi !== seedCard.meaningVi
+        ) {
+          parsed[idx] = {
+            ...seedCard,
+            isCompletedInTopic: cur.isCompletedInTopic,
+            state: cur.state,
+            intervalDays: cur.intervalDays,
+            easeFactor: cur.easeFactor,
+            repetitions: cur.repetitions,
+            nextReviewAt: cur.nextReviewAt,
+            lastReviewedAt: cur.lastReviewedAt,
+          };
+          changed = true;
+        }
       }
     }
-    if (addedMissing) {
+    if (changed) {
       localStorage.setItem(KEYS.VOCAB, JSON.stringify(parsed));
     }
     return parsed;

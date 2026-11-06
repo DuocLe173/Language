@@ -2,6 +2,7 @@ export type LanguageCode = "en" | "zh-CN" | "zh-TW" | "ja" | "ko" | "fr";
 
 export type TopicId =
   | "daily_communication"
+  | "animals_nature"
   | "travel_dining"
   | "work_office"
   | "tech_digital"
@@ -27,6 +28,7 @@ export interface TopicMeta {
   subtitleVi: string;
   iconName:
     | "message"
+    | "paw"
     | "compass"
     | "briefcase"
     | "cpu"
@@ -38,6 +40,7 @@ export interface TopicMeta {
   totalDays: number;
   wordsPerDay: number;
   order: number;
+  dayThemes?: Record<number, string>;
 }
 
 export interface TopicProgress {

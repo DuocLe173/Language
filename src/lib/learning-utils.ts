@@ -385,13 +385,27 @@ export function getDistinctPracticeSentences(card: VocabCard): {
   let clozeFullTarget = preset?.clozeTarget || "";
   let clozeVi = preset?.clozeVi || "";
 
-  // If word is not in the preset bank, synthesize distinct contextual sentences so it never duplicates Step 5
+  // If word is not in the preset bank, synthesize natural part-of-speech-aware sentences distinct from Step 5
   if (!sentenceBuildTarget) {
     if (card.languageCode === "en") {
-      sentenceBuildTarget = `We always remember to use ${card.term} in daily life.`;
-      sentenceBuildVi = `Chúng mình luôn nhớ vận dụng từ "${card.meaningVi}" trong cuộc sống hàng ngày.`;
-      clozeFullTarget = `In this situation, ${card.term} is the best expression.`;
-      clozeVi = `Trong tình huống này, "${card.meaningVi}" là cách diễn đạt phù hợp nhất.`;
+      const pos = card.partOfSpeech.toLowerCase();
+      const shortMeaning = card.meaningVi.split(/[;,]/)[0].trim().toLowerCase();
+      if (pos.includes("verb") && !pos.includes("noun")) {
+        sentenceBuildTarget = `We should ${card.term.toLowerCase()} carefully every day.`;
+        sentenceBuildVi = `Chúng mình nên ${shortMeaning} một cách cẩn thận mỗi ngày.`;
+        clozeFullTarget = `Please remember to ${card.term} when needed.`;
+        clozeVi = `Hãy nhớ ${shortMeaning} khi cần thiết nhé.`;
+      } else if (pos.includes("adjective")) {
+        sentenceBuildTarget = `This example is very ${card.term.toLowerCase()} and clear.`;
+        sentenceBuildVi = `Ví dụ này rất ${shortMeaning} và rõ ràng.`;
+        clozeFullTarget = `Everyone noticed how ${card.term} it was today.`;
+        clozeVi = `Mọi người đều nhận thấy hôm nay điều đó ${shortMeaning} biết bao.`;
+      } else {
+        sentenceBuildTarget = `This ${card.term.toLowerCase()} is very important to know.`;
+        sentenceBuildVi = `${card.meaningVi.split(/[;,]/)[0].trim()} này rất quan trọng để tìm hiểu.`;
+        clozeFullTarget = `Today we learned a lot about the ${card.term}.`;
+        clozeVi = `Hôm nay chúng mình đã tìm hiểu rất nhiều về ${shortMeaning}.`;
+      }
     } else if (card.languageCode === "zh-CN" || card.languageCode === "zh-TW") {
       sentenceBuildTarget = `我们在日常交流中经常会用到${card.term}。`;
       sentenceBuildVi = `Chúng mình thường xuyên dùng từ "${card.meaningVi}" trong giao tiếp hàng ngày.`;

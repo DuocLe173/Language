@@ -530,6 +530,16 @@ export default function SRSStudyStudio({
           <div className="lg:col-span-8 bg-white border border-[#E5E0D8] rounded-3xl p-6 sm:p-10 shadow-[0_12px_36px_rgba(24,23,21,0.04)]">
             {/* Step Progress Indicator (Steps 1 -> 5) */}
             <div className="mb-8">
+              {activeTopicMeta.dayThemes?.[activeDay] && (
+                <div className="mb-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#1F5E3B]/10 border border-[#1F5E3B]/25 text-xs font-semibold text-[#1F5E3B]">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>
+                    Nhóm phân loại Ngày {activeDay}:{" "}
+                    {activeTopicMeta.dayThemes[activeDay]}
+                  </span>
+                </div>
+              )}
+
               <div className="flex items-center justify-between text-xs text-[#57534E] mb-3">
                 <span className="font-semibold text-[#181715]">
                   Ngày {activeDay} • Từ {safeIndex + 1}/{currentDayCards.length}{" "}
@@ -1072,9 +1082,10 @@ export default function SRSStudyStudio({
               </button>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {daysBreakdown.map((item) => {
                 const isCurrent = item.day === activeDay;
+                const dayTheme = activeTopicMeta.dayThemes?.[item.day];
                 return (
                   <button
                     key={item.day}
@@ -1085,7 +1096,7 @@ export default function SRSStudyStudio({
                     }}
                     className={`p-4 rounded-2xl border text-left flex flex-col justify-between transition-all ${
                       !item.isUnlocked
-                        ? "bg-[#F2EFE9]/60 border-[#E5E0D8] text-[#8A847C] opacity-60 cursor-not-allowed"
+                        ? "bg-[#F2EFE9]/60 border-[#E5E0D8] text-[#8A847C] opacity-65 cursor-not-allowed"
                         : isCurrent
                         ? "bg-[#181715] text-white border-[#181715] shadow-sm"
                         : item.isDone
@@ -1093,26 +1104,43 @@ export default function SRSStudyStudio({
                         : "bg-[#FAF8F5] hover:bg-[#F2EFE9] text-[#181715] border-[#E5E0D8]"
                     }`}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-bold">Ngày {item.day}</span>
-                      {!item.isUnlocked ? (
-                        <Lock className="w-4 h-4 text-[#8A847C]" />
-                      ) : item.isDone ? (
-                        <CheckCircle2
-                          className={`w-4 h-4 ${
-                            isCurrent ? "text-[#4ADE80]" : "text-[#1F5E3B]"
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-bold">
+                          Ngày {item.day}
+                        </span>
+                        {!item.isUnlocked ? (
+                          <Lock className="w-4 h-4 text-[#8A847C]" />
+                        ) : item.isDone ? (
+                          <CheckCircle2
+                            className={`w-4 h-4 ${
+                              isCurrent ? "text-[#4ADE80]" : "text-[#1F5E3B]"
+                            }`}
+                          />
+                        ) : (
+                          <Unlock className="w-4 h-4 text-[#B45309]" />
+                        )}
+                      </div>
+                      {dayTheme && (
+                        <p
+                          className={`text-xs mt-1 leading-snug font-medium ${
+                            isCurrent
+                              ? "text-[#E5E0D8]"
+                              : !item.isUnlocked
+                              ? "text-[#8A847C]"
+                              : "text-[#57534E]"
                           }`}
-                        />
-                      ) : (
-                        <Unlock className="w-4 h-4 text-[#B45309]" />
+                        >
+                          {dayTheme}
+                        </p>
                       )}
                     </div>
 
-                    <div className="mt-3">
+                    <div className="mt-3 pt-2 border-t border-current/10 flex items-center justify-between">
                       <div className="text-xs font-mono">
                         {item.completed}/{item.total} từ
                       </div>
-                      <div className="text-[10px] mt-0.5 font-semibold">
+                      <div className="text-[10px] font-semibold">
                         {!item.isUnlocked
                           ? `Hoàn thành Ngày ${item.day - 1} để mở`
                           : item.isDone
