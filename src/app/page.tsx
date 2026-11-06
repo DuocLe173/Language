@@ -471,9 +471,14 @@ export default function PolyglotHomePage() {
               title="Hồ sơ cá nhân & Cài đặt AI"
             >
               <Users className="w-3.5 h-3.5 text-[#1F5E3B]" />
-              <span className="max-w-[110px] truncate hidden sm:inline">
+              <span className="max-w-[130px] truncate hidden sm:inline">
                 {user.name}
               </span>
+              {user.isAdmin && (
+                <span className="px-1.5 py-0.5 rounded-md bg-[#1F5E3B] text-white text-[9px] font-mono uppercase tracking-wider font-bold">
+                  Admin
+                </span>
+              )}
               <Settings className="w-3.5 h-3.5 text-[#8A847C]" />
             </button>
 
@@ -549,10 +554,12 @@ export default function PolyglotHomePage() {
               </div>
               <div className="mt-2">
                 <div className="text-2xl sm:text-3xl font-bold text-[#181715]">
-                  Ngày {currentTopicProgress.unlockedDay}/10
+                  Ngày {user.isAdmin ? 10 : currentTopicProgress.unlockedDay}/10
                 </div>
                 <div className="text-[11px] text-[#57534E] mt-0.5 truncate">
-                  Đang học Ngày {currentTopicProgress.activeDay}
+                  {user.isAdmin
+                    ? `Admin: Mở toàn bộ • Ngày ${currentTopicProgress.activeDay}`
+                    : `Đang học Ngày ${currentTopicProgress.activeDay}`}
                 </div>
               </div>
             </div>
@@ -647,6 +654,7 @@ export default function PolyglotHomePage() {
             activeTopicId={activeTopicId}
             topicProgress={currentTopicProgress}
             cards={cards}
+            isAdmin={Boolean(user.isAdmin)}
             showPhonetics={user.showPhonetics}
             chineseScript={user.chineseScript}
             onSelectTopic={handleSelectTopic}

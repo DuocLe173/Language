@@ -154,6 +154,7 @@ export interface UserProfile {
   name: string;
   username?: string;
   password?: string;
+  isAdmin?: boolean;
   email?: string;
   nativeLang: "vi";
   activeTargetLang: LanguageCode;

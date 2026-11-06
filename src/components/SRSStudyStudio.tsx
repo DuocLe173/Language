@@ -41,6 +41,7 @@ interface SRSStudyStudioProps {
   activeTopicId: TopicId;
   topicProgress: TopicProgress;
   cards: VocabCard[];
+  isAdmin?: boolean;
   showPhonetics: boolean;
   chineseScript: "simplified" | "traditional";
   onSelectTopic: (topicId: TopicId) => void;
@@ -67,6 +68,7 @@ export default function SRSStudyStudio({
   activeTopicId,
   topicProgress,
   cards,
+  isAdmin = false,
   showPhonetics,
   chineseScript,
   onSelectTopic,
@@ -139,6 +141,7 @@ export default function SRSStudyStudio({
   );
 
   const requiresGatekeepingTest =
+    !isAdmin &&
     activeDay >= 2 &&
     prevDayCards.length > 0 &&
     !topicProgress.gateTestPassedDays.includes(activeDay);
@@ -178,9 +181,9 @@ export default function SRSStudyStudio({
       const dCards = topicCards.filter((c) => (c.dayNumber || 1) === d);
       const doneCount = dCards.filter((c) => c.isCompletedInTopic).length;
       const isDone = dCards.length > 0 && doneCount >= dCards.length;
-      const isUnlocked = d <= unlockedDay;
+      const isUnlocked = Boolean(isAdmin) || d <= unlockedDay;
       const gatePassed =
-        d === 1 || topicProgress.gateTestPassedDays.includes(d);
+        Boolean(isAdmin) || d === 1 || topicProgress.gateTestPassedDays.includes(d);
       list.push({
         day: d,
         total: dCards.length,
@@ -191,7 +194,7 @@ export default function SRSStudyStudio({
       });
     }
     return list;
-  }, [topicCards, unlockedDay, topicProgress.gateTestPassedDays]);
+  }, [topicCards, unlockedDay, topicProgress.gateTestPassedDays, isAdmin]);
 
   const currentDayStat = daysBreakdown[activeDay - 1] || {
     day: activeDay,
@@ -416,6 +419,17 @@ export default function SRSStudyStudio({
             </button>
           )}
 
+          {isAdmin && (
+            <button
+              onClick={() => onCompleteFullDay(activeDay)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#B45309]/12 border border-[#B45309]/30 text-[#B45309] text-xs font-semibold hover:bg-[#B45309]/20 transition-colors"
+              title="Quyền Quản trị viên: Đánh dấu hoàn thành nhanh Ngày hiện tại"
+            >
+              <Unlock className="w-3.5 h-3.5" />
+              <span>Admin: Hoàn thành Ngày {activeDay}</span>
+            </button>
+          )}
+
           <button
             onClick={onOpenQuickAdd}
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1F5E3B] text-white text-xs font-medium hover:bg-[#18492E]"
@@ -566,6 +580,7 @@ export default function SRSStudyStudio({
                       type="button"
                       onClick={() => {
                         if (
+                          isAdmin ||
                           item.step <= currentStep ||
                           activeCard.isCompletedInTopic
                         ) {

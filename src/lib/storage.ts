@@ -56,27 +56,78 @@ function normalizeUserProfile(rawUser: Partial<UserProfile>): UserProfile {
   return base;
 }
 
+export const ADMIN_USER_ID = "user_admin_lethanhduoc";
+export const ADMIN_USERNAME = "LeThanhDuoc";
+export const ADMIN_PASSWORD = "123456789";
+
+function buildDefaultAdminProfile(existing?: Partial<UserProfile>): UserProfile {
+  return normalizeUserProfile({
+    ...INITIAL_USER_PROFILE,
+    ...(existing || {}),
+    id: existing?.id || ADMIN_USER_ID,
+    name: existing?.name || "Lê Thành Được (Admin)",
+    username: ADMIN_USERNAME,
+    password: existing?.password || ADMIN_PASSWORD,
+    isAdmin: true,
+  });
+}
+
+function ensureAdminAccountInList(users: UserProfile[]): UserProfile[] {
+  const idx = users.findIndex(
+    (u) =>
+      u.id === ADMIN_USER_ID ||
+      (u.username || "").toLowerCase() === ADMIN_USERNAME.toLowerCase()
+  );
+  if (idx === -1) {
+    return [buildDefaultAdminProfile(), ...users];
+  }
+  const updated = [...users];
+  updated[idx] = buildDefaultAdminProfile(updated[idx]);
+  return updated;
+}
+
 export function loadAllUsers(): UserProfile[] {
-  if (typeof window === "undefined") return [INITIAL_USER_PROFILE];
+  if (typeof window === "undefined") {
+    return [buildDefaultAdminProfile(), INITIAL_USER_PROFILE];
+  }
   try {
     const raw = localStorage.getItem(KEYS.USERS);
     if (!raw) {
-      const initial = [normalizeUserProfile(INITIAL_USER_PROFILE)];
+      const initial = ensureAdminAccountInList([
+        normalizeUserProfile(INITIAL_USER_PROFILE),
+      ]);
       localStorage.setItem(KEYS.USERS, JSON.stringify(initial));
       return initial;
     }
     const parsed = JSON.parse(raw) as Partial<UserProfile>[];
     if (!Array.isArray(parsed) || parsed.length === 0) {
-      const initial = [normalizeUserProfile(INITIAL_USER_PROFILE)];
+      const initial = ensureAdminAccountInList([
+        normalizeUserProfile(INITIAL_USER_PROFILE),
+      ]);
       localStorage.setItem(KEYS.USERS, JSON.stringify(initial));
       return initial;
     }
-    const normalized = parsed.map(normalizeUserProfile);
+    const normalized = ensureAdminAccountInList(
+      parsed.map(normalizeUserProfile)
+    );
     localStorage.setItem(KEYS.USERS, JSON.stringify(normalized));
     return normalized;
   } catch {
-    return [INITIAL_USER_PROFILE];
+    return [buildDefaultAdminProfile(), INITIAL_USER_PROFILE];
   }
+}
+
+export function deleteUserAccount(targetUserId: string): UserProfile[] {
+  const users = loadAllUsers();
+  const target = users.find((u) => u.id === targetUserId);
+  if (!target || target.isAdmin) {
+    return users;
+  }
+  const remaining = users.filter((u) => u.id !== targetUserId);
+  if (typeof window !== "undefined") {
+    localStorage.setItem(KEYS.USERS, JSON.stringify(remaining));
+  }
+  return remaining;
 }
 
 export function getLoggedInSessionUserId(): string | null {

@@ -50,7 +50,9 @@ export default function CoverAuthGate({
     null
   );
 
-  const registeredAccounts = existingUsers.filter((u) => Boolean(u.username));
+  const registeredAccounts = existingUsers.filter(
+    (u) => Boolean(u.username) && !u.isAdmin
+  );
 
   const handleOpenLogin = (prefillUsername?: string) => {
     setLoginError(null);
