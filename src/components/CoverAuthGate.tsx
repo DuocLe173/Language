@@ -804,7 +804,7 @@ export default function CoverAuthGate({
                       className="w-full py-3.5 px-6 rounded-2xl bg-[#1F5E3B] hover:bg-[#18492E] active:scale-[0.99] text-white font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2"
                     >
                       <UserPlus className="w-4 h-4" />
-                      <span>Lưu tài khoản & Quay về trang bìa</span>
+                      <span>Tạo tài khoản</span>
                     </button>
                   </form>
                 </div>
