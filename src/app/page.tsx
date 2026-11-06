@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   CalendarDays,
   Users,
+  LogOut,
 } from "lucide-react";
 import {
   INITIAL_USER_PROFILE,
@@ -30,9 +31,11 @@ import {
   createNewUserProfile,
   deleteVocabCard,
   getActiveUserProfile,
+  getLoggedInSessionUserId,
   getOrInitTopicProgress,
   getUserVocabCards,
   loadAllUsers,
+  logoutCurrentUser,
   makeTopicKey,
   resetTopicProgressForUser,
   saveUserProfile,
@@ -44,11 +47,13 @@ import SRSStudyStudio from "@/components/SRSStudyStudio";
 import AITutorCoach from "@/components/AITutorCoach";
 import VocabularyVault from "@/components/VocabularyVault";
 import MultiUserSettingsModal from "@/components/MultiUserSettingsModal";
+import CoverAuthGate from "@/components/CoverAuthGate";
 
 type ActiveTab = "study" | "ai-coach" | "vault";
 
 export default function PolyglotHomePage() {
   const [mounted, setMounted] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<UserProfile>(INITIAL_USER_PROFILE);
   const [allUsers, setAllUsers] = useState<UserProfile[]>([
     INITIAL_USER_PROFILE,
@@ -60,10 +65,24 @@ export default function PolyglotHomePage() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const currentProfile = getActiveUserProfile();
-    setUser(currentProfile);
-    setAllUsers(loadAllUsers());
-    setCards(getUserVocabCards(currentProfile.id));
+    const users = loadAllUsers();
+    setAllUsers(users);
+    const sessionUserId = getLoggedInSessionUserId();
+    if (sessionUserId) {
+      const matched = users.find((u) => u.id === sessionUserId);
+      if (matched) {
+        setUser(matched);
+        setCards(getUserVocabCards(matched.id));
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+      }
+    } else {
+      const currentProfile = getActiveUserProfile();
+      setUser(currentProfile);
+      setCards(getUserVocabCards(currentProfile.id));
+      setIsAuthenticated(false);
+    }
     setMounted(true);
   }, []);
 
@@ -365,6 +384,13 @@ export default function PolyglotHomePage() {
     setAllUsers(saveUserProfile(updated));
   };
 
+  const handleLogout = () => {
+    logoutCurrentUser();
+    setAllUsers(loadAllUsers());
+    setIsAuthenticated(false);
+    showToast("Đã đăng xuất khỏi tài khoản. Hẹn gặp lại bạn!");
+  };
+
   if (!mounted) {
     return (
       <div className="min-h-screen bg-[#FAF8F5] flex items-center justify-center">
@@ -372,6 +398,21 @@ export default function PolyglotHomePage() {
           Đang khôi phục tiến trình học tập của bạn...
         </div>
       </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <CoverAuthGate
+        existingUsers={allUsers}
+        onAuthenticated={(loggedInUser) => {
+          setUser(loggedInUser);
+          setAllUsers(loadAllUsers());
+          setCards(getUserVocabCards(loggedInUser.id));
+          setIsAuthenticated(true);
+          showToast(`Chào mừng ${loggedInUser.name} đã vào trang học chính thức!`);
+        }}
+      />
     );
   }
 
@@ -408,7 +449,7 @@ export default function PolyglotHomePage() {
             </div>
           </div>
 
-          {/* Right Controls: Compact Language Dropdown + Streak + User Profile */}
+          {/* Right Controls: Compact Language Dropdown + Streak + User Profile + Logout */}
           <div className="flex items-center gap-2 sm:gap-2.5">
             <LanguageDropdown
               activeLang={activeLang}
@@ -427,13 +468,22 @@ export default function PolyglotHomePage() {
             <button
               onClick={() => setShowSettingsModal(true)}
               className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-[#E5E0D8] hover:bg-[#F2EFE9] text-xs font-medium text-[#181715] transition-colors"
-              title="Chuyển người dùng (Multi-user) & Cài đặt AI"
+              title="Hồ sơ cá nhân & Cài đặt AI"
             >
               <Users className="w-3.5 h-3.5 text-[#1F5E3B]" />
               <span className="max-w-[110px] truncate hidden sm:inline">
                 {user.name}
               </span>
               <Settings className="w-3.5 h-3.5 text-[#8A847C]" />
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#E5E0D8] hover:bg-[#9E2A2B]/10 hover:border-[#9E2A2B]/30 hover:text-[#9E2A2B] text-xs font-semibold text-[#57534E] transition-colors"
+              title="Đăng xuất về Trang bìa"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Đăng xuất</span>
             </button>
           </div>
         </div>

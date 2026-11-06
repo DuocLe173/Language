@@ -15,6 +15,7 @@ import {
 const KEYS = {
   USERS: "linguaforge_users_v3",
   ACTIVE_USER_ID: "linguaforge_active_user_id_v3",
+  LOGGED_IN_USER_ID: "linguaforge_logged_in_session_v1",
   VOCAB: "linguaforge_vocab_v3",
   CHATS: "linguaforge_chats_v3",
 };
@@ -78,10 +79,133 @@ export function loadAllUsers(): UserProfile[] {
   }
 }
 
+export function getLoggedInSessionUserId(): string | null {
+  if (typeof window === "undefined") return null;
+  const sessionUserId = localStorage.getItem(KEYS.LOGGED_IN_USER_ID);
+  if (!sessionUserId) return null;
+  const users = loadAllUsers();
+  const exists = users.some((u) => u.id === sessionUserId);
+  return exists ? sessionUserId : null;
+}
+
+export function setLoggedInSessionUserId(userId: string | null): void {
+  if (typeof window === "undefined") return;
+  if (userId) {
+    localStorage.setItem(KEYS.LOGGED_IN_USER_ID, userId);
+    localStorage.setItem(KEYS.ACTIVE_USER_ID, userId);
+  } else {
+    localStorage.removeItem(KEYS.LOGGED_IN_USER_ID);
+  }
+}
+
+export function logoutCurrentUser(): void {
+  setLoggedInSessionUserId(null);
+}
+
+/**
+ * Registers a brand-new user account with username + password.
+ * Does NOT auto-login so the user returns to the Cover page and clicks "Đăng nhập" as required.
+ */
+export function registerUserAccount(
+  usernameInput: string,
+  passwordInput: string
+): { ok: boolean; error?: string; user?: UserProfile } {
+  const cleanUsername = usernameInput.trim();
+  if (!cleanUsername) {
+    return { ok: false, error: "Vui lòng nhập Tên đăng nhập." };
+  }
+  if (cleanUsername.length < 2) {
+    return {
+      ok: false,
+      error: "Tên đăng nhập cần có ít nhất 2 ký tự.",
+    };
+  }
+  if (!passwordInput || passwordInput.length < 3) {
+    return {
+      ok: false,
+      error: "Mật khẩu cần có ít nhất 3 ký tự.",
+    };
+  }
+
+  const users = loadAllUsers();
+  const duplicate = users.find(
+    (u) =>
+      (u.username || "").toLowerCase() === cleanUsername.toLowerCase()
+  );
+  if (duplicate) {
+    return {
+      ok: false,
+      error: `Tên đăng nhập "${cleanUsername}" đã tồn tại. Vui lòng chọn tên khác hoặc bấm Đăng nhập.`,
+    };
+  }
+
+  const newId = `user_${Date.now()}`;
+  const newUser: UserProfile = normalizeUserProfile({
+    ...INITIAL_USER_PROFILE,
+    id: newId,
+    name: cleanUsername,
+    username: cleanUsername,
+    password: passwordInput,
+    streakDays: 1,
+    reviewedToday: 0,
+    totalLearnedWords: 0,
+    topicProgressMap: {},
+    createdAt: new Date().toISOString(),
+  });
+
+  users.push(newUser);
+  if (typeof window !== "undefined") {
+    localStorage.setItem(KEYS.USERS, JSON.stringify(users));
+  }
+
+  return { ok: true, user: newUser };
+}
+
+/**
+ * Verifies username + password and activates that user's session.
+ */
+export function authenticateUserAccount(
+  usernameInput: string,
+  passwordInput: string
+): { ok: boolean; error?: string; user?: UserProfile } {
+  const cleanUsername = usernameInput.trim();
+  if (!cleanUsername || !passwordInput) {
+    return {
+      ok: false,
+      error: "Vui lòng nhập đầy đủ Tên đăng nhập và Mật khẩu.",
+    };
+  }
+
+  const users = loadAllUsers();
+  const matched = users.find(
+    (u) =>
+      (u.username || "").toLowerCase() === cleanUsername.toLowerCase()
+  );
+
+  if (!matched) {
+    return {
+      ok: false,
+      error: `Không tìm thấy tài khoản "${cleanUsername}". Bạn hãy kiểm tra lại hoặc bấm Tạo tài khoản mới nhé!`,
+    };
+  }
+
+  if (matched.password !== passwordInput) {
+    return {
+      ok: false,
+      error: "Mật khẩu chưa chính xác. Vui lòng thử lại!",
+    };
+  }
+
+  setLoggedInSessionUserId(matched.id);
+  return { ok: true, user: matched };
+}
+
 export function getActiveUserProfile(): UserProfile {
   const users = loadAllUsers();
   if (typeof window === "undefined") return users[0];
-  const activeId = localStorage.getItem(KEYS.ACTIVE_USER_ID) || DEFAULT_USER_ID;
+  const sessionId = localStorage.getItem(KEYS.LOGGED_IN_USER_ID);
+  const activeId =
+    sessionId || localStorage.getItem(KEYS.ACTIVE_USER_ID) || DEFAULT_USER_ID;
   return users.find((u) => u.id === activeId) || users[0];
 }
 
@@ -101,10 +225,12 @@ export function saveUserProfile(updated: UserProfile): UserProfile[] {
 
 export function createNewUserProfile(name: string): UserProfile {
   const newId = `user_${Date.now()}`;
+  const cleanName = name.trim() || "Học Viên Mới";
   const newUser: UserProfile = normalizeUserProfile({
     ...INITIAL_USER_PROFILE,
     id: newId,
-    name: name.trim() || "Học Viên Mới",
+    name: cleanName,
+    username: cleanName,
     streakDays: 1,
     reviewedToday: 0,
     totalLearnedWords: 0,
@@ -112,104 +238,113 @@ export function createNewUserProfile(name: string): UserProfile {
     createdAt: new Date().toISOString(),
   });
   saveUserProfile(newUser);
-
-  const allCards = loadAllVocabCardsRaw();
-  const clonedSeed = INITIAL_VOCAB_CARDS.map((card) => ({
-    ...card,
-    id: `${newId}_${card.id}`,
-    userId: newId,
-  }));
-  localStorage.setItem(KEYS.VOCAB, JSON.stringify([...allCards, ...clonedSeed]));
   return newUser;
 }
 
 export function switchUserProfile(userId: string): UserProfile {
   if (typeof window !== "undefined") {
     localStorage.setItem(KEYS.ACTIVE_USER_ID, userId);
+    localStorage.setItem(KEYS.LOGGED_IN_USER_ID, userId);
   }
   return getActiveUserProfile();
 }
 
-function loadAllVocabCardsRaw(): VocabCard[] {
-  if (typeof window === "undefined") return INITIAL_VOCAB_CARDS;
+function makeCardIdForUser(userId: string, baseSeedId: string): string {
+  return userId === DEFAULT_USER_ID ? baseSeedId : `${userId}__${baseSeedId}`;
+}
+
+function loadSavedCardsFromStorage(): VocabCard[] {
+  if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(KEYS.VOCAB);
-    if (!raw) {
-      localStorage.setItem(KEYS.VOCAB, JSON.stringify(INITIAL_VOCAB_CARDS));
-      return INITIAL_VOCAB_CARDS;
-    }
+    if (!raw) return [];
     const parsed = JSON.parse(raw) as VocabCard[];
-    if (!Array.isArray(parsed) || parsed.length === 0) {
-      localStorage.setItem(KEYS.VOCAB, JSON.stringify(INITIAL_VOCAB_CARDS));
-      return INITIAL_VOCAB_CARDS;
-    }
-
-    const existingMap = new Map<string, number>();
-    parsed.forEach((c, idx) => existingMap.set(c.id, idx));
-
-    let changed = false;
-    for (const seedCard of INITIAL_VOCAB_CARDS) {
-      const idx = existingMap.get(seedCard.id);
-      if (idx === undefined) {
-        parsed.push(seedCard);
-        changed = true;
-      } else {
-        const cur = parsed[idx];
-        if (
-          cur.term !== seedCard.term ||
-          cur.notes !== seedCard.notes ||
-          cur.meaningVi !== seedCard.meaningVi
-        ) {
-          parsed[idx] = {
-            ...seedCard,
-            isCompletedInTopic: cur.isCompletedInTopic,
-            state: cur.state,
-            intervalDays: cur.intervalDays,
-            easeFactor: cur.easeFactor,
-            repetitions: cur.repetitions,
-            nextReviewAt: cur.nextReviewAt,
-            lastReviewedAt: cur.lastReviewedAt,
-          };
-          changed = true;
-        }
-      }
-    }
-    if (changed) {
-      localStorage.setItem(KEYS.VOCAB, JSON.stringify(parsed));
-    }
-    return parsed;
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
-    return INITIAL_VOCAB_CARDS;
+    return [];
   }
 }
 
-export function getUserVocabCards(userId: string): VocabCard[] {
-  const all = loadAllVocabCardsRaw();
-  let userCards = all.filter((c) => c.userId === userId);
+function saveCardsToStorage(cardsToSave: VocabCard[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    // Only persist cards that have progress or are custom user-added cards to keep localStorage fast & compact
+    const seedIdSet = new Set(INITIAL_VOCAB_CARDS.map((s) => s.id));
+    const compact = cardsToSave.filter((c) => {
+      const baseId =
+        c.userId === DEFAULT_USER_ID
+          ? c.id
+          : c.id.replace(`${c.userId}__`, "").replace(`${c.userId}_`, "");
+      const isSeed = seedIdSet.has(baseId);
+      if (!isSeed) return true; // Custom card added by user
+      return (
+        c.isCompletedInTopic ||
+        c.state !== "new" ||
+        c.repetitions > 0
+      );
+    });
+    localStorage.setItem(KEYS.VOCAB, JSON.stringify(compact));
+  } catch {
+    // ignore quota errors
+  }
+}
 
-  // If this is a custom user profile, ensure all 800 seed cards exist for them too
-  if (userId !== DEFAULT_USER_ID) {
-    const existingUserIds = new Set(userCards.map((c) => c.id));
-    let addedForCustomUser = false;
-    for (const seedCard of INITIAL_VOCAB_CARDS) {
-      const customId = `${userId}_${seedCard.id}`;
-      if (!existingUserIds.has(customId)) {
-        const cloned: VocabCard = {
-          ...seedCard,
-          id: customId,
-          userId,
-        };
-        all.push(cloned);
-        userCards.push(cloned);
-        addedForCustomUser = true;
-      }
-    }
-    if (addedForCustomUser && typeof window !== "undefined") {
-      localStorage.setItem(KEYS.VOCAB, JSON.stringify(all));
+function loadAllVocabCardsRaw(): VocabCard[] {
+  return loadSavedCardsFromStorage();
+}
+
+export function getUserVocabCards(userId: string): VocabCard[] {
+  const savedAll = loadSavedCardsFromStorage();
+  const savedByUserMap = new Map<string, VocabCard>();
+  for (const c of savedAll) {
+    if (c.userId === userId) {
+      savedByUserMap.set(c.id, c);
+      // Also support legacy single-underscore prefix
+      const normalizedKey = c.id.replace(`${userId}_`, `${userId}__`);
+      savedByUserMap.set(normalizedKey, c);
     }
   }
 
-  return userCards.sort((a, b) => {
+  const result: VocabCard[] = [];
+  const usedIds = new Set<string>();
+
+  // 1. Build all 800+ curriculum seed cards for this specific userId, overlaying any saved progress
+  for (const seedCard of INITIAL_VOCAB_CARDS) {
+    const userCardId = makeCardIdForUser(userId, seedCard.id);
+    const saved = savedByUserMap.get(userCardId);
+    usedIds.add(userCardId);
+    if (saved) {
+      usedIds.add(saved.id);
+      result.push({
+        ...seedCard,
+        id: userCardId,
+        userId,
+        isCompletedInTopic: Boolean(saved.isCompletedInTopic),
+        state: saved.state || "new",
+        intervalDays: saved.intervalDays ?? 0,
+        easeFactor: saved.easeFactor ?? 2.5,
+        repetitions: saved.repetitions ?? 0,
+        nextReviewAt: saved.nextReviewAt || seedCard.nextReviewAt,
+        lastReviewedAt: saved.lastReviewedAt,
+      });
+    } else {
+      result.push({
+        ...seedCard,
+        id: userCardId,
+        userId,
+        isCompletedInTopic: false,
+      });
+    }
+  }
+
+  // 2. Append any custom cards added by this user
+  for (const c of savedAll) {
+    if (c.userId === userId && !usedIds.has(c.id)) {
+      result.push(c);
+    }
+  }
+
+  return result.sort((a, b) => {
     if ((a.dayNumber || 1) !== (b.dayNumber || 1)) {
       return (a.dayNumber || 1) - (b.dayNumber || 1);
     }
@@ -219,14 +354,14 @@ export function getUserVocabCards(userId: string): VocabCard[] {
 
 export function upsertVocabCard(card: VocabCard): VocabCard[] {
   if (typeof window === "undefined") return INITIAL_VOCAB_CARDS;
-  const all = loadAllVocabCardsRaw();
+  const all = loadSavedCardsFromStorage();
   const idx = all.findIndex((c) => c.id === card.id);
   if (idx >= 0) {
     all[idx] = card;
   } else {
     all.push(card);
   }
-  localStorage.setItem(KEYS.VOCAB, JSON.stringify(all));
+  saveCardsToStorage(all);
   return getUserVocabCards(card.userId);
 }
 
@@ -236,9 +371,8 @@ export function completeFullDayForUser(
   topicId: TopicId,
   dayNumber: number
 ): { updatedUser: UserProfile; updatedCards: VocabCard[] } {
-  const all = loadAllVocabCardsRaw().map((card) => {
+  const userFullDeck = getUserVocabCards(user.id).map((card) => {
     if (
-      card.userId === user.id &&
       card.languageCode === languageCode &&
       card.topicId === topicId &&
       (card.dayNumber || 1) === dayNumber
@@ -251,12 +385,12 @@ export function completeFullDayForUser(
     return card;
   });
 
-  if (typeof window !== "undefined") {
-    localStorage.setItem(KEYS.VOCAB, JSON.stringify(all));
-  }
+  const otherUsersSaved = loadSavedCardsFromStorage().filter(
+    (c) => c.userId !== user.id
+  );
+  saveCardsToStorage([...otherUsersSaved, ...userFullDeck]);
 
-  const userCards = all.filter((c) => c.userId === user.id);
-  const topicCards = userCards.filter(
+  const topicCards = userFullDeck.filter(
     (c) => c.languageCode === languageCode && c.topicId === topicId
   );
   const completedIds = topicCards
@@ -272,7 +406,7 @@ export function completeFullDayForUser(
   const updatedUser: UserProfile = {
     ...user,
     reviewedToday: user.reviewedToday + 10,
-    totalLearnedWords: userCards.filter((c) => c.isCompletedInTopic).length,
+    totalLearnedWords: userFullDeck.filter((c) => c.isCompletedInTopic).length,
     lastStudyDate: new Date().toISOString().slice(0, 10),
     topicProgressMap: {
       ...user.topicProgressMap,
@@ -302,23 +436,15 @@ export function resetTopicProgressForUser(
   languageCode: LanguageCode,
   topicId: TopicId
 ): { updatedUser: UserProfile; updatedCards: VocabCard[] } {
-  const all = loadAllVocabCardsRaw().map((card) => {
-    if (
-      card.userId === user.id &&
-      card.languageCode === languageCode &&
-      card.topicId === topicId
-    ) {
-      return {
-        ...card,
-        isCompletedInTopic: false,
-      };
-    }
-    return card;
-  });
-
-  if (typeof window !== "undefined") {
-    localStorage.setItem(KEYS.VOCAB, JSON.stringify(all));
-  }
+  const all = loadSavedCardsFromStorage().filter(
+    (card) =>
+      !(
+        card.userId === user.id &&
+        card.languageCode === languageCode &&
+        card.topicId === topicId
+      )
+  );
+  saveCardsToStorage(all);
 
   const key = makeTopicKey(languageCode, topicId);
   const updatedProgressMap = { ...user.topicProgressMap };

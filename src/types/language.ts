@@ -152,6 +152,8 @@ export interface RoleplayScenario {
 export interface UserProfile {
   id: string;
   name: string;
+  username?: string;
+  password?: string;
   email?: string;
   nativeLang: "vi";
   activeTargetLang: LanguageCode;
