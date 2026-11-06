@@ -185,14 +185,36 @@ function loadAllVocabCardsRaw(): VocabCard[] {
 
 export function getUserVocabCards(userId: string): VocabCard[] {
   const all = loadAllVocabCardsRaw();
-  return all
-    .filter((c) => c.userId === userId)
-    .sort((a, b) => {
-      if ((a.dayNumber || 1) !== (b.dayNumber || 1)) {
-        return (a.dayNumber || 1) - (b.dayNumber || 1);
+  let userCards = all.filter((c) => c.userId === userId);
+
+  // If this is a custom user profile, ensure all 800 seed cards exist for them too
+  if (userId !== DEFAULT_USER_ID) {
+    const existingUserIds = new Set(userCards.map((c) => c.id));
+    let addedForCustomUser = false;
+    for (const seedCard of INITIAL_VOCAB_CARDS) {
+      const customId = `${userId}_${seedCard.id}`;
+      if (!existingUserIds.has(customId)) {
+        const cloned: VocabCard = {
+          ...seedCard,
+          id: customId,
+          userId,
+        };
+        all.push(cloned);
+        userCards.push(cloned);
+        addedForCustomUser = true;
       }
-      return (a.orderIndex || 99) - (b.orderIndex || 99);
-    });
+    }
+    if (addedForCustomUser && typeof window !== "undefined") {
+      localStorage.setItem(KEYS.VOCAB, JSON.stringify(all));
+    }
+  }
+
+  return userCards.sort((a, b) => {
+    if ((a.dayNumber || 1) !== (b.dayNumber || 1)) {
+      return (a.dayNumber || 1) - (b.dayNumber || 1);
+    }
+    return (a.orderIndex || 99) - (b.orderIndex || 99);
+  });
 }
 
 export function upsertVocabCard(card: VocabCard): VocabCard[] {
