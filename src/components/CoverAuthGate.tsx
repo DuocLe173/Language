@@ -9,11 +9,9 @@ import {
   Eye,
   EyeOff,
   CheckCircle2,
-  ShieldCheck,
   Sparkles,
-  BookOpen,
-  Lock,
-  UserCheck,
+  Flame,
+  Compass,
 } from "lucide-react";
 import { UserProfile } from "@/types/language";
 import {
@@ -145,14 +143,9 @@ export default function CoverAuthGate({
               </span>
             </div>
             <p className="text-[11px] text-[#57534E]">
-              Không gian học ngôn ngữ cá nhân hóa & bảo mật tiến trình
+              Đánh thức phản xạ đa ngôn ngữ mỗi ngày
             </p>
           </div>
-        </div>
-
-        <div className="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#E5E0D8] text-xs font-medium text-[#57534E] shadow-2xs">
-          <ShieldCheck className="w-4 h-4 text-[#1F5E3B]" />
-          <span>Lưu tiến trình độc lập theo từng tài khoản</span>
         </div>
       </header>
 
@@ -254,39 +247,28 @@ export default function CoverAuthGate({
                     </text>
                   </g>
 
-                  {/* Right Floating 2D Progress Badge (Multi-user Isolation) */}
+                  {/* Right Floating 2D Paper Plane & Sparkle Motif */}
                   <g className="transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:translate-x-1">
-                    <rect
-                      x="456"
-                      y="48"
-                      width="152"
-                      height="84"
-                      rx="16"
-                      fill="#181715"
-                    />
-                    <circle cx="480" cy="74" r="10" fill="#1F5E3B" />
                     <path
-                      d="M476 74 L479 77 L485 71"
-                      stroke="#FFFFFF"
-                      strokeWidth="2"
+                      d="M475 96 Q510 112 542 84"
+                      stroke="#D6D1C7"
+                      strokeWidth="1.5"
+                      strokeDasharray="4 4"
                       fill="none"
-                      strokeLinecap="round"
                     />
-                    <text
-                      x="498"
-                      y="78"
+                    <polygon
+                      points="544,82 586,66 566,102 558,90"
                       fill="#FAF8F5"
-                      fontSize="11"
-                      fontWeight="700"
-                    >
-                      Tiến trình riêng
-                    </text>
-                    <text x="472" y="102" fill="#D6D3CD" fontSize="10">
-                      • Học viên A: Ngày 4/10
-                    </text>
-                    <text x="472" y="118" fill="#A7F3D0" fontSize="10">
-                      • Học viên B: Ngày 1/10
-                    </text>
+                      stroke="#181715"
+                      strokeWidth="2"
+                      strokeLinejoin="round"
+                    />
+                    <polygon
+                      points="558,90 566,102 552,98"
+                      fill="#1F5E3B"
+                    />
+                    <circle cx="488" cy="64" r="3.5" fill="#9E2A2B" fillOpacity="0.55" />
+                    <circle cx="594" cy="96" r="2.5" fill="#1F5E3B" fillOpacity="0.6" />
                   </g>
 
                   {/* Desk Surface (2D Perspective Layer) */}
@@ -494,40 +476,33 @@ export default function CoverAuthGate({
               </div>
 
               {/* Inspiring Slogan Block Inside Left Showcase */}
-              <div className="relative z-10 pt-4 border-t border-[#E5E0D8] space-y-3">
-                <div className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-[#1F5E3B] font-semibold">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Khẩu hiệu truyền cảm hứng</span>
-                </div>
-
+              <div className="relative z-10 pt-5 border-t border-[#E5E0D8] space-y-3.5">
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#181715] leading-tight">
-                  &ldquo;Mỗi ngôn ngữ mới là một cuộc đời mới được mở ra.&rdquo;
+                  Mỗi ngôn ngữ mới là một cuộc đời mới được mở ra
                 </h1>
 
                 <p className="text-sm sm:text-base text-[#57534E] leading-relaxed">
-                  Chinh phục Tiếng Anh, Tiếng Trung, Tiếng Nhật, Tiếng Hàn, Tiếng Pháp qua lộ trình{" "}
-                  <strong className="text-[#181715]">10 Ngày × 8 Chủ đề (800+ từ vựng)</strong>.
-                  Mỗi tài khoản sở hữu một không gian riêng tư, tự động ghi nhớ chính xác ngày học và từng câu bạn đã vượt qua.
+                  Đừng sợ nói sai hay bắt đầu chậm. Chỉ cần 10 từ vựng mỗi ngày, từng bước nhỏ hôm nay sẽ kết nối bạn với những nền văn hóa, tri thức và cơ hội rộng lớn khắp năm châu.
                 </p>
 
-                {/* 3 Value Pillars */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
+                {/* 3 Motivational Keywords to Encourage Learners */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
                   <div className="p-3 rounded-2xl bg-[#FAF8F5] border border-[#E5E0D8] flex items-center gap-2.5">
-                    <BookOpen className="w-4 h-4 text-[#1F5E3B] shrink-0" />
+                    <Flame className="w-4 h-4 text-[#B45309] shrink-0" />
                     <span className="text-xs font-semibold text-[#181715]">
-                      8 Chủ đề • 100 Từ/Chủ đề
+                      Bền bỉ từng bước nhỏ
                     </span>
                   </div>
                   <div className="p-3 rounded-2xl bg-[#FAF8F5] border border-[#E5E0D8] flex items-center gap-2.5">
-                    <Lock className="w-4 h-4 text-[#9E2A2B] shrink-0" />
+                    <Sparkles className="w-4 h-4 text-[#1F5E3B] shrink-0" />
                     <span className="text-xs font-semibold text-[#181715]">
-                      Bảo mật riêng từng tài khoản
+                      Tự tin cất tiếng nói
                     </span>
                   </div>
                   <div className="p-3 rounded-2xl bg-[#FAF8F5] border border-[#E5E0D8] flex items-center gap-2.5">
-                    <UserCheck className="w-4 h-4 text-[#B45309] shrink-0" />
+                    <Compass className="w-4 h-4 text-[#9E2A2B] shrink-0" />
                     <span className="text-xs font-semibold text-[#181715]">
-                      Lưu đúng Ngày học đang dở
+                      Chạm tới chân trời mới
                     </span>
                   </div>
                 </div>
@@ -552,7 +527,7 @@ export default function CoverAuthGate({
                       Bắt đầu hành trình đa ngôn ngữ của bạn
                     </h2>
                     <p className="text-xs sm:text-sm text-[#57534E] mt-2 leading-relaxed">
-                      Mỗi tài khoản lưu giữ tiến trình học độc lập (ví dụ: Tài khoản A đang ở Ngày 3 sẽ học tiếp Ngày 4; Tài khoản B mới tạo sẽ bắt đầu từ Ngày 1).
+                      Chọn đăng nhập để tiếp tục bài học hôm nay hoặc tạo tài khoản mới để khởi động hành trình của riêng bạn.
                     </p>
                   </div>
 
@@ -839,9 +814,10 @@ export default function CoverAuthGate({
 
       {/* Subtle Footer */}
       <footer className="relative z-10 max-w-7xl w-full mx-auto px-4 sm:px-8 py-4 border-t border-[#E5E0D8]/70 flex flex-wrap items-center justify-between gap-2 text-xs text-[#8A847C]">
-        <span>LinguaForge Polyglot Studio • Chuẩn hóa 800+ từ vựng theo lộ trình 10 Ngày</span>
-        <span>Bảo mật tài khoản & lưu tiến trình tự động</span>
+        <span>LinguaForge Polyglot Studio</span>
+        <span>Nuôi dưỡng thói quen ngôn ngữ mỗi ngày</span>
       </footer>
     </div>
   );
 }
+
