@@ -18,6 +18,7 @@ import {
   authenticateUserAccount,
   registerUserAccount,
 } from "@/lib/storage";
+import CoverFeatureSections from "@/components/CoverFeatureSections";
 
 interface CoverAuthGateProps {
   existingUsers: UserProfile[];
@@ -151,36 +152,30 @@ export default function CoverAuthGate({
         </div>
       </header>
 
-      {/* Main 2-Part Cover Layout (Left: 2D Art & Slogan | Right: Interactive Auth Window) */}
-      <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-6 sm:py-10 flex items-center">
-        <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          {/* ================= PHẦN BÊN TRÁI (7 COLS): MINH HỌA 2D ĐA LỚP SINH ĐỘNG + KHẨU HIỆU TRÊN NỀN GIẤY KEM ================= */}
-          <div className="lg:col-span-7 space-y-6">
-            {/* Layered 2D Animated Character & Polyglot World Scene (Art Stage) */}
-            <div className="relative rounded-3xl bg-white/85 backdrop-blur-xs border border-[#E5E0D8] p-5 sm:p-7 shadow-[0_12px_36px_rgba(24,23,21,0.04)] overflow-hidden group">
-              {/* Decorative Editorial Grid Background */}
-              <div
-                aria-hidden="true"
-                className="absolute inset-0 opacity-35 bg-[radial-gradient(#D6D1C7_1px,transparent_1px)] [background-size:20px_20px]"
-              />
-
-              {/* Floating 2D Language Speech Bubbles (Animated with depth) */}
-              <div className="relative z-10 flex flex-wrap items-center justify-between gap-2 mb-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF8F5] border border-[#E5E0D8] text-xs font-semibold text-[#181715] shadow-2xs transition-transform duration-500 group-hover:-translate-y-1">
+      {/* Seamless Single-Canvas Hero Section (No Boxy Card Partitions) */}
+      <main className="relative z-10 max-w-6xl w-full mx-auto px-4 sm:px-8 pt-6 pb-16 min-h-[82vh] flex items-center">
+        <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+          {/* ================= PHẦN BÊN TRÁI (7 COLS): MINH HỌA 2D & KHẨU HIỆU NẰM TRỰC TIẾP TRÊN TRANG ================= */}
+          <div className="lg:col-span-7 space-y-6 group">
+            {/* Seamless 2D Animated Character & Polyglot World Scene */}
+            <div className="relative py-2">
+              {/* Floating 2D Language Speech Bubbles */}
+              <div className="relative z-10 flex flex-wrap items-center justify-center sm:justify-between gap-2 mb-3">
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/90 border border-[#E5E0D8] text-xs font-semibold text-[#181715] shadow-2xs transition-transform duration-500 group-hover:-translate-y-1">
                   <span className="w-2 h-2 rounded-full bg-[#1F5E3B]" />
                   EN: Hello! <span className="font-mono text-[#8A847C]">/həˈloʊ/</span>
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF8F5] border border-[#E5E0D8] text-xs font-semibold text-[#9E2A2B] shadow-2xs transition-transform duration-500 delay-75 group-hover:-translate-y-1.5">
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/90 border border-[#E5E0D8] text-xs font-semibold text-[#9E2A2B] shadow-2xs transition-transform duration-500 delay-75 group-hover:-translate-y-1.5">
                   <span className="w-2 h-2 rounded-full bg-[#9E2A2B]" />
                   中文: 你好 <span className="font-mono text-[#8A847C]">nǐ hǎo</span>
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF8F5] border border-[#E5E0D8] text-xs font-semibold text-[#264653] shadow-2xs transition-transform duration-500 delay-150 group-hover:-translate-y-1">
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/90 border border-[#E5E0D8] text-xs font-semibold text-[#264653] shadow-2xs transition-transform duration-500 delay-150 group-hover:-translate-y-1">
                   JP: こんにちは • KR: 안녕 • FR: Bonjour
                 </span>
               </div>
 
               {/* 2D Art-Directed SVG Illustration with Character, Books, Lamp & Floating Cards */}
-              <div className="relative z-10 my-1 flex items-center justify-center">
+              <div className="relative z-10 flex items-center justify-center">
                 <svg
                   viewBox="0 0 640 310"
                   className="w-full max-w-[580px] h-auto drop-shadow-xs select-none"
@@ -512,310 +507,315 @@ export default function CoverAuthGate({
             </div>
           </div>
 
-          {/* ================= PHẦN BÊN PHẢI (5 COLS): CỬA SỔ ĐĂNG NHẬP / TẠO TÀI KHOẢN ================= */}
+          {/* ================= PHẦN BÊN PHẢI (5 COLS): CÁC NÚT HÀNH ĐỘNG & CỬA SỔ ĐĂNG NHẬP TRỰC TIẾP TRÊN TRANG ================= */}
           <div className="lg:col-span-5">
-            <div className="bg-white border border-[#E5E0D8] rounded-3xl p-6 sm:p-9 shadow-[0_24px_60px_rgba(24,23,21,0.08)] relative overflow-hidden">
-              {/* Top Accent Line */}
-              <div className="absolute top-0 inset-x-0 h-1.5 bg-[#1F5E3B]" />
+            {/* ---------------- MODE 1: TRANG BÌA MẶC ĐỊNH (NẰM LIỀN MẠCH TRÊN CÙNG 1 TRANG, KHÔNG ĐÓNG KHUNG RỜI RẠC) ---------------- */}
+            {panelMode === "welcome" && (
+              <div className="space-y-6 animate-in fade-in duration-200 lg:pl-4">
+                <div>
+                  <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#181715]">
+                    Bắt đầu hành trình đa ngôn ngữ của bạn
+                  </h2>
+                  <p className="text-sm text-[#57534E] mt-2 leading-relaxed">
+                    Chọn đăng nhập để tiếp tục bài học hôm nay hoặc tạo tài khoản mới để khởi động hành trình của riêng bạn.
+                  </p>
+                </div>
 
-              {/* ---------------- MODE 1: TRANG BÌA MẶC ĐỊNH (2 NÚT ĐĂNG NHẬP & TẠO TÀI KHOẢN) ---------------- */}
-              {panelMode === "welcome" && (
-                <div className="space-y-6 animate-in fade-in duration-200">
-                  <div>
-                    <span className="inline-block px-3 py-1 rounded-full bg-[#FAF8F5] border border-[#E5E0D8] text-xs font-mono text-[#57534E] mb-3">
-                      Cổng truy cập học viên
-                    </span>
-                    <h2 className="text-2xl sm:text-3xl font-bold text-[#181715]">
-                      Bắt đầu hành trình đa ngôn ngữ của bạn
-                    </h2>
-                    <p className="text-xs sm:text-sm text-[#57534E] mt-2 leading-relaxed">
-                      Chọn đăng nhập để tiếp tục bài học hôm nay hoặc tạo tài khoản mới để khởi động hành trình của riêng bạn.
+                {/* Confirmation Banner when returning from "Tạo tài khoản" */}
+                {justCreatedUsername && (
+                  <div className="p-4 rounded-2xl bg-[#1F5E3B]/10 border border-[#1F5E3B]/35 space-y-1.5 animate-in zoom-in-95 duration-200">
+                    <div className="flex items-center gap-2 text-xs font-bold text-[#1F5E3B]">
+                      <CheckCircle2 className="w-4 h-4 shrink-0" />
+                      <span>
+                        Đã tạo tài khoản &ldquo;{justCreatedUsername}&rdquo; thành công!
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#181715] leading-relaxed">
+                      Tên đăng nhập và mật khẩu của bạn đã được lưu giữ. Bây giờ hãy bấm nút{" "}
+                      <strong>&ldquo;Đăng nhập&rdquo;</strong> bên dưới để vào học nhé!
                     </p>
                   </div>
+                )}
 
-                  {/* Confirmation Banner when returning from "Tạo tài khoản" */}
-                  {justCreatedUsername && (
-                    <div className="p-4 rounded-2xl bg-[#1F5E3B]/10 border border-[#1F5E3B]/35 space-y-1.5 animate-in zoom-in-95 duration-200">
-                      <div className="flex items-center gap-2 text-xs font-bold text-[#1F5E3B]">
-                        <CheckCircle2 className="w-4 h-4 shrink-0" />
-                        <span>
-                          Đã tạo tài khoản &ldquo;{justCreatedUsername}&rdquo; thành công!
-                        </span>
-                      </div>
-                      <p className="text-xs text-[#181715] leading-relaxed">
-                        Tên đăng nhập và mật khẩu của bạn đã được lưu giữ. Bây giờ hãy bấm nút{" "}
-                        <strong>&ldquo;Đăng nhập&rdquo;</strong> bên dưới để vào học nhé!
+                {/* 2 Primary Action Buttons Directly on the Unified Page */}
+                <div className="space-y-3.5 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => handleOpenLogin()}
+                    className="group w-full py-4 px-6 rounded-2xl bg-[#181715] hover:bg-[#1F5E3B] active:scale-[0.99] text-white font-bold text-base shadow-[0_12px_28px_rgba(24,23,21,0.14)] hover:shadow-[0_14px_30px_rgba(31,94,59,0.25)] transition-all duration-200 flex items-center justify-between"
+                  >
+                    <span className="flex items-center gap-3">
+                      <span className="w-9 h-9 rounded-xl bg-white/12 flex items-center justify-center">
+                        <LogIn className="w-4 h-4 text-white" />
+                      </span>
+                      <span>Đăng nhập</span>
+                    </span>
+                    <ArrowRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleOpenRegister}
+                    className="group w-full py-4 px-6 rounded-2xl bg-white/80 hover:bg-white active:scale-[0.99] text-[#181715] border-2 border-[#181715]/15 hover:border-[#181715] font-bold text-base transition-all duration-200 flex items-center justify-between"
+                  >
+                    <span className="flex items-center gap-3">
+                      <span className="w-9 h-9 rounded-xl bg-[#181715]/8 flex items-center justify-center">
+                        <UserPlus className="w-4 h-4 text-[#181715]" />
+                      </span>
+                      <span>Tạo tài khoản</span>
+                    </span>
+                    <ArrowRight className="w-5 h-5 text-[#57534E] group-hover:text-[#181715] transition-transform duration-200 group-hover:translate-x-1" />
+                  </button>
+                </div>
+
+                {/* Saved Accounts Quick Hint (Subtle Inline Pills) */}
+                {registeredAccounts.length > 0 && (
+                  <div className="pt-3 flex flex-wrap items-center gap-2">
+                    <span className="text-xs text-[#8A847C]">
+                      Tài khoản gần đây:
+                    </span>
+                    {registeredAccounts.map((acc) => (
+                      <button
+                        key={acc.id}
+                        type="button"
+                        onClick={() => handleOpenLogin(acc.username)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/80 hover:bg-white border border-[#E5E0D8] text-xs font-semibold text-[#181715] transition-colors"
+                        title="Bấm để điền nhanh tên đăng nhập"
+                      >
+                        <span className="w-2 h-2 rounded-full bg-[#1F5E3B]" />
+                        <span>{acc.username}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ---------------- MODE 2 & 3: CỬA SỔ NHỎ ĐĂNG NHẬP / TẠO TÀI KHOẢN KHI BẤM NÚT ---------------- */}
+            {(panelMode === "login" || panelMode === "register") && (
+              <div className="bg-white/90 backdrop-blur-sm border border-[#E5E0D8] rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(24,23,21,0.06)]">
+                {panelMode === "login" && (
+                  <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-200">
+                    <div className="flex items-center justify-between">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setLoginError(null);
+                          setPanelMode("welcome");
+                        }}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#57534E] hover:text-[#181715] transition-colors"
+                      >
+                        <ArrowLeft className="w-4 h-4" />
+                        <span>Quay lại</span>
+                      </button>
+                      <span className="px-2.5 py-0.5 rounded-md bg-[#1F5E3B]/10 text-[#1F5E3B] text-[11px] font-mono font-semibold">
+                        Đăng nhập
+                      </span>
+                    </div>
+
+                    <div>
+                      <h2 className="text-2xl font-bold text-[#181715]">
+                        Đăng nhập tài khoản
+                      </h2>
+                      <p className="text-xs text-[#57534E] mt-1">
+                        Nhập tên đăng nhập và mật khẩu để vào trang học chính thức.
                       </p>
                     </div>
-                  )}
 
-                  {/* 2 Primary Action Buttons on the Right Side of Cover Page */}
-                  <div className="space-y-3.5 pt-1">
-                    <button
-                      type="button"
-                      onClick={() => handleOpenLogin()}
-                      className="group w-full py-4 px-6 rounded-2xl bg-[#181715] hover:bg-[#1F5E3B] active:scale-[0.99] text-white font-bold text-base shadow-[0_10px_25px_rgba(24,23,21,0.15)] hover:shadow-[0_14px_30px_rgba(31,94,59,0.25)] transition-all duration-200 flex items-center justify-between"
-                    >
-                      <span className="flex items-center gap-3">
-                        <span className="w-9 h-9 rounded-xl bg-white/12 flex items-center justify-center">
-                          <LogIn className="w-4 h-4 text-white" />
-                        </span>
-                        <span>Đăng nhập</span>
-                      </span>
-                      <ArrowRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1" />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={handleOpenRegister}
-                      className="group w-full py-4 px-6 rounded-2xl bg-[#FAF8F5] hover:bg-[#F2EFE9] active:scale-[0.99] text-[#181715] border-2 border-[#181715]/15 hover:border-[#181715] font-bold text-base transition-all duration-200 flex items-center justify-between"
-                    >
-                      <span className="flex items-center gap-3">
-                        <span className="w-9 h-9 rounded-xl bg-[#181715]/8 flex items-center justify-center">
-                          <UserPlus className="w-4 h-4 text-[#181715]" />
-                        </span>
-                        <span>Tạo tài khoản</span>
-                      </span>
-                      <ArrowRight className="w-5 h-5 text-[#57534E] group-hover:text-[#181715] transition-transform duration-200 group-hover:translate-x-1" />
-                    </button>
-                  </div>
-
-                  {/* Saved Accounts Quick Hint (Requires Password) */}
-                  {registeredAccounts.length > 0 && (
-                    <div className="pt-4 border-t border-[#E5E0D8] space-y-2">
-                      <span className="text-[11px] font-mono uppercase tracking-wider text-[#8A847C] block">
-                        Tài khoản đã đăng ký trên thiết bị ({registeredAccounts.length}):
-                      </span>
-                      <div className="flex flex-wrap gap-2">
-                        {registeredAccounts.map((acc) => (
-                          <button
-                            key={acc.id}
-                            type="button"
-                            onClick={() => handleOpenLogin(acc.username)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF8F5] hover:bg-[#F2EFE9] border border-[#E5E0D8] text-xs font-semibold text-[#181715] transition-colors"
-                            title="Bấm để điền nhanh tên đăng nhập"
-                          >
-                            <span className="w-2 h-2 rounded-full bg-[#1F5E3B]" />
-                            <span>{acc.username}</span>
-                          </button>
-                        ))}
+                    {loginError && (
+                      <div className="p-3.5 rounded-2xl bg-[#9E2A2B]/10 border border-[#9E2A2B]/30 text-xs font-semibold text-[#9E2A2B]">
+                        ✗ {loginError}
                       </div>
-                    </div>
-                  )}
-                </div>
-              )}
+                    )}
 
-              {/* ---------------- MODE 2: CỬA SỔ NHỎ ĐĂNG NHẬP NGAY TRÊN TRANG BÌA ---------------- */}
-              {panelMode === "login" && (
-                <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-200">
-                  <div className="flex items-center justify-between">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setLoginError(null);
-                        setPanelMode("welcome");
-                      }}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#57534E] hover:text-[#181715] transition-colors"
-                    >
-                      <ArrowLeft className="w-4 h-4" />
-                      <span>Quay lại trang bìa</span>
-                    </button>
-                    <span className="px-2.5 py-0.5 rounded-md bg-[#1F5E3B]/10 text-[#1F5E3B] text-[11px] font-mono font-semibold">
-                      Đăng nhập
-                    </span>
-                  </div>
-
-                  <div>
-                    <h2 className="text-2xl font-bold text-[#181715]">
-                      Đăng nhập tài khoản
-                    </h2>
-                    <p className="text-xs text-[#57534E] mt-1">
-                      Nhập tên đăng nhập và mật khẩu đã tạo để khôi phục đúng tiến trình học của bạn.
-                    </p>
-                  </div>
-
-                  {loginError && (
-                    <div className="p-3.5 rounded-2xl bg-[#9E2A2B]/10 border border-[#9E2A2B]/30 text-xs font-semibold text-[#9E2A2B]">
-                      ✗ {loginError}
-                    </div>
-                  )}
-
-                  <form onSubmit={handleLoginSubmit} className="space-y-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-[#181715] mb-1.5">
-                        Tên đăng nhập
-                      </label>
-                      <input
-                        type="text"
-                        value={loginUsername}
-                        onChange={(e) => setLoginUsername(e.target.value)}
-                        placeholder="Nhập tên đăng nhập của bạn..."
-                        className="w-full px-4 py-3 rounded-xl border border-[#E5E0D8] bg-[#FAF8F5] focus:bg-white text-sm font-medium text-[#181715] focus:outline-none focus:border-[#181715] transition-colors"
-                        autoFocus
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-[#181715] mb-1.5">
-                        Mật khẩu
-                      </label>
-                      <div className="relative">
+                    <form onSubmit={handleLoginSubmit} className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-[#181715] mb-1.5">
+                          Tên đăng nhập
+                        </label>
                         <input
-                          type={showLoginPassword ? "text" : "password"}
-                          value={loginPassword}
-                          onChange={(e) => setLoginPassword(e.target.value)}
-                          placeholder="Nhập mật khẩu..."
-                          className="w-full px-4 py-3 pr-11 rounded-xl border border-[#E5E0D8] bg-[#FAF8F5] focus:bg-white text-sm font-medium text-[#181715] focus:outline-none focus:border-[#181715] transition-colors"
+                          type="text"
+                          value={loginUsername}
+                          onChange={(e) => setLoginUsername(e.target.value)}
+                          placeholder="Nhập tên đăng nhập của bạn..."
+                          className="w-full px-4 py-3 rounded-xl border border-[#E5E0D8] bg-[#FAF8F5] focus:bg-white text-sm font-medium text-[#181715] focus:outline-none focus:border-[#181715] transition-colors"
+                          autoFocus
                         />
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setShowLoginPassword(!showLoginPassword)
-                          }
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8A847C] hover:text-[#181715] p-1"
-                          title={
-                            showLoginPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"
-                          }
-                        >
-                          {showLoginPassword ? (
-                            <EyeOff className="w-4 h-4" />
-                          ) : (
-                            <Eye className="w-4 h-4" />
-                          )}
-                        </button>
                       </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-[#181715] mb-1.5">
+                          Mật khẩu
+                        </label>
+                        <div className="relative">
+                          <input
+                            type={showLoginPassword ? "text" : "password"}
+                            value={loginPassword}
+                            onChange={(e) => setLoginPassword(e.target.value)}
+                            placeholder="Nhập mật khẩu..."
+                            className="w-full px-4 py-3 pr-11 rounded-xl border border-[#E5E0D8] bg-[#FAF8F5] focus:bg-white text-sm font-medium text-[#181715] focus:outline-none focus:border-[#181715] transition-colors"
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setShowLoginPassword(!showLoginPassword)
+                            }
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8A847C] hover:text-[#181715] p-1"
+                            title={
+                              showLoginPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"
+                            }
+                          >
+                            {showLoginPassword ? (
+                              <EyeOff className="w-4 h-4" />
+                            ) : (
+                              <Eye className="w-4 h-4" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="w-full py-3.5 px-6 rounded-2xl bg-[#181715] hover:bg-[#1F5E3B] active:scale-[0.99] text-white font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2"
+                      >
+                        <LogIn className="w-4 h-4" />
+                        <span>Vào trang học chính thức →</span>
+                      </button>
+                    </form>
+
+                    <div className="pt-3 border-t border-[#E5E0D8] text-center">
+                      <span className="text-xs text-[#57534E]">
+                        Chưa có tài khoản?{" "}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleOpenRegister}
+                        className="text-xs font-bold text-[#1F5E3B] hover:underline"
+                      >
+                        Tạo tài khoản mới ngay
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {panelMode === "register" && (
+                  <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-200">
+                    <div className="flex items-center justify-between">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRegError(null);
+                          setPanelMode("welcome");
+                        }}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#57534E] hover:text-[#181715] transition-colors"
+                      >
+                        <ArrowLeft className="w-4 h-4" />
+                        <span>Quay lại</span>
+                      </button>
+                      <span className="px-2.5 py-0.5 rounded-md bg-[#9E2A2B]/10 text-[#9E2A2B] text-[11px] font-mono font-semibold">
+                        Tạo tài khoản mới
+                      </span>
                     </div>
 
-                    <button
-                      type="submit"
-                      className="w-full py-3.5 px-6 rounded-2xl bg-[#181715] hover:bg-[#1F5E3B] active:scale-[0.99] text-white font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2"
-                    >
-                      <LogIn className="w-4 h-4" />
-                      <span>Vào trang học chính thức →</span>
-                    </button>
-                  </form>
-
-                  <div className="pt-3 border-t border-[#E5E0D8] text-center">
-                    <span className="text-xs text-[#57534E]">
-                      Chưa có tài khoản?{" "}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={handleOpenRegister}
-                      className="text-xs font-bold text-[#1F5E3B] hover:underline"
-                    >
-                      Tạo tài khoản mới ngay
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* ---------------- MODE 3: CỬA SỔ NHỎ TẠO TÀI KHOẢN NGAY TRÊN TRANG BÌA ---------------- */}
-              {panelMode === "register" && (
-                <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-200">
-                  <div className="flex items-center justify-between">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setRegError(null);
-                        setPanelMode("welcome");
-                      }}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#57534E] hover:text-[#181715] transition-colors"
-                    >
-                      <ArrowLeft className="w-4 h-4" />
-                      <span>Quay lại trang bìa</span>
-                    </button>
-                    <span className="px-2.5 py-0.5 rounded-md bg-[#9E2A2B]/10 text-[#9E2A2B] text-[11px] font-mono font-semibold">
-                      Tạo tài khoản mới
-                    </span>
-                  </div>
-
-                  <div>
-                    <h2 className="text-2xl font-bold text-[#181715]">
-                      Tạo tài khoản học tập
-                    </h2>
-                    <p className="text-xs text-[#57534E] mt-1">
-                      Tài khoản mới sẽ bắt đầu từ Ngày 1 với tiến trình lưu trữ độc lập hoàn toàn.
-                    </p>
-                  </div>
-
-                  {regError && (
-                    <div className="p-3.5 rounded-2xl bg-[#9E2A2B]/10 border border-[#9E2A2B]/30 text-xs font-semibold text-[#9E2A2B]">
-                      ✗ {regError}
-                    </div>
-                  )}
-
-                  <form onSubmit={handleRegisterSubmit} className="space-y-4">
                     <div>
-                      <label className="block text-xs font-semibold text-[#181715] mb-1.5">
-                        1. Tên đăng nhập
-                      </label>
-                      <input
-                        type="text"
-                        value={regUsername}
-                        onChange={(e) => setRegUsername(e.target.value)}
-                        placeholder="Ví dụ: duocle, hocvien_a..."
-                        className="w-full px-4 py-3 rounded-xl border border-[#E5E0D8] bg-[#FAF8F5] focus:bg-white text-sm font-medium text-[#181715] focus:outline-none focus:border-[#181715] transition-colors"
-                        autoFocus
-                      />
+                      <h2 className="text-2xl font-bold text-[#181715]">
+                        Tạo tài khoản học tập
+                      </h2>
+                      <p className="text-xs text-[#57534E] mt-1">
+                        Khởi tạo tài khoản riêng để lưu trữ tiến trình học từ Ngày 1.
+                      </p>
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-semibold text-[#181715] mb-1.5">
-                        2. Mật khẩu
-                      </label>
-                      <div className="relative">
+                    {regError && (
+                      <div className="p-3.5 rounded-2xl bg-[#9E2A2B]/10 border border-[#9E2A2B]/30 text-xs font-semibold text-[#9E2A2B]">
+                        ✗ {regError}
+                      </div>
+                    )}
+
+                    <form onSubmit={handleRegisterSubmit} className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-[#181715] mb-1.5">
+                          1. Tên đăng nhập
+                        </label>
+                        <input
+                          type="text"
+                          value={regUsername}
+                          onChange={(e) => setRegUsername(e.target.value)}
+                          placeholder="Ví dụ: duocle, hocvien_a..."
+                          className="w-full px-4 py-3 rounded-xl border border-[#E5E0D8] bg-[#FAF8F5] focus:bg-white text-sm font-medium text-[#181715] focus:outline-none focus:border-[#181715] transition-colors"
+                          autoFocus
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-[#181715] mb-1.5">
+                          2. Mật khẩu
+                        </label>
+                        <div className="relative">
+                          <input
+                            type={showRegPassword ? "text" : "password"}
+                            value={regPassword}
+                            onChange={(e) => setRegPassword(e.target.value)}
+                            placeholder="Nhập mật khẩu (tối thiểu 3 ký tự)..."
+                            className="w-full px-4 py-3 pr-11 rounded-xl border border-[#E5E0D8] bg-[#FAF8F5] focus:bg-white text-sm font-medium text-[#181715] focus:outline-none focus:border-[#181715] transition-colors"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowRegPassword(!showRegPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8A847C] hover:text-[#181715] p-1"
+                          >
+                            {showRegPassword ? (
+                              <EyeOff className="w-4 h-4" />
+                            ) : (
+                              <Eye className="w-4 h-4" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-[#181715] mb-1.5">
+                          3. Nhập lại mật khẩu
+                        </label>
                         <input
                           type={showRegPassword ? "text" : "password"}
-                          value={regPassword}
-                          onChange={(e) => setRegPassword(e.target.value)}
-                          placeholder="Nhập mật khẩu (tối thiểu 3 ký tự)..."
-                          className="w-full px-4 py-3 pr-11 rounded-xl border border-[#E5E0D8] bg-[#FAF8F5] focus:bg-white text-sm font-medium text-[#181715] focus:outline-none focus:border-[#181715] transition-colors"
+                          value={regConfirmPassword}
+                          onChange={(e) => setRegConfirmPassword(e.target.value)}
+                          placeholder="Nhập lại đúng mật khẩu ở trên..."
+                          className="w-full px-4 py-3 rounded-xl border border-[#E5E0D8] bg-[#FAF8F5] focus:bg-white text-sm font-medium text-[#181715] focus:outline-none focus:border-[#181715] transition-colors"
                         />
-                        <button
-                          type="button"
-                          onClick={() => setShowRegPassword(!showRegPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8A847C] hover:text-[#181715] p-1"
-                        >
-                          {showRegPassword ? (
-                            <EyeOff className="w-4 h-4" />
-                          ) : (
-                            <Eye className="w-4 h-4" />
-                          )}
-                        </button>
                       </div>
-                    </div>
 
-                    <div>
-                      <label className="block text-xs font-semibold text-[#181715] mb-1.5">
-                        3. Nhập lại mật khẩu
-                      </label>
-                      <input
-                        type={showRegPassword ? "text" : "password"}
-                        value={regConfirmPassword}
-                        onChange={(e) => setRegConfirmPassword(e.target.value)}
-                        placeholder="Nhập lại đúng mật khẩu ở trên..."
-                        className="w-full px-4 py-3 rounded-xl border border-[#E5E0D8] bg-[#FAF8F5] focus:bg-white text-sm font-medium text-[#181715] focus:outline-none focus:border-[#181715] transition-colors"
-                      />
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="w-full py-3.5 px-6 rounded-2xl bg-[#1F5E3B] hover:bg-[#18492E] active:scale-[0.99] text-white font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2"
-                    >
-                      <UserPlus className="w-4 h-4" />
-                      <span>Tạo tài khoản</span>
-                    </button>
-                  </form>
-                </div>
-              )}
-            </div>
+                      <button
+                        type="submit"
+                        className="w-full py-3.5 px-6 rounded-2xl bg-[#1F5E3B] hover:bg-[#18492E] active:scale-[0.99] text-white font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2"
+                      >
+                        <UserPlus className="w-4 h-4" />
+                        <span>Tạo tài khoản</span>
+                      </button>
+                    </form>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </main>
 
+      {/* Scrollable 2D-Illustrated Website Introduction Sections Below the Fold */}
+      <CoverFeatureSections
+        onSelectLogin={() => {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          handleOpenLogin();
+        }}
+        onSelectRegister={() => {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          handleOpenRegister();
+        }}
+      />
+
       {/* Subtle Footer */}
-      <footer className="relative z-10 max-w-7xl w-full mx-auto px-4 sm:px-8 py-4 border-t border-[#E5E0D8]/70 flex flex-wrap items-center justify-between gap-2 text-xs text-[#8A847C]">
+      <footer className="relative z-10 max-w-6xl w-full mx-auto px-4 sm:px-8 py-6 border-t border-[#E5E0D8]/70 flex flex-wrap items-center justify-between gap-2 text-xs text-[#8A847C]">
         <span>LinguaForge Polyglot Studio</span>
         <span>Nuôi dưỡng thói quen ngôn ngữ mỗi ngày</span>
       </footer>
