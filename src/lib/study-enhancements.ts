@@ -142,6 +142,62 @@ export function buildTargetLanguageWordBank(exampleTarget: string): string[] {
     .map((x) => x.item);
 }
 
+/**
+ * Generates an interactive Character / Syllable Tile Bank for Step 4 (3-Round Cloze Spelling)
+ * so learners can tap characters/chunks even if they don't have Chinese/Japanese/Korean IME installed.
+ */
+export function buildStep4CharacterBank(
+  displayTerm: string,
+  allDayCards: VocabCard[],
+  round: number
+): string[] {
+  const clean = displayTerm.trim();
+  if (!clean) return [];
+
+  // If the term has spaces and is long (>12 chars), split by words or 2-3 char syllables; otherwise split by characters
+  let baseUnits: string[] = [];
+  if (clean.includes(" ") && clean.length > 12) {
+    baseUnits = clean.split(/\s+/).filter(Boolean);
+  } else {
+    baseUnits = Array.from(clean);
+  }
+
+  // Gather 2 subtle distractor characters/units from other cards of the same day
+  const distractors: string[] = [];
+  for (const c of allDayCards) {
+    if (c.term !== displayTerm && c.term) {
+      const candidateChars =
+        clean.includes(" ") && clean.length > 12
+          ? c.term.split(/\s+/).filter(Boolean)
+          : Array.from(c.term.trim());
+      for (const ch of candidateChars) {
+        if (
+          ch.trim() &&
+          !baseUnits.includes(ch) &&
+          !distractors.includes(ch) &&
+          distractors.length < 2
+        ) {
+          distractors.push(ch);
+        }
+      }
+    }
+  }
+
+  const combined = [...baseUnits, ...distractors];
+  return combined
+    .map((unit, idx) => ({
+      unit,
+      sortKey:
+        ((unit.charCodeAt(0) || 13) * 37 +
+          idx * 23 +
+          round * 19 +
+          clean.length * 11) %
+        101,
+    }))
+    .sort((a, b) => a.sortKey - b.sortKey)
+    .map((x) => x.unit);
+}
+
 export interface DailyStoryTurn {
   speaker: string;
   roleLabel: string;
@@ -270,3 +326,4 @@ export function startPronunciationCheck(
     }
   };
 }
+

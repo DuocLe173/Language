@@ -10,10 +10,14 @@ import {
   Sparkles,
   X,
   CheckCircle2,
+  Eye,
+  EyeOff,
+  Clock,
 } from "lucide-react";
 import { LanguageCode, TopicId, VocabCard } from "@/types/language";
 import { BUILTIN_DICTIONARY, LANGUAGES, TOPICS } from "@/lib/seed-data";
 import { speakText } from "@/lib/speech";
+import { playTileClick, playSuccessChime } from "@/lib/sound-effects";
 
 interface VocabularyVaultProps {
   userId: string;
@@ -40,6 +44,13 @@ export default function VocabularyVault({
 }: VocabularyVaultProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterTopic, setFilterTopic] = useState<"all" | TopicId>("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "due_srs" | "completed" | "unlearned"
+  >("all");
+  const [isSelfTestMode, setIsSelfTestMode] = useState(false);
+  const [revealedCardIds, setRevealedCardIds] = useState<
+    Record<string, boolean>
+  >({});
 
   // Form states for Quick Add
   const [selectedTopicForNew, setSelectedTopicForNew] =
@@ -57,12 +68,51 @@ export default function VocabularyVault({
 
   const langMeta = LANGUAGES[languageCode];
 
+  const langCards = useMemo(
+    () => cards.filter((c) => c.languageCode === languageCode),
+    [cards, languageCode]
+  );
+
+  const statusCounts = useMemo(() => {
+    const now = new Date();
+    let completed = 0;
+    let unlearned = 0;
+    let dueSrs = 0;
+    for (const c of langCards) {
+      if (c.isCompletedInTopic) {
+        completed++;
+        if (!c.nextReviewAt || new Date(c.nextReviewAt) <= now) {
+          dueSrs++;
+        }
+      } else {
+        unlearned++;
+      }
+    }
+    return {
+      all: langCards.length,
+      completed,
+      unlearned,
+      dueSrs,
+    };
+  }, [langCards]);
+
   const filteredCards = useMemo(() => {
-    return cards
-      .filter((c) => c.languageCode === languageCode)
+    const now = new Date();
+    return langCards
       .filter((c) => {
         if (filterTopic === "all") return true;
         return c.topicId === filterTopic;
+      })
+      .filter((c) => {
+        if (statusFilter === "completed") return Boolean(c.isCompletedInTopic);
+        if (statusFilter === "unlearned") return !c.isCompletedInTopic;
+        if (statusFilter === "due_srs") {
+          return (
+            Boolean(c.isCompletedInTopic) &&
+            (!c.nextReviewAt || new Date(c.nextReviewAt) <= now)
+          );
+        }
+        return true;
       })
       .filter((c) => {
         if (!searchQuery.trim()) return true;
@@ -74,7 +124,7 @@ export default function VocabularyVault({
           (c.notes && c.notes.toLowerCase().includes(q))
         );
       });
-  }, [cards, languageCode, filterTopic, searchQuery]);
+  }, [langCards, filterTopic, statusFilter, searchQuery]);
 
   const handleAutoFillPreset = (wordKey: string) => {
     const preset =
@@ -150,52 +200,140 @@ export default function VocabularyVault({
   };
 
   return (
-    <div className="space-y-6">
-      {/* Search & Topic Filter Header */}
-      <div className="bg-white border border-[#E5E0D8] rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-[0_2px_10px_rgba(24,23,21,0.03)]">
-        <div className="relative flex-1 min-w-[240px]">
-          <Search className="w-4 h-4 text-[#8A847C] absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={`Tìm từ vựng, phiên âm (${langMeta.phoneticLabel}), nghĩa tiếng Việt...`}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E5E0D8] bg-[#FAF8F5] text-sm focus:outline-none focus:border-[#181715]"
-          />
+    <div className="space-y-5">
+      {/* Search, Self-Test Mode & Status Filter Header */}
+      <div className="bg-white border border-[#E5E0D8] rounded-2xl p-4 space-y-3.5 shadow-[0_2px_10px_rgba(24,23,21,0.03)]">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="relative flex-1 min-w-[240px]">
+            <Search className="w-4 h-4 text-[#8A847C] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={`Tìm từ vựng, phiên âm (${langMeta.phoneticLabel}), nghĩa tiếng Việt...`}
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E5E0D8] bg-[#FAF8F5] text-sm focus:outline-none focus:border-[#181715]"
+            />
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Quizlet-style Flashcard Self-Test Toggle */}
+            <button
+              type="button"
+              onClick={() => {
+                playTileClick();
+                setIsSelfTestMode((prev) => !prev);
+                setRevealedCardIds({});
+              }}
+              className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${
+                isSelfTestMode
+                  ? "bg-[#9E2A2B] text-white border-[#9E2A2B] shadow-2xs"
+                  : "bg-[#FAF8F5] hover:bg-[#F2EFE9] text-[#181715] border-[#E5E0D8]"
+              }`}
+              title="Ẩn nghĩa Tiếng Việt để tự nhẩm nghĩa và chạm lật thẻ kiểm tra trí nhớ"
+            >
+              {isSelfTestMode ? (
+                <EyeOff className="w-3.5 h-3.5" />
+              ) : (
+                <Eye className="w-3.5 h-3.5 text-[#1F5E3B]" />
+              )}
+              <span>
+                {isSelfTestMode
+                  ? "Đang bật: Tự dò nghĩa (Chạm thẻ để lật)"
+                  : "Chế độ Tự dò nghĩa (Flashcard)"}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onOpenQuickAddModal}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1F5E3B] text-white text-xs font-semibold hover:bg-[#18492E] transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Thêm từ mới</span>
+            </button>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={() => setFilterTopic("all")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors ${
-              filterTopic === "all"
-                ? "bg-[#181715] text-white"
-                : "bg-[#F2EFE9] text-[#57534E] hover:text-[#181715]"
-            }`}
-          >
-            Tất cả chủ đề
-          </button>
-          {TOPICS.map((t) => (
+        {/* Status & SRS Review Filter Pills */}
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#E5E0D8]/70">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-[11px] font-mono uppercase text-[#8A847C] mr-1">
+              Trạng thái:
+            </span>
             <button
-              key={t.id}
-              onClick={() => setFilterTopic(t.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors ${
-                filterTopic === t.id
+              type="button"
+              onClick={() => setStatusFilter("all")}
+              className={`px-3 py-1 rounded-xl text-xs font-semibold transition-all ${
+                statusFilter === "all"
+                  ? "bg-[#181715] text-white"
+                  : "bg-[#FAF8F5] text-[#57534E] border border-[#E5E0D8]"
+              }`}
+            >
+              Tất cả ({statusCounts.all})
+            </button>
+            <button
+              type="button"
+              onClick={() => setStatusFilter("due_srs")}
+              className={`inline-flex items-center gap-1 px-3 py-1 rounded-xl text-xs font-semibold transition-all ${
+                statusFilter === "due_srs"
+                  ? "bg-[#B45309] text-white"
+                  : "bg-[#B45309]/10 text-[#B45309] border border-[#B45309]/25"
+              }`}
+            >
+              <Clock className="w-3 h-3" />
+              <span>Cần ôn SRS ({statusCounts.dueSrs})</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setStatusFilter("completed")}
+              className={`px-3 py-1 rounded-xl text-xs font-semibold transition-all ${
+                statusFilter === "completed"
+                  ? "bg-[#1F5E3B] text-white"
+                  : "bg-[#1F5E3B]/10 text-[#1F5E3B] border border-[#1F5E3B]/25"
+              }`}
+            >
+              ✓ Đã thuộc ({statusCounts.completed})
+            </button>
+            <button
+              type="button"
+              onClick={() => setStatusFilter("unlearned")}
+              className={`px-3 py-1 rounded-xl text-xs font-semibold transition-all ${
+                statusFilter === "unlearned"
+                  ? "bg-[#181715] text-white"
+                  : "bg-[#FAF8F5] text-[#57534E] border border-[#E5E0D8]"
+              }`}
+            >
+              ○ Chưa học ({statusCounts.unlearned})
+            </button>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setFilterTopic("all")}
+              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                filterTopic === "all"
                   ? "bg-[#181715] text-white"
                   : "bg-[#F2EFE9] text-[#57534E] hover:text-[#181715]"
               }`}
             >
-              {t.titleVi}
+              Mọi chủ đề
             </button>
-          ))}
-
-          <button
-            onClick={onOpenQuickAddModal}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1F5E3B] text-white text-xs font-medium hover:bg-[#18492E] transition-colors"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            Thêm từ mới
-          </button>
+            {TOPICS.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setFilterTopic(t.id)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                  filterTopic === t.id
+                    ? "bg-[#181715] text-white"
+                    : "bg-[#F2EFE9] text-[#57534E] hover:text-[#181715]"
+                }`}
+              >
+                {t.titleVi}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -204,6 +342,8 @@ export default function VocabularyVault({
         {filteredCards.map((card) => {
           const topicMeta =
             TOPICS.find((t) => t.id === card.topicId) || TOPICS[0];
+          const isMeaningHidden =
+            isSelfTestMode && !revealedCardIds[card.id];
           return (
             <div
               key={card.id}
@@ -212,9 +352,16 @@ export default function VocabularyVault({
               <div>
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <span className="inline-block text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-[#F2EFE9] text-[#57534E] mb-1.5">
-                      {topicMeta.titleVi}
-                    </span>
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <span className="inline-block text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-[#F2EFE9] text-[#57534E]">
+                        {topicMeta.titleVi}
+                      </span>
+                      {card.dayNumber && (
+                        <span className="inline-block text-[10px] font-mono px-2 py-0.5 rounded bg-[#FAF8F5] border border-[#E5E0D8] text-[#8A847C]">
+                          Ngày {card.dayNumber}
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-2">
                       <h4 className="text-2xl font-bold text-[#181715]">
                         {card.term}
@@ -232,6 +379,7 @@ export default function VocabularyVault({
                   </div>
 
                   <button
+                    type="button"
                     onClick={() => speakText(card.term, languageCode, 0.92)}
                     className="p-2 rounded-xl bg-[#F2EFE9] hover:bg-[#E5E0D8] text-[#181715] transition-colors"
                     title="Nghe phát âm"
@@ -241,20 +389,44 @@ export default function VocabularyVault({
                 </div>
 
                 <div className="mt-3 pt-3 border-t border-[#E5E0D8]">
-                  <p className="text-sm font-semibold text-[#181715]">
-                    {card.meaningVi}
-                  </p>
-                  {card.naturalContextVi && (
-                    <p className="text-xs text-[#57534E] mt-1">
-                      💬 {card.naturalContextVi}
-                    </p>
+                  {isMeaningHidden ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        playTileClick();
+                        speakText(card.term, languageCode, 0.92);
+                        setRevealedCardIds((prev) => ({
+                          ...prev,
+                          [card.id]: true,
+                        }));
+                      }}
+                      className="w-full py-6 px-4 rounded-2xl bg-[#FAF8F5] hover:bg-[#F2EFE9] border border-dashed border-[#D6D1C7] text-center space-y-1 transition-all"
+                    >
+                      <span className="text-xs font-bold text-[#1F5E3B] block">
+                        🙈 Chạm để lật xem nghĩa Tiếng Việt & câu ví dụ
+                      </span>
+                      <span className="text-[11px] text-[#8A847C] block">
+                        Hãy tự nhẩm nghĩa của từ &ldquo;{card.term}&rdquo; trước khi lật nhé!
+                      </span>
+                    </button>
+                  ) : (
+                    <>
+                      <p className="text-sm font-semibold text-[#181715]">
+                        {card.meaningVi}
+                      </p>
+                      {card.naturalContextVi && (
+                        <p className="text-xs text-[#57534E] mt-1">
+                          💬 {card.naturalContextVi}
+                        </p>
+                      )}
+                      <p className="text-xs font-medium text-[#181715] mt-2 leading-relaxed">
+                        &ldquo;{card.exampleTarget}&rdquo;
+                      </p>
+                      <p className="text-xs text-[#8A847C] mt-0.5">
+                        → {card.exampleVi}
+                      </p>
+                    </>
                   )}
-                  <p className="text-xs font-medium text-[#181715] mt-2 leading-relaxed">
-                    &ldquo;{card.exampleTarget}&rdquo;
-                  </p>
-                  <p className="text-xs text-[#8A847C] mt-0.5">
-                    → {card.exampleVi}
-                  </p>
                 </div>
               </div>
 
@@ -263,7 +435,10 @@ export default function VocabularyVault({
                   {card.isCompletedInTopic ? (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-medium text-[11px] bg-[#1F5E3B]/12 text-[#1F5E3B]">
                       <CheckCircle2 className="w-3 h-3" />
-                      Đã hoàn thành
+                      Đã thuộc{" "}
+                      {card.intervalDays > 0
+                        ? `• Ôn ${card.intervalDays}d`
+                        : ""}
                     </span>
                   ) : (
                     <span className="px-2 py-0.5 rounded-md font-mono text-[11px] bg-[#FAF8F5] border border-[#E5E0D8] text-[#57534E]">
@@ -274,13 +449,18 @@ export default function VocabularyVault({
 
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={() => handleToggleCompleted(card)}
+                    type="button"
+                    onClick={() => {
+                      playSuccessChime();
+                      handleToggleCompleted(card);
+                    }}
                     className="p-1.5 rounded-lg text-[#8A847C] hover:text-[#181715] hover:bg-[#F2EFE9]"
                     title="Đổi trạng thái hoàn thành của từ này"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                   </button>
                   <button
+                    type="button"
                     onClick={() => onDeleteCard(card.id)}
                     className="p-1.5 rounded-lg text-[#8A847C] hover:text-[#9E2A2B] hover:bg-[#9E2A2B]/10"
                     title="Xóa thẻ từ vựng"

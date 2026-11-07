@@ -670,6 +670,11 @@ export default function PolyglotHomePage() {
           <AITutorCoach
             user={user}
             languageCode={activeLang}
+            currentDayCards={activeTopicCards.filter(
+              (c) => (c.dayNumber || 1) === (currentTopicProgress.activeDay || 1)
+            )}
+            activeDay={currentTopicProgress.activeDay || 1}
+            activeTopicTitle={activeTopicMeta.titleVi}
             onSaveVocabFromChat={handleAddOrUpdateVocab}
           />
         )}

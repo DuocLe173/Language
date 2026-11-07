@@ -4,6 +4,8 @@ import React, { useState, useMemo, useEffect } from "react";
 import {
   CheckCircle2,
   Volume2,
+  Turtle,
+  Headphones,
   Sparkles,
   Puzzle,
   AlignLeft,
@@ -22,6 +24,12 @@ import {
   tokenizeSentenceIntoTiles,
 } from "@/lib/learning-utils";
 import { speakText } from "@/lib/speech";
+import {
+  playTileClick,
+  playSuccessChime,
+  playErrorTone,
+  playCelebrationFanfare,
+} from "@/lib/sound-effects";
 import { HoverWordTooltip, HoverableSentence } from "./HoverWordTooltip";
 
 interface PracticeArenaModalProps {
@@ -35,7 +43,7 @@ interface PracticeArenaModalProps {
   onCompleteDayPractice: (completedDayNumber: number) => void;
 }
 
-type ExerciseTab = "matching" | "sentence" | "cloze";
+type ExerciseTab = "matching" | "sentence" | "cloze" | "listening";
 
 export default function PracticeArenaModal({
   isOpen,
@@ -74,9 +82,22 @@ export default function PracticeArenaModal({
   const [clozeChecked, setClozeChecked] = useState<boolean | null>(null);
   const [completedClozeIds, setCompletedClozeIds] = useState<string[]>([]);
 
+  // Stage 4: Listening Reflex state — blind audio listening + 4-option meaning choice
+  const [listeningDeck, setListeningDeck] = useState<VocabCard[]>([]);
+  const [listeningCardIdx, setListeningCardIdx] = useState(0);
+  const [listeningSelectedId, setListeningSelectedId] = useState<string | null>(
+    null
+  );
+  const [listeningChecked, setListeningChecked] = useState<boolean | null>(
+    null
+  );
+  const [completedListeningIds, setCompletedListeningIds] = useState<string[]>(
+    []
+  );
+
   const totalCount = cardsToTest.length;
 
-  // Initialize & randomize all 3 exercises whenever the modal opens
+  // Initialize & randomize all 4 exercises whenever the modal opens
   const randomizeAllExercises = () => {
     if (cardsToTest.length === 0) return;
 
@@ -102,6 +123,14 @@ export default function PracticeArenaModal({
     setClozeInput("");
     setClozeChecked(null);
     setCompletedClozeIds([]);
+
+    // 4. Randomize Listening Reflex deck across all day words
+    const lDeck = shuffleArrayRandom(cardsToTest);
+    setListeningDeck(lDeck);
+    setListeningCardIdx(0);
+    setListeningSelectedId(null);
+    setListeningChecked(null);
+    setCompletedListeningIds([]);
   };
 
   useEffect(() => {
@@ -141,11 +170,32 @@ export default function PracticeArenaModal({
     return getDistinctPracticeSentences(currentClozeCard);
   }, [currentClozeCard]);
 
+  const currentListeningCard =
+    listeningDeck[
+      Math.min(listeningCardIdx, Math.max(0, listeningDeck.length - 1))
+    ];
+
+  const listeningChoices = useMemo(() => {
+    if (!currentListeningCard) return [];
+    const distractors = shuffleArrayRandom(
+      cardsToTest.filter((c) => c.id !== currentListeningCard.id)
+    ).slice(0, 3);
+    return shuffleArrayRandom([currentListeningCard, ...distractors]);
+  }, [currentListeningCard, cardsToTest]);
+
+  // Auto-play audio when entering or advancing in Listening Reflex tab
+  useEffect(() => {
+    if (activeExercise === "listening" && currentListeningCard && isOpen) {
+      speakText(currentListeningCard.term, languageCode, 0.94);
+    }
+  }, [activeExercise, currentListeningCard, languageCode, isOpen]);
+
   if (!isOpen || totalCount === 0) return null;
 
   const isMatchingDone = matchedIds.length >= totalCount;
   const isSentenceDone = completedSentenceIds.length >= totalCount;
   const isClozeDone = completedClozeIds.length >= totalCount;
+  const isListeningDone = completedListeningIds.length >= totalCount;
   const isAllThreeExercisesDone =
     isMatchingDone && isSentenceDone && isClozeDone;
 
@@ -153,11 +203,13 @@ export default function PracticeArenaModal({
   const handleSelectMeaningRight = (cardId: string) => {
     if (!selectedLeftId) return;
     if (selectedLeftId === cardId) {
+      playSuccessChime();
       const card = cardsToTest.find((c) => c.id === cardId);
       if (card) speakText(card.term, languageCode, 0.94);
       setMatchedIds((prev) => Array.from(new Set([...prev, cardId])));
       setSelectedLeftId(null);
     } else {
+      playErrorTone();
       setWrongPairFlash(true);
       setTimeout(() => setWrongPairFlash(false), 600);
     }
@@ -166,6 +218,7 @@ export default function PracticeArenaModal({
   // Stage 2: Sentence Building handlers
   const handleToggleTile = (tileIdx: number) => {
     if (sentenceChecked === true) return;
+    playTileClick();
     if (sentenceChecked === false) {
       setSentenceChecked(null);
     }
@@ -192,12 +245,15 @@ export default function PracticeArenaModal({
 
     const ok = built === expected;
     setSentenceChecked(ok);
-    speakText(currentSentenceData.sentenceBuildTarget, languageCode, 0.92);
     if (ok) {
+      playSuccessChime();
       setCompletedSentenceIds((prev) =>
         Array.from(new Set([...prev, currentSentenceCard.id]))
       );
+    } else {
+      playErrorTone();
     }
+    speakText(currentSentenceData.sentenceBuildTarget, languageCode, 0.92);
   };
 
   const handleNextSentence = () => {
@@ -219,12 +275,15 @@ export default function PracticeArenaModal({
         : false);
 
     setClozeChecked(ok);
-    speakText(currentClozeData.clozeFullTarget, languageCode, 0.92);
     if (ok) {
+      playSuccessChime();
       setCompletedClozeIds((prev) =>
         Array.from(new Set([...prev, currentClozeCard.id]))
       );
+    } else {
+      playErrorTone();
     }
+    speakText(currentClozeData.clozeFullTarget, languageCode, 0.92);
   };
 
   const handleNextCloze = () => {
@@ -232,6 +291,32 @@ export default function PracticeArenaModal({
     setClozeChecked(null);
     if (clozeCardIdx + 1 < clozeDeck.length) {
       setClozeCardIdx((prev) => prev + 1);
+    }
+  };
+
+  // Stage 4: Listening Reflex handlers
+  const handleSelectListeningOption = (optionCard: VocabCard) => {
+    if (!currentListeningCard || listeningChecked === true) return;
+    setListeningSelectedId(optionCard.id);
+    const isOk = optionCard.id === currentListeningCard.id;
+    setListeningChecked(isOk);
+    if (isOk) {
+      playSuccessChime();
+      speakText(currentListeningCard.exampleTarget, languageCode, 0.94);
+      setCompletedListeningIds((prev) =>
+        Array.from(new Set([...prev, currentListeningCard.id]))
+      );
+    } else {
+      playErrorTone();
+      speakText(currentListeningCard.term, languageCode, 0.85);
+    }
+  };
+
+  const handleNextListening = () => {
+    setListeningSelectedId(null);
+    setListeningChecked(null);
+    if (listeningCardIdx + 1 < listeningDeck.length) {
+      setListeningCardIdx((prev) => prev + 1);
     }
   };
 
@@ -287,11 +372,12 @@ export default function PracticeArenaModal({
           )}
         </div>
 
-        {/* 3 Interactive Exercise Mode Tabs */}
-        <div className="grid grid-cols-3 gap-2 bg-[#F2EFE9] p-1.5 rounded-2xl">
+        {/* 4 Interactive Exercise Mode Tabs */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-[#F2EFE9] p-1.5 rounded-2xl">
           <button
+            type="button"
             onClick={() => setActiveExercise("matching")}
-            className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex items-center justify-center gap-1.5 py-2.5 px-2.5 rounded-xl text-xs font-semibold transition-all ${
               activeExercise === "matching"
                 ? "bg-white text-[#181715] shadow-xs"
                 : "text-[#57534E] hover:text-[#181715]"
@@ -307,8 +393,9 @@ export default function PracticeArenaModal({
           </button>
 
           <button
+            type="button"
             onClick={() => setActiveExercise("sentence")}
-            className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex items-center justify-center gap-1.5 py-2.5 px-2.5 rounded-xl text-xs font-semibold transition-all ${
               activeExercise === "sentence"
                 ? "bg-white text-[#181715] shadow-xs"
                 : "text-[#57534E] hover:text-[#181715]"
@@ -316,7 +403,7 @@ export default function PracticeArenaModal({
           >
             <AlignLeft className="w-4 h-4 text-[#9E2A2B]" />
             <span>
-              2. Xếp Câu Mới ({completedSentenceIds.length}/{totalCount})
+              2. Xếp Câu ({completedSentenceIds.length}/{totalCount})
             </span>
             {isSentenceDone && (
               <CheckCircle2 className="w-4 h-4 text-[#1F5E3B]" />
@@ -324,8 +411,9 @@ export default function PracticeArenaModal({
           </button>
 
           <button
+            type="button"
             onClick={() => setActiveExercise("cloze")}
-            className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex items-center justify-center gap-1.5 py-2.5 px-2.5 rounded-xl text-xs font-semibold transition-all ${
               activeExercise === "cloze"
                 ? "bg-white text-[#181715] shadow-xs"
                 : "text-[#57534E] hover:text-[#181715]"
@@ -336,6 +424,24 @@ export default function PracticeArenaModal({
               3. Điền Từ ({completedClozeIds.length}/{totalCount})
             </span>
             {isClozeDone && (
+              <CheckCircle2 className="w-4 h-4 text-[#1F5E3B]" />
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveExercise("listening")}
+            className={`flex items-center justify-center gap-1.5 py-2.5 px-2.5 rounded-xl text-xs font-semibold transition-all ${
+              activeExercise === "listening"
+                ? "bg-white text-[#181715] shadow-xs"
+                : "text-[#57534E] hover:text-[#181715]"
+            }`}
+          >
+            <Headphones className="w-4 h-4 text-[#1F5E3B]" />
+            <span>
+              4. Phản Xạ Nghe ({completedListeningIds.length}/{totalCount})
+            </span>
+            {isListeningDone && (
               <CheckCircle2 className="w-4 h-4 text-[#1F5E3B]" />
             )}
           </button>
@@ -713,7 +819,15 @@ export default function PracticeArenaModal({
                   ✓ Chính xác! Từ cần điền là &ldquo;{currentClozeCard.term}&rdquo; (
                   {completedClozeIds.length}/{totalCount} câu hoàn tất).
                 </span>
-                {!isClozeDone && (
+                {isClozeDone ? (
+                  <button
+                    type="button"
+                    onClick={() => setActiveExercise("listening")}
+                    className="px-4 py-2 rounded-xl bg-[#1F5E3B] text-white text-xs font-semibold"
+                  >
+                    Qua Bài 4: Phản Xạ Nghe ({totalCount} từ) →
+                  </button>
+                ) : (
                   <button
                     type="button"
                     onClick={handleNextCloze}
@@ -727,8 +841,143 @@ export default function PracticeArenaModal({
           </div>
         )}
 
+        {/* ================= EXERCISE 4: BLIND LISTENING REFLEX (BABBEL / MEMRISE STYLE) ================= */}
+        {activeExercise === "listening" && currentListeningCard && (
+          <div className="space-y-5">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[#57534E]">
+              <span>
+                Thử thách Phản xạ Nghe #{listeningCardIdx + 1}/{totalCount} —
+                Nghe âm thanh (không nhìn mặt chữ) và chọn đúng nghĩa Tiếng Việt:
+              </span>
+              <span className="font-mono font-semibold text-[#1F5E3B]">
+                Đã nghe đúng: {completedListeningIds.length}/{totalCount} từ
+              </span>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-[#FAF8F5] border border-[#E5E0D8] text-center space-y-4">
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() =>
+                    speakText(currentListeningCard.term, languageCode, 0.94)
+                  }
+                  className="inline-flex items-center gap-2.5 px-6 py-4 rounded-2xl bg-[#1F5E3B] text-white text-sm font-semibold hover:bg-[#18492E] shadow-sm transition-all"
+                >
+                  <Volume2 className="w-5 h-5" />
+                  <span>Bấm nghe lại từ vựng</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    speakText(currentListeningCard.term, languageCode, 0.65)
+                  }
+                  className="inline-flex items-center gap-2 px-4 py-4 rounded-2xl bg-white border border-[#E5E0D8] text-xs font-semibold text-[#181715] hover:bg-[#F2EFE9]"
+                >
+                  <Turtle className="w-4 h-4 text-[#9E2A2B]" />
+                  <span>Nghe chậm (0.65x)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    speakText(
+                      currentListeningCard.exampleTarget,
+                      languageCode,
+                      0.92
+                    )
+                  }
+                  className="inline-flex items-center gap-2 px-4 py-4 rounded-2xl bg-white border border-[#E5E0D8] text-xs font-semibold text-[#57534E] hover:text-[#181715]"
+                >
+                  <Headphones className="w-4 h-4 text-[#1F5E3B]" />
+                  <span>Nghe trong câu mẫu</span>
+                </button>
+              </div>
+
+              {listeningChecked === true ? (
+                <div className="pt-2 space-y-1">
+                  <div className="text-2xl font-bold text-[#181715]">
+                    {currentListeningCard.term}{" "}
+                    <span className="text-sm font-mono text-[#9E2A2B]">
+                      ({currentListeningCard.phonetic})
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#57534E]">
+                    Câu mẫu: &ldquo;{currentListeningCard.exampleTarget}&rdquo; —{" "}
+                    {currentListeningCard.exampleVi}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-xs font-mono text-[#8A847C]">
+                  🔒 Mặt chữ đang được ẩn để rèn phản xạ tai nghe thực tế
+                </p>
+              )}
+            </div>
+
+            {/* 4 Meaning Choices */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {listeningChoices.map((option) => {
+                const isSelected = listeningSelectedId === option.id;
+                const isCorrectOption = option.id === currentListeningCard.id;
+
+                let btnStyle =
+                  "bg-white hover:bg-[#FAF8F5] text-[#181715] border-[#E5E0D8]";
+                if (listeningChecked === true && isCorrectOption) {
+                  btnStyle =
+                    "bg-[#1F5E3B] text-white border-[#1F5E3B] font-bold";
+                } else if (
+                  listeningChecked === false &&
+                  isSelected &&
+                  !isCorrectOption
+                ) {
+                  btnStyle =
+                    "bg-[#9E2A2B]/12 text-[#9E2A2B] border-[#9E2A2B]/40";
+                }
+
+                return (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => handleSelectListeningOption(option)}
+                    className={`p-4 rounded-2xl border text-left text-sm font-semibold flex items-center justify-between gap-2 transition-all ${btnStyle}`}
+                  >
+                    <span>{option.meaningVi}</span>
+                    {listeningChecked === true && isCorrectOption && (
+                      <CheckCircle2 className="w-4 h-4 text-white shrink-0" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {listeningChecked === false && (
+              <div className="p-3.5 rounded-xl bg-[#9E2A2B]/10 text-[#9E2A2B] text-xs font-semibold">
+                Chưa đúng nghĩa rồi! Bạn hãy bấm nghe chậm (0.65x) hoặc nghe trong câu mẫu và chọn lại nhé.
+              </div>
+            )}
+
+            {listeningChecked === true && (
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-[#1F5E3B]/10 border border-[#1F5E3B]/30">
+                <span className="text-xs font-semibold text-[#1F5E3B]">
+                  ✓ Phản xạ nghe rất chuẩn! ({completedListeningIds.length}/
+                  {totalCount} từ hoàn tất)
+                </span>
+                {!isListeningDone && (
+                  <button
+                    type="button"
+                    onClick={handleNextListening}
+                    className="px-4 py-2 rounded-xl bg-[#181715] text-white text-xs font-semibold"
+                  >
+                    Sang từ nghe tiếp theo ({listeningCardIdx + 2}/{totalCount}) →
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* ================= FINAL COMPLETION BANNER & GREEN CHECKMARK BUTTON ================= */}
-        {isAllThreeExercisesDone && (
+        {(isAllThreeExercisesDone || isListeningDone) && (
           <div className="p-6 rounded-3xl bg-[#1F5E3B] text-white flex flex-wrap items-center justify-between gap-4 shadow-lg animate-in fade-in duration-200">
             <div className="flex items-center gap-3.5">
               <div className="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center shrink-0">
@@ -737,19 +986,23 @@ export default function PracticeArenaModal({
               <div>
                 <div className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-[#A7F3D0]">
                   <CheckCircle2 className="w-4 h-4" />
-                  Đã vượt qua 100% cả 3 bài tập ({totalCount}/{totalCount} từ)
+                  Đã vượt qua bài tập tổng hợp ({totalCount}/{totalCount} từ)
                 </div>
                 <h4 className="text-lg font-bold mt-0.5">
                   {isGatekeepingTest
                     ? `Xuất sắc! Bạn đã vượt qua bài kiểm tra ôn tập Ngày ${targetDayNumber - 1}!`
-                    : `Chúc mừng! Bạn đã làm đúng hết toàn bộ bài tập Ngày ${dayToDisplay}!`}
+                    : `Chúc mừng! Bạn đã hoàn thành bài tập Ngày ${dayToDisplay}!`}
                 </h4>
               </div>
             </div>
 
             {isGatekeepingTest ? (
               <button
-                onClick={() => onPassGateTest(targetDayNumber)}
+                type="button"
+                onClick={() => {
+                  playCelebrationFanfare();
+                  onPassGateTest(targetDayNumber);
+                }}
                 className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-white text-[#1F5E3B] text-sm font-bold hover:bg-[#FAF8F5] transition-all shadow-sm"
               >
                 <CheckCircle2 className="w-4 h-4" />
@@ -757,7 +1010,11 @@ export default function PracticeArenaModal({
               </button>
             ) : (
               <button
-                onClick={() => onCompleteDayPractice(dayToDisplay)}
+                type="button"
+                onClick={() => {
+                  playCelebrationFanfare();
+                  onCompleteDayPractice(dayToDisplay);
+                }}
                 className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-white text-[#1F5E3B] text-sm font-bold hover:bg-[#FAF8F5] transition-all shadow-sm"
               >
                 <CheckCircle2 className="w-4 h-4 text-[#1F5E3B]" />
