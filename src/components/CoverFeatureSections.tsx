@@ -35,17 +35,17 @@ export default function CoverFeatureSections({
         {/* Left: 2D Illustration of the 5-Step Interactive Memory Loop */}
         <div className="lg:col-span-6 flex items-center justify-center">
           <svg
-            viewBox="0 0 520 340"
-            className="w-full max-w-[480px] h-auto select-none"
+            viewBox="0 0 560 350"
+            className="w-full max-w-[500px] h-auto select-none"
             role="img"
             aria-label="Minh họa 2D quy trình học 5 bước tương tác"
           >
             {/* Soft Organic Backdrop */}
             <ellipse
-              cx="260"
-              cy="175"
-              rx="210"
-              ry="135"
+              cx="280"
+              cy="178"
+              rx="230"
+              ry="140"
               fill="#F2EFE9"
             />
             <circle
@@ -56,8 +56,8 @@ export default function CoverFeatureSections({
               fillOpacity="0.08"
             />
             <circle
-              cx="395"
-              cy="255"
+              cx="425"
+              cy="260"
               r="54"
               fill="#9E2A2B"
               fillOpacity="0.07"
@@ -65,28 +65,28 @@ export default function CoverFeatureSections({
 
             {/* Step Path Curve */}
             <path
-              d="M90 240 C150 110, 260 110, 310 180 C350 235, 410 190, 440 105"
+              d="M104 240 C158 112, 260 112, 308 188 C348 242, 422 190, 452 105"
               stroke="#181715"
               strokeWidth="2.5"
               strokeDasharray="6 6"
               fill="none"
             />
 
-            {/* 2D Step Node 1: Nhìn từ */}
+            {/* 2D Step Node 1: Nhìn từ (Widened to fit all text comfortably) */}
             <g>
               <rect
-                x="48"
-                y="212"
-                width="108"
-                height="62"
+                x="24"
+                y="210"
+                width="160"
+                height="68"
                 rx="16"
                 fill="#FFFFFF"
                 stroke="#181715"
                 strokeWidth="2"
               />
-              <circle cx="72" cy="234" r="10" fill="#181715" />
+              <circle cx="50" cy="234" r="11" fill="#181715" />
               <text
-                x="72"
+                x="50"
                 y="238"
                 textAnchor="middle"
                 fill="#FAF8F5"
@@ -95,70 +95,77 @@ export default function CoverFeatureSections({
               >
                 1
               </text>
-              <text x="90" y="238" fill="#181715" fontSize="11" fontWeight="700">
+              <text x="68" y="238" fill="#181715" fontSize="11.5" fontWeight="700">
                 Nhìn mặt chữ
               </text>
-              <text x="62" y="258" fill="#57534E" fontSize="10" fontFamily="monospace">
+              <text x="40" y="261" fill="#57534E" fontSize="10.5" fontFamily="monospace">
                 Resilient /rɪˈzɪl.../
               </text>
             </g>
 
-            {/* 2D Step Node 2 & 3: Nghe & Hiểu ngữ cảnh */}
+            {/* 2D Step Node 2 & 3: Nghe & Hiểu ngữ cảnh (Widened) */}
             <g>
               <rect
-                x="182"
-                y="68"
-                width="148"
-                height="74"
+                x="156"
+                y="62"
+                width="176"
+                height="76"
                 rx="18"
                 fill="#1F5E3B"
               />
-              <circle cx="210" cy="96" r="12" fill="#FAF8F5" />
+              <circle cx="186" cy="92" r="13" fill="#FAF8F5" />
               <text
-                x="210"
-                y="100"
+                x="186"
+                y="96"
                 textAnchor="middle"
                 fill="#1F5E3B"
-                fontSize="11"
+                fontSize="10.5"
                 fontWeight="700"
               >
                 2•3
               </text>
-              <text x="230" y="100" fill="#FAF8F5" fontSize="12" fontWeight="700">
+              <text x="206" y="96" fill="#FAF8F5" fontSize="12" fontWeight="700">
                 Nghe & Ngữ cảnh
               </text>
-              <text x="198" y="124" fill="#D1FAE5" fontSize="10">
+              <text x="174" y="121" fill="#D1FAE5" fontSize="10.5">
                 🔊 Phát âm chuẩn bản xứ
               </text>
             </g>
 
-            {/* 2D Step Node 4: Gõ từ khuyết 3 vòng */}
+            {/* 2D Step Node 4: Gõ từ khuyết 3 vòng (Widened to contain header & input box) */}
             <g>
               <rect
-                x="228"
+                x="212"
                 y="188"
-                width="156"
-                height="76"
+                width="196"
+                height="82"
                 rx="18"
                 fill="#FFFFFF"
                 stroke="#181715"
                 strokeWidth="2"
               />
-              <text x="246" y="214" fill="#9E2A2B" fontSize="10" fontWeight="700">
+              <text
+                x="310"
+                y="214"
+                textAnchor="middle"
+                fill="#9E2A2B"
+                fontSize="10"
+                fontWeight="700"
+              >
                 BƯỚC 4 • GÕ KHUYẾT 3 VÒNG
               </text>
               <rect
-                x="246"
-                y="224"
-                width="120"
-                height="26"
+                x="232"
+                y="225"
+                width="156"
+                height="30"
                 rx="8"
                 fill="#FAF8F5"
                 stroke="#E5E0D8"
               />
               <text
-                x="306"
-                y="241"
+                x="310"
+                y="244"
                 textAnchor="middle"
                 fill="#181715"
                 fontSize="13"
@@ -169,28 +176,28 @@ export default function CoverFeatureSections({
               </text>
             </g>
 
-            {/* 2D Step Node 5: Dịch câu hoàn chỉnh */}
+            {/* 2D Step Node 5: Dịch câu hoàn chỉnh (Widened) */}
             <g>
               <rect
-                x="356"
-                y="58"
-                width="134"
-                height="74"
+                x="368"
+                y="54"
+                width="168"
+                height="76"
                 rx="18"
                 fill="#181715"
               />
-              <circle cx="382" cy="84" r="11" fill="#1F5E3B" />
+              <circle cx="396" cy="82" r="11" fill="#1F5E3B" />
               <path
-                d="M377 84 L381 88 L388 80"
+                d="M391 82 L395 86 L402 78"
                 stroke="#FFFFFF"
                 strokeWidth="2"
                 fill="none"
                 strokeLinecap="round"
               />
-              <text x="400" y="88" fill="#FAF8F5" fontSize="12" fontWeight="700">
+              <text x="414" y="86" fill="#FAF8F5" fontSize="12" fontWeight="700">
                 5. Dịch câu
               </text>
-              <text x="372" y="112" fill="#A7F3D0" fontSize="10">
+              <text x="384" y="111" fill="#A7F3D0" fontSize="10.5">
                 Khắc sâu trí nhớ dài hạn
               </text>
             </g>
@@ -201,7 +208,7 @@ export default function CoverFeatureSections({
         <div className="lg:col-span-6 space-y-4">
           <div className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#1F5E3B] font-semibold">
             <Sparkles className="w-4 h-4" />
-            <span>01 • Quy trình học 5 bước chủ động</span>
+            <span>Quy trình học 5 bước chủ động</span>
           </div>
 
           <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-[#181715] leading-tight">
@@ -231,7 +238,7 @@ export default function CoverFeatureSections({
         <div className="lg:col-span-6 space-y-4 order-2 lg:order-1">
           <div className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#9E2A2B] font-semibold">
             <CalendarDays className="w-4 h-4" />
-            <span>02 • Lộ trình 10 ngày & Tra nghĩa tức thì</span>
+            <span>Lộ trình 10 ngày & Tra nghĩa tức thì</span>
           </div>
 
           <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-[#181715] leading-tight">
@@ -316,7 +323,7 @@ export default function CoverFeatureSections({
               <line
                 x1="262"
                 y1="83"
-                x2="292"
+                x2="300"
                 y2="83"
                 stroke="#181715"
                 strokeWidth="2.5"
@@ -324,9 +331,9 @@ export default function CoverFeatureSections({
               />
 
               <rect
-                x="292"
+                x="300"
                 y="62"
-                width="104"
+                width="88"
                 height="42"
                 rx="12"
                 fill="#FFFFFF"
@@ -341,7 +348,7 @@ export default function CoverFeatureSections({
                 fontSize="11"
                 fontWeight="700"
               >
-                Ngày 3 → 10
+                Ngày 10
               </text>
             </g>
 
@@ -488,7 +495,7 @@ export default function CoverFeatureSections({
         <div className="lg:col-span-6 space-y-4">
           <div className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#1F5E3B] font-semibold">
             <MessageSquareText className="w-4 h-4" />
-            <span>03 • Luyện phản xạ hội thoại & 6 ngôn ngữ</span>
+            <span>Luyện phản xạ hội thoại & 6 ngôn ngữ</span>
           </div>
 
           <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-[#181715] leading-tight">
@@ -521,3 +528,4 @@ export default function CoverFeatureSections({
     </div>
   );
 }
+
