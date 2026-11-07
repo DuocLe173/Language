@@ -586,45 +586,47 @@ export default function PolyglotHomePage() {
       </header>
 
       {/* Main Content Container (Streamlined Layering so Study Card is Immediately Centered) */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-5">
-        {/* Compact Status & Progress Ribbon (Replaces the bulky 4-box Bento grid) */}
-        <section className="bg-white/80 border border-[#E5E0D8] rounded-2xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-[0_2px_10px_rgba(24,23,21,0.02)]">
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <span className="inline-flex items-center gap-1.5 text-sm font-bold text-[#181715]">
-              <span>{langMeta.nameVi}</span>
-              <span className="text-xs font-normal text-[#57534E]">
-                ({langMeta.nativeName})
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 space-y-4">
+        {/* Compact Status & Progress Ribbon (Only shown on AI Coach & Vault tabs; merged into Unified Studio Bar on Study tab) */}
+        {activeTab !== "study" && (
+          <section className="bg-white/80 border border-[#E5E0D8] rounded-2xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-[0_2px_10px_rgba(24,23,21,0.02)]">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <span className="inline-flex items-center gap-1.5 text-sm font-bold text-[#181715]">
+                <span>{langMeta.nameVi}</span>
+                <span className="text-xs font-normal text-[#57534E]">
+                  ({langMeta.nativeName})
+                </span>
               </span>
-            </span>
-            <span className="text-[#D6D1C7]">•</span>
-            <span className="text-xs font-semibold text-[#1F5E3B]">
-              {activeTopicMeta.titleVi}
-            </span>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3 sm:gap-5 text-xs text-[#57534E]">
-            <div className="inline-flex items-center gap-1.5">
-              <CalendarDays className="w-3.5 h-3.5 text-[#1F5E3B]" />
-              <span>
-                Mở khóa:{" "}
-                <strong className="text-[#181715]">
-                  Ngày {user.isAdmin ? 10 : currentTopicProgress.unlockedDay}/10
-                </strong>
+              <span className="text-[#D6D1C7]">•</span>
+              <span className="text-xs font-semibold text-[#1F5E3B]">
+                {activeTopicMeta.titleVi}
               </span>
             </div>
 
-            <div className="inline-flex items-center gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#1F5E3B]" />
-              <span>
-                Đã thuộc:{" "}
-                <strong className="text-[#181715] font-mono">
-                  {langStats.learnedCount}/{langStats.total}
-                </strong>{" "}
-                từ
-              </span>
+            <div className="flex flex-wrap items-center gap-3 sm:gap-5 text-xs text-[#57534E]">
+              <div className="inline-flex items-center gap-1.5">
+                <CalendarDays className="w-3.5 h-3.5 text-[#1F5E3B]" />
+                <span>
+                  Mở khóa:{" "}
+                  <strong className="text-[#181715]">
+                    Ngày {user.isAdmin ? 10 : currentTopicProgress.unlockedDay}/10
+                  </strong>
+                </span>
+              </div>
+
+              <div className="inline-flex items-center gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#1F5E3B]" />
+                <span>
+                  Đã thuộc:{" "}
+                  <strong className="text-[#181715] font-mono">
+                    {langStats.learnedCount}/{langStats.total}
+                  </strong>{" "}
+                  từ
+                </span>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Active Module Content */}
         {activeTab === "study" && (
@@ -633,6 +635,8 @@ export default function PolyglotHomePage() {
             activeTopicId={activeTopicId}
             topicProgress={currentTopicProgress}
             cards={cards}
+            learnedCount={langStats.learnedCount}
+            totalCount={langStats.total}
             isAdmin={Boolean(user.isAdmin)}
             showPhonetics={user.showPhonetics}
             chineseScript={user.chineseScript}
