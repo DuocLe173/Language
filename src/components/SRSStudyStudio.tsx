@@ -345,76 +345,82 @@ export default function SRSStudyStudio({
 
   return (
     <div className="space-y-6">
-      {/* Compact Top Control Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-white border border-[#E5E0D8] rounded-2xl p-4 shadow-[0_2px_10px_rgba(24,23,21,0.03)]">
-        <div className="flex flex-wrap items-center gap-2.5">
-          {/* Button 1: Open Topic Modal */}
-          <button
-            type="button"
-            onClick={() => setIsTopicModalOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#181715] text-white text-xs sm:text-sm font-medium hover:bg-[#2E2C28] transition-all"
-          >
-            <FolderKanban className="w-4 h-4 text-[#1F5E3B]" />
-            <span>Chủ đề: {activeTopicMeta.titleVi}</span>
-          </button>
+      {/* Unified Breadcrumb & Tiered Action Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white border border-[#E5E0D8] rounded-2xl p-2.5 sm:p-3 shadow-[0_2px_10px_rgba(24,23,21,0.025)]">
+        {/* Left Tier: Connected Topic › Day Breadcrumb Capsule + Practice Arena Trigger */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="inline-flex flex-wrap items-center rounded-xl bg-[#FAF8F5] border border-[#E5E0D8] p-1 gap-1">
+            {/* Parent: Topic Selector */}
+            <button
+              type="button"
+              onClick={() => setIsTopicModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#181715] text-white text-xs font-semibold hover:bg-[#2E2C28] transition-all"
+            >
+              <FolderKanban className="w-3.5 h-3.5 text-[#1F5E3B]" />
+              <span>{activeTopicMeta.titleVi}</span>
+            </button>
 
-          {/* Button 2: Open 10-Day Curriculum Table Modal (with Green Tick when Day is Completed!) */}
-          <button
-            type="button"
-            onClick={() => setIsDayGridModalOpen(true)}
-            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs sm:text-sm font-semibold transition-all ${
-              currentDayStat.isDone
-                ? "bg-[#1F5E3B]/12 border-[#1F5E3B]/40 text-[#1F5E3B]"
-                : "bg-[#FAF8F5] border-[#E5E0D8] hover:border-[#181715] text-[#181715]"
-            }`}
-          >
-            {currentDayStat.isDone ? (
-              <CheckCircle2 className="w-4 h-4 text-[#1F5E3B]" />
-            ) : (
-              <CalendarDays className="w-4 h-4 text-[#9E2A2B]" />
-            )}
-            <span>
-              Ngày {activeDay}/10 ({currentDayStat.completed}/
-              {currentDayStat.total} từ)
-            </span>
-            {currentDayStat.isDone && (
-              <span className="px-2 py-0.5 rounded-md bg-[#1F5E3B] text-white text-[10px] font-bold">
-                ✓ Đã hoàn thành
+            <span className="text-[#8A847C] text-xs px-0.5 select-none">›</span>
+
+            {/* Child: Day Selector */}
+            <button
+              type="button"
+              onClick={() => setIsDayGridModalOpen(true)}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                currentDayStat.isDone
+                  ? "bg-[#1F5E3B]/12 text-[#1F5E3B]"
+                  : "bg-white hover:bg-[#F2EFE9] text-[#181715] shadow-2xs"
+              }`}
+            >
+              {currentDayStat.isDone ? (
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#1F5E3B]" />
+              ) : (
+                <CalendarDays className="w-3.5 h-3.5 text-[#9E2A2B]" />
+              )}
+              <span>
+                Ngày {activeDay}/10 ({currentDayStat.completed}/
+                {currentDayStat.total})
               </span>
-            )}
-          </button>
+              {currentDayStat.isDone && (
+                <span className="px-1.5 py-0.5 rounded bg-[#1F5E3B] text-white text-[10px] font-bold">
+                  ✓
+                </span>
+              )}
+            </button>
+          </div>
 
-          {/* Button 3: Open Interactive Practice Arena Modal */}
+          {/* Secondary Accent Button: Practice Arena */}
           <button
             type="button"
             onClick={() => setIsPracticeModalOpen(true)}
-            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#1F5E3B]/10 text-[#1F5E3B] hover:bg-[#1F5E3B]/20 text-xs sm:text-sm font-semibold transition-all"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1F5E3B]/10 text-[#1F5E3B] hover:bg-[#1F5E3B] hover:text-white text-xs font-semibold transition-all"
           >
-            <Puzzle className="w-4 h-4" />
-            <span>Làm Bài Tập Ôn Luyện (Đủ {currentDayCards.length} từ)</span>
+            <Puzzle className="w-3.5 h-3.5" />
+            <span>Bài Tập Ôn Luyện ({currentDayCards.length} từ)</span>
           </button>
         </div>
 
-        {/* Right Controls: Phonetics + Script + Add Word */}
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Right Tier: Subtle Ghost/Outline Utility Cluster (No visual conflict with primary CTA) */}
+        <div className="flex flex-wrap items-center gap-1.5">
           <button
             onClick={onTogglePhonetics}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#E5E0D8] text-xs font-medium text-[#57534E] hover:text-[#181715]"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-[#E5E0D8] bg-[#FAF8F5] hover:bg-[#F2EFE9] text-xs font-medium text-[#57534E] hover:text-[#181715] transition-colors"
           >
             {showPhonetics ? (
               <Eye className="w-3.5 h-3.5 text-[#1F5E3B]" />
             ) : (
               <EyeOff className="w-3.5 h-3.5" />
             )}
-            {langMeta.phoneticLabel}: {showPhonetics ? "Bật" : "Ẩn"}
+            <span>
+              {langMeta.phoneticLabel}: {showPhonetics ? "Bật" : "Ẩn"}
+            </span>
           </button>
 
           {isChinese && (
             <button
               onClick={onToggleChineseScript}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#E5E0D8] text-xs font-medium text-[#9E2A2B] bg-[#9E2A2B]/5"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-[#E5E0D8] text-xs font-medium text-[#9E2A2B] bg-[#9E2A2B]/5"
             >
-              Chữ Hán:{" "}
               {chineseScript === "simplified" ? "Giản thể (简)" : "Phồn thể (繁)"}
             </button>
           )}
@@ -422,20 +428,20 @@ export default function SRSStudyStudio({
           {isAdmin && (
             <button
               onClick={() => onCompleteFullDay(activeDay)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#B45309]/12 border border-[#B45309]/30 text-[#B45309] text-xs font-semibold hover:bg-[#B45309]/20 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#B45309]/10 border border-[#B45309]/30 text-[#B45309] text-xs font-semibold hover:bg-[#B45309]/20 transition-colors"
               title="Quyền Quản trị viên: Đánh dấu hoàn thành nhanh Ngày hiện tại"
             >
               <Unlock className="w-3.5 h-3.5" />
-              <span>Admin: Hoàn thành Ngày {activeDay}</span>
+              <span>Admin: Xong Ngày {activeDay}</span>
             </button>
           )}
 
           <button
             onClick={onOpenQuickAdd}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1F5E3B] text-white text-xs font-medium hover:bg-[#18492E]"
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-[#181715]/20 bg-white hover:bg-[#181715] text-[#181715] hover:text-white text-xs font-semibold transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
-            Thêm từ
+            <span>Thêm từ</span>
           </button>
         </div>
       </div>
@@ -554,7 +560,7 @@ export default function SRSStudyStudio({
                 </div>
               )}
 
-              <div className="flex items-center justify-between text-xs text-[#57534E] mb-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[#57534E] mb-2.5">
                 <span className="font-semibold text-[#181715]">
                   Ngày {activeDay} • Từ {safeIndex + 1}/{currentDayCards.length}{" "}
                   ({activeCard.level})
@@ -562,6 +568,34 @@ export default function SRSStudyStudio({
                 <span className="font-mono text-[#1F5E3B] font-semibold">
                   Quy trình 5 Bước: Bước {currentStep}/5
                 </span>
+              </div>
+
+              {/* Horizontal 1..10 Word Quick-Jump Strip */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-2.5">
+                {currentDayCards.map((wCard, idx) => {
+                  const isCurrentWord = idx === safeIndex;
+                  const isWordDone = wCard.isCompletedInTopic;
+                  return (
+                    <button
+                      key={wCard.id}
+                      type="button"
+                      onClick={() => onPersistCardIndex(activeTopicId, idx)}
+                      title={`${idx + 1}. ${wCard.term} — ${wCard.meaningVi}`}
+                      className={`h-7 min-w-[28px] px-2 rounded-lg text-[11px] font-mono font-bold transition-all flex items-center justify-center gap-1 shrink-0 ${
+                        isCurrentWord
+                          ? "bg-[#181715] text-white shadow-2xs"
+                          : isWordDone
+                          ? "bg-[#1F5E3B]/15 text-[#1F5E3B] border border-[#1F5E3B]/30"
+                          : "bg-[#FAF8F5] hover:bg-[#F2EFE9] text-[#57534E] border border-[#E5E0D8]"
+                      }`}
+                    >
+                      <span>{idx + 1}</span>
+                      {isWordDone && !isCurrentWord && (
+                        <span className="text-[9px]">✓</span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
 
               <div className="grid grid-cols-5 gap-1.5">

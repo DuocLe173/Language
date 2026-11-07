@@ -154,10 +154,10 @@ export default function CoverAuthGate({
       {/* Main 2-Part Cover Layout (Left: 2D Art & Slogan | Right: Interactive Auth Window) */}
       <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-6 sm:py-10 flex items-center">
         <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          {/* ================= PHẦN BÊN TRÁI (7 COLS): MINH HỌA 2D ĐA LỚP SINH ĐỘNG + KHẨU HIỆU ================= */}
+          {/* ================= PHẦN BÊN TRÁI (7 COLS): MINH HỌA 2D ĐA LỚP SINH ĐỘNG + KHẨU HIỆU TRÊN NỀN GIẤY KEM ================= */}
           <div className="lg:col-span-7 space-y-6">
-            {/* Layered 2D Animated Character & Polyglot World Scene */}
-            <div className="relative rounded-3xl bg-white border border-[#E5E0D8] p-6 sm:p-8 shadow-[0_20px_50px_rgba(24,23,21,0.06)] overflow-hidden group">
+            {/* Layered 2D Animated Character & Polyglot World Scene (Art Stage) */}
+            <div className="relative rounded-3xl bg-white/85 backdrop-blur-xs border border-[#E5E0D8] p-5 sm:p-7 shadow-[0_12px_36px_rgba(24,23,21,0.04)] overflow-hidden group">
               {/* Decorative Editorial Grid Background */}
               <div
                 aria-hidden="true"
@@ -165,7 +165,7 @@ export default function CoverAuthGate({
               />
 
               {/* Floating 2D Language Speech Bubbles (Animated with depth) */}
-              <div className="relative z-10 flex flex-wrap items-center justify-between gap-2 mb-3">
+              <div className="relative z-10 flex flex-wrap items-center justify-between gap-2 mb-2">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF8F5] border border-[#E5E0D8] text-xs font-semibold text-[#181715] shadow-2xs transition-transform duration-500 group-hover:-translate-y-1">
                   <span className="w-2 h-2 rounded-full bg-[#1F5E3B]" />
                   EN: Hello! <span className="font-mono text-[#8A847C]">/həˈloʊ/</span>
@@ -180,7 +180,7 @@ export default function CoverAuthGate({
               </div>
 
               {/* 2D Art-Directed SVG Illustration with Character, Books, Lamp & Floating Cards */}
-              <div className="relative z-10 my-2 flex items-center justify-center">
+              <div className="relative z-10 my-1 flex items-center justify-center">
                 <svg
                   viewBox="0 0 640 310"
                   className="w-full max-w-[580px] h-auto drop-shadow-xs select-none"
@@ -476,37 +476,37 @@ export default function CoverAuthGate({
                   </g>
                 </svg>
               </div>
+            </div>
 
-              {/* Inspiring Slogan Block Inside Left Showcase */}
-              <div className="relative z-10 pt-5 border-t border-[#E5E0D8] space-y-3.5">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#181715] leading-tight">
-                  Mỗi ngôn ngữ mới là một cuộc đời mới được mở ra
-                </h1>
+            {/* Inspiring Slogan Block Directly on Warm Ivory Canvas for Editorial Depth */}
+            <div className="space-y-4 px-1">
+              <h1 className="text-2xl sm:text-3xl lg:text-[38px] font-bold tracking-tight text-[#181715] leading-[1.18]">
+                Mỗi ngôn ngữ mới là một cuộc đời mới được mở ra
+              </h1>
 
-                <p className="text-sm sm:text-base text-[#57534E] leading-relaxed">
-                  Đừng sợ nói sai hay bắt đầu chậm. Chỉ cần 10 từ vựng mỗi ngày, từng bước nhỏ hôm nay sẽ kết nối bạn với những nền văn hóa, tri thức và cơ hội rộng lớn khắp năm châu.
-                </p>
+              <p className="text-sm sm:text-base text-[#57534E] leading-relaxed max-w-2xl">
+                Đừng sợ nói sai hay bắt đầu chậm. Chỉ cần 10 từ vựng mỗi ngày, từng bước nhỏ hôm nay sẽ kết nối bạn với những nền văn hóa, tri thức và cơ hội rộng lớn khắp năm châu.
+              </p>
 
-                {/* 3 Motivational Keywords to Encourage Learners */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
-                  <div className="p-3 rounded-2xl bg-[#FAF8F5] border border-[#E5E0D8] flex items-center gap-2.5">
-                    <Flame className="w-4 h-4 text-[#B45309] shrink-0" />
-                    <span className="text-xs font-semibold text-[#181715]">
-                      Bền bỉ từng bước nhỏ
-                    </span>
-                  </div>
-                  <div className="p-3 rounded-2xl bg-[#FAF8F5] border border-[#E5E0D8] flex items-center gap-2.5">
-                    <Sparkles className="w-4 h-4 text-[#1F5E3B] shrink-0" />
-                    <span className="text-xs font-semibold text-[#181715]">
-                      Tự tin cất tiếng nói
-                    </span>
-                  </div>
-                  <div className="p-3 rounded-2xl bg-[#FAF8F5] border border-[#E5E0D8] flex items-center gap-2.5">
-                    <Compass className="w-4 h-4 text-[#9E2A2B] shrink-0" />
-                    <span className="text-xs font-semibold text-[#181715]">
-                      Chạm tới chân trời mới
-                    </span>
-                  </div>
+              {/* 3 Motivational Keywords (Subtle Pill Tags on Canvas) */}
+              <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                <div className="px-3.5 py-2 rounded-full bg-white/80 border border-[#E5E0D8] flex items-center gap-2 shadow-2xs">
+                  <Flame className="w-3.5 h-3.5 text-[#B45309] shrink-0" />
+                  <span className="text-xs font-semibold text-[#181715]">
+                    Bền bỉ từng bước nhỏ
+                  </span>
+                </div>
+                <div className="px-3.5 py-2 rounded-full bg-white/80 border border-[#E5E0D8] flex items-center gap-2 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-[#1F5E3B] shrink-0" />
+                  <span className="text-xs font-semibold text-[#181715]">
+                    Tự tin cất tiếng nói
+                  </span>
+                </div>
+                <div className="px-3.5 py-2 rounded-full bg-white/80 border border-[#E5E0D8] flex items-center gap-2 shadow-2xs">
+                  <Compass className="w-3.5 h-3.5 text-[#9E2A2B] shrink-0" />
+                  <span className="text-xs font-semibold text-[#181715]">
+                    Chạm tới chân trời mới
+                  </span>
                 </div>
               </div>
             </div>

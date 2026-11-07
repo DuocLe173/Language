@@ -426,31 +426,73 @@ export default function PolyglotHomePage() {
         </div>
       )}
 
-      {/* Clean Top Header with Compact Language Dropdown */}
+      {/* Unified Sticky Top Header: Brand + Center Navigation Tabs + Right User Cluster */}
       <header className="sticky top-0 z-30 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#E5E0D8]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
-          {/* Brand Logo */}
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#181715] text-[#FAF8F5] flex items-center justify-center font-bold text-lg">
+          {/* Left: Brand Logo */}
+          <div className="flex items-center gap-2.5 shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-[#181715] text-[#FAF8F5] flex items-center justify-center font-bold text-lg shadow-2xs">
               文
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-lg tracking-tight text-[#181715]">
+                <span className="font-bold text-base sm:text-lg tracking-tight text-[#181715]">
                   LinguaForge
                 </span>
-                <span className="hidden sm:inline-block px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider bg-[#F2EFE9] text-[#57534E]">
-                  Polyglot Studio
+                <span className="hidden xl:inline-block px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider bg-[#F2EFE9] text-[#57534E]">
+                  Studio
                 </span>
               </div>
-              <p className="text-[11px] text-[#8A847C] hidden md:block">
-                Lộ Trình 10 Ngày • Học 5 Bước Tương Tác • Bài Tập Đa Dạng
-              </p>
             </div>
           </div>
 
-          {/* Right Controls: Compact Language Dropdown + Streak + User Profile + Logout */}
-          <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* Center (Desktop): Primary 3-Module Segmented Navigation */}
+          <nav
+            aria-label="Chế độ học tập"
+            className="hidden lg:inline-flex rounded-2xl bg-[#F2EFE9] p-1 border border-[#E5E0D8]/80 gap-1"
+          >
+            <button
+              type="button"
+              onClick={() => setActiveTab("study")}
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                activeTab === "study"
+                  ? "bg-white text-[#181715] shadow-2xs"
+                  : "text-[#57534E] hover:text-[#181715]"
+              }`}
+            >
+              <BookOpen className="w-3.5 h-3.5 text-[#1F5E3B]" />
+              <span>Học Từ Vựng (5 Bước)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("ai-coach")}
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                activeTab === "ai-coach"
+                  ? "bg-white text-[#181715] shadow-2xs"
+                  : "text-[#57534E] hover:text-[#181715]"
+              }`}
+            >
+              <MessageSquareText className="w-3.5 h-3.5 text-[#9E2A2B]" />
+              <span>Luyện Nói & Sửa Ngữ Pháp AI</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("vault")}
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                activeTab === "vault"
+                  ? "bg-white text-[#181715] shadow-2xs"
+                  : "text-[#57534E] hover:text-[#181715]"
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5 text-[#57534E]" />
+              <span>Kho Từ ({langStats.total})</span>
+            </button>
+          </nav>
+
+          {/* Right Controls: Language Dropdown + Streak + Unified Account & Logout Pill */}
+          <div className="flex items-center gap-2">
             <LanguageDropdown
               activeLang={activeLang}
               progressByLang={progressByLang}
@@ -458,194 +500,131 @@ export default function PolyglotHomePage() {
             />
 
             <div
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#B45309]/10 text-[#B45309] text-xs font-semibold"
+              className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#B45309]/10 text-[#B45309] text-xs font-semibold"
               title="Chuỗi ngày học liên tiếp"
             >
-              <Flame className="w-4 h-4 fill-current" />
+              <Flame className="w-3.5 h-3.5 fill-current" />
               <span>{user.streakDays} ngày</span>
             </div>
 
-            <button
-              onClick={() => setShowSettingsModal(true)}
-              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-[#E5E0D8] hover:bg-[#F2EFE9] text-xs font-medium text-[#181715] transition-colors"
-              title="Hồ sơ cá nhân & Cài đặt AI"
-            >
-              <Users className="w-3.5 h-3.5 text-[#1F5E3B]" />
-              <span className="max-w-[130px] truncate hidden sm:inline">
-                {user.name}
-              </span>
-              {user.isAdmin && (
-                <span className="px-1.5 py-0.5 rounded-md bg-[#1F5E3B] text-white text-[9px] font-mono uppercase tracking-wider font-bold">
-                  Admin
+            {/* Unified User Profile + Logout Capsule */}
+            <div className="inline-flex items-center rounded-xl bg-white border border-[#E5E0D8] p-0.5 shadow-2xs">
+              <button
+                type="button"
+                onClick={() => setShowSettingsModal(true)}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-[#F2EFE9] text-xs font-medium text-[#181715] transition-colors"
+                title="Hồ sơ cá nhân & Cài đặt AI"
+              >
+                <Users className="w-3.5 h-3.5 text-[#1F5E3B]" />
+                <span className="max-w-[115px] truncate hidden sm:inline">
+                  {user.name}
                 </span>
-              )}
-              <Settings className="w-3.5 h-3.5 text-[#8A847C]" />
-            </button>
+                {user.isAdmin && (
+                  <span className="px-1.5 py-0.5 rounded bg-[#1F5E3B] text-white text-[9px] font-mono uppercase tracking-wider font-bold">
+                    Admin
+                  </span>
+                )}
+                <Settings className="w-3 h-3 text-[#8A847C]" />
+              </button>
 
+              <div className="w-px h-4 bg-[#E5E0D8] mx-0.5" />
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg hover:bg-[#9E2A2B]/10 text-xs font-semibold text-[#57534E] hover:text-[#9E2A2B] transition-colors"
+                title="Đăng xuất về Trang bìa"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden xl:inline">Thoát</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile/Tablet Navigation Strip (Only visible below lg) */}
+        <div className="lg:hidden px-4 pb-2.5 flex items-center justify-center">
+          <div className="inline-flex w-full sm:w-auto rounded-2xl bg-[#F2EFE9] p-1 border border-[#E5E0D8] gap-1">
             <button
-              onClick={handleLogout}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#E5E0D8] hover:bg-[#9E2A2B]/10 hover:border-[#9E2A2B]/30 hover:text-[#9E2A2B] text-xs font-semibold text-[#57534E] transition-colors"
-              title="Đăng xuất về Trang bìa"
+              type="button"
+              onClick={() => setActiveTab("study")}
+              className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                activeTab === "study"
+                  ? "bg-white text-[#181715] shadow-2xs"
+                  : "text-[#57534E]"
+              }`}
             >
-              <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">Đăng xuất</span>
+              <BookOpen className="w-3.5 h-3.5 text-[#1F5E3B]" />
+              <span>Học 5 Bước</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("ai-coach")}
+              className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                activeTab === "ai-coach"
+                  ? "bg-white text-[#181715] shadow-2xs"
+                  : "text-[#57534E]"
+              }`}
+            >
+              <MessageSquareText className="w-3.5 h-3.5 text-[#9E2A2B]" />
+              <span>Luyện Nói AI</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("vault")}
+              className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                activeTab === "vault"
+                  ? "bg-white text-[#181715] shadow-2xs"
+                  : "text-[#57534E]"
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5 text-[#57534E]" />
+              <span>Kho Từ ({langStats.total})</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* Main Content Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Bento Overview Strip */}
-        <section className="grid grid-cols-1 md:grid-cols-12 gap-4">
-          {/* Active Language & Current Topic Summary (5 cols) */}
-          <div className="md:col-span-5 bg-white border border-[#E5E0D8] rounded-3xl p-5 flex flex-col justify-between shadow-[0_2px_12px_rgba(24,23,21,0.025)]">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <span className="text-xs font-mono uppercase tracking-wider text-[#8A847C]">
-                  Ngôn ngữ & Lộ trình đang học
-                </span>
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#181715] mt-1">
-                  {langMeta.nameVi}{" "}
-                  <span className="text-base font-normal text-[#57534E]">
-                    ({langMeta.nativeName})
-                  </span>
-                </h1>
-                <p className="text-xs text-[#1F5E3B] font-semibold mt-1">
-                  Chủ đề: {activeTopicMeta.titleVi} • Ngày{" "}
-                  {currentTopicProgress.activeDay}/10
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  setActiveTab("vault");
-                  setShowQuickAddModal(true);
-                }}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#F2EFE9] hover:bg-[#E5E0D8] text-xs font-medium text-[#181715] transition-colors shrink-0"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                Thêm từ
-              </button>
+      {/* Main Content Container (Streamlined Layering so Study Card is Immediately Centered) */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-5">
+        {/* Compact Status & Progress Ribbon (Replaces the bulky 4-box Bento grid) */}
+        <section className="bg-white/80 border border-[#E5E0D8] rounded-2xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-[0_2px_10px_rgba(24,23,21,0.02)]">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <span className="inline-flex items-center gap-1.5 text-sm font-bold text-[#181715]">
+              <span>{langMeta.nameVi}</span>
+              <span className="text-xs font-normal text-[#57534E]">
+                ({langMeta.nativeName})
+              </span>
+            </span>
+            <span className="text-[#D6D1C7]">•</span>
+            <span className="text-xs font-semibold text-[#1F5E3B]">
+              {activeTopicMeta.titleVi}
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 sm:gap-5 text-xs text-[#57534E]">
+            <div className="inline-flex items-center gap-1.5">
+              <CalendarDays className="w-3.5 h-3.5 text-[#1F5E3B]" />
+              <span>
+                Mở khóa:{" "}
+                <strong className="text-[#181715]">
+                  Ngày {user.isAdmin ? 10 : currentTopicProgress.unlockedDay}/10
+                </strong>
+              </span>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-[#E5E0D8] flex items-center justify-between text-xs text-[#57534E]">
-              <span>Phiên âm: {langMeta.phoneticLabel}</span>
-              <span className="font-mono">
+            <div className="inline-flex items-center gap-2">
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#1F5E3B]" />
+              <span>
                 Đã thuộc:{" "}
-                <strong className="text-[#181715]">
+                <strong className="text-[#181715] font-mono">
                   {langStats.learnedCount}/{langStats.total}
                 </strong>{" "}
                 từ
               </span>
             </div>
           </div>
-
-          {/* 3 Metric Cards (7 cols) */}
-          <div className="md:col-span-7 grid grid-cols-3 gap-3 sm:gap-4">
-            <div
-              onClick={() => setActiveTab("study")}
-              className="bg-white border border-[#E5E0D8] rounded-3xl p-4 sm:p-5 flex flex-col justify-between cursor-pointer hover:border-[#1F5E3B]/40 transition-colors"
-            >
-              <div className="flex items-center justify-between text-[#1F5E3B]">
-                <span className="text-xs font-mono uppercase">
-                  Mở khóa lộ trình
-                </span>
-                <CalendarDays className="w-4 h-4" />
-              </div>
-              <div className="mt-2">
-                <div className="text-2xl sm:text-3xl font-bold text-[#181715]">
-                  Ngày {user.isAdmin ? 10 : currentTopicProgress.unlockedDay}/10
-                </div>
-                <div className="text-[11px] text-[#57534E] mt-0.5 truncate">
-                  {user.isAdmin
-                    ? `Admin: Mở toàn bộ • Ngày ${currentTopicProgress.activeDay}`
-                    : `Đang học Ngày ${currentTopicProgress.activeDay}`}
-                </div>
-              </div>
-            </div>
-
-            <div
-              onClick={() => setActiveTab("ai-coach")}
-              className="bg-white border border-[#E5E0D8] rounded-3xl p-4 sm:p-5 flex flex-col justify-between cursor-pointer hover:border-[#9E2A2B]/40 transition-colors"
-            >
-              <div className="flex items-center justify-between text-[#9E2A2B]">
-                <span className="text-xs font-mono uppercase">
-                  Người bạn bản xứ AI
-                </span>
-                <MessageSquareText className="w-4 h-4" />
-              </div>
-              <div className="mt-2">
-                <div className="text-lg sm:text-xl font-bold text-[#181715]">
-                  Luyện Nói Tự Nhiên
-                </div>
-                <div className="text-[11px] text-[#57534E] mt-0.5">
-                  Dịch truyền cảm & sửa ngữ pháp
-                </div>
-              </div>
-            </div>
-
-            <div
-              onClick={() => setActiveTab("vault")}
-              className="bg-white border border-[#E5E0D8] rounded-3xl p-4 sm:p-5 flex flex-col justify-between cursor-pointer hover:border-[#181715]/40 transition-colors"
-            >
-              <div className="flex items-center justify-between text-[#57534E]">
-                <span className="text-xs font-mono uppercase">
-                  Tổng kho từ
-                </span>
-                <CheckCircle2 className="w-4 h-4 text-[#1F5E3B]" />
-              </div>
-              <div className="mt-2">
-                <div className="text-2xl sm:text-3xl font-bold text-[#181715]">
-                  {langStats.total}
-                </div>
-                <div className="text-[11px] text-[#57534E] mt-0.5">
-                  Đã hoàn thành: {langStats.learnedCount} từ
-                </div>
-              </div>
-            </div>
-          </div>
         </section>
-
-        {/* Primary Module Navigation Tabs */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E5E0D8] pb-3">
-          <div className="inline-flex rounded-2xl bg-[#F2EFE9] p-1.5 gap-1">
-            <button
-              onClick={() => setActiveTab("study")}
-              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
-                activeTab === "study"
-                  ? "bg-white text-[#181715] shadow-xs"
-                  : "text-[#57534E] hover:text-[#181715]"
-              }`}
-            >
-              <BookOpen className="w-4 h-4 text-[#1F5E3B]" />
-              <span>1. Học Từ Vựng Theo Ngày (5 Bước)</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("ai-coach")}
-              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
-                activeTab === "ai-coach"
-                  ? "bg-white text-[#181715] shadow-xs"
-                  : "text-[#57534E] hover:text-[#181715]"
-              }`}
-            >
-              <MessageSquareText className="w-4 h-4 text-[#9E2A2B]" />
-              <span>2. Trò Chuyện Luyện Nói & Sửa Ngữ Pháp AI</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("vault")}
-              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
-                activeTab === "vault"
-                  ? "bg-white text-[#181715] shadow-xs"
-                  : "text-[#57534E] hover:text-[#181715]"
-              }`}
-            >
-              <Layers className="w-4 h-4 text-[#57534E]" />
-              <span>3. Kho Từ Vựng ({langStats.total})</span>
-            </button>
-          </div>
-        </div>
 
         {/* Active Module Content */}
         {activeTab === "study" && (
