@@ -20,6 +20,33 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Signature 2D Smooth Levitation & Parallax Depth on Buttons */
+button:not(:disabled) {
+  transition:
+    transform 500ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 500ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 300ms ease,
+    border-color 300ms ease,
+    color 300ms ease;
+  will-change: transform;
+}
+
+button:not(:disabled):hover {
+  transform: translateY(-4px);
+}
+
+button:not(:disabled):active {
+  transform: translateY(0px) scale(0.985);
+}
+
+button:not(:disabled) svg {
+  transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+button:not(:disabled):hover svg {
+  transform: translateY(-1px) scale(1.06);
+}
+
 /* Custom subtle scrollbars */
 ::-webkit-scrollbar {
   width: 6px;

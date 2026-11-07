@@ -483,21 +483,21 @@ export default function CoverAuthGate({
                 Đừng sợ nói sai hay bắt đầu chậm. Chỉ cần 10 từ vựng mỗi ngày, từng bước nhỏ hôm nay sẽ kết nối bạn với những nền văn hóa, tri thức và cơ hội rộng lớn khắp năm châu.
               </p>
 
-              {/* 3 Motivational Keywords (Subtle Pill Tags on Canvas) */}
+              {/* 3 Motivational Keywords (Subtle Pill Tags on Canvas with 2D Float Effect) */}
               <div className="flex flex-wrap items-center gap-2.5 pt-1">
-                <div className="px-3.5 py-2 rounded-full bg-white/80 border border-[#E5E0D8] flex items-center gap-2 shadow-2xs">
+                <div className="px-3.5 py-2 rounded-full bg-white/85 border border-[#E5E0D8] flex items-center gap-2 shadow-2xs transition-transform duration-500 ease-out group-hover:-translate-y-1 hover:-translate-y-2 cursor-default">
                   <Flame className="w-3.5 h-3.5 text-[#B45309] shrink-0" />
                   <span className="text-xs font-semibold text-[#181715]">
                     Bền bỉ từng bước nhỏ
                   </span>
                 </div>
-                <div className="px-3.5 py-2 rounded-full bg-white/80 border border-[#E5E0D8] flex items-center gap-2 shadow-2xs">
+                <div className="px-3.5 py-2 rounded-full bg-white/85 border border-[#E5E0D8] flex items-center gap-2 shadow-2xs transition-transform duration-500 delay-75 ease-out group-hover:-translate-y-1.5 hover:-translate-y-2 cursor-default">
                   <Sparkles className="w-3.5 h-3.5 text-[#1F5E3B] shrink-0" />
                   <span className="text-xs font-semibold text-[#181715]">
                     Tự tin cất tiếng nói
                   </span>
                 </div>
-                <div className="px-3.5 py-2 rounded-full bg-white/80 border border-[#E5E0D8] flex items-center gap-2 shadow-2xs">
+                <div className="px-3.5 py-2 rounded-full bg-white/85 border border-[#E5E0D8] flex items-center gap-2 shadow-2xs transition-transform duration-500 delay-150 ease-out group-hover:-translate-y-1 hover:-translate-y-2 cursor-default">
                   <Compass className="w-3.5 h-3.5 text-[#9E2A2B] shrink-0" />
                   <span className="text-xs font-semibold text-[#181715]">
                     Chạm tới chân trời mới
@@ -537,34 +537,38 @@ export default function CoverAuthGate({
                   </div>
                 )}
 
-                {/* 2 Primary Action Buttons Directly on the Unified Page */}
+                {/* 2 Primary Action Buttons Directly on the Unified Page (with 2D Multi-Layer Float Effect) */}
                 <div className="space-y-3.5 pt-1">
                   <button
                     type="button"
                     onClick={() => handleOpenLogin()}
-                    className="group w-full py-4 px-6 rounded-2xl bg-[#181715] hover:bg-[#1F5E3B] active:scale-[0.99] text-white font-bold text-base shadow-[0_12px_28px_rgba(24,23,21,0.14)] hover:shadow-[0_14px_30px_rgba(31,94,59,0.25)] transition-all duration-200 flex items-center justify-between"
+                    className="group w-full py-4 px-6 rounded-2xl bg-[#181715] hover:bg-[#1F5E3B] text-white font-bold text-base shadow-[0_12px_28px_rgba(24,23,21,0.14)] hover:shadow-[0_18px_36px_rgba(31,94,59,0.26)] transition-all duration-500 ease-out hover:-translate-y-2 flex items-center justify-between"
                   >
                     <span className="flex items-center gap-3">
-                      <span className="w-9 h-9 rounded-xl bg-white/12 flex items-center justify-center">
+                      <span className="w-9 h-9 rounded-xl bg-white/12 flex items-center justify-center transition-transform duration-500 ease-out group-hover:-translate-y-1 group-hover:scale-105">
                         <LogIn className="w-4 h-4 text-white" />
                       </span>
-                      <span>Đăng nhập</span>
+                      <span className="transition-transform duration-500 ease-out group-hover:translate-x-0.5">
+                        Đăng nhập
+                      </span>
                     </span>
-                    <ArrowRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1" />
+                    <ArrowRight className="w-5 h-5 transition-transform duration-500 ease-out group-hover:translate-x-1.5 group-hover:-translate-y-0.5" />
                   </button>
 
                   <button
                     type="button"
                     onClick={handleOpenRegister}
-                    className="group w-full py-4 px-6 rounded-2xl bg-white/80 hover:bg-white active:scale-[0.99] text-[#181715] border-2 border-[#181715]/15 hover:border-[#181715] font-bold text-base transition-all duration-200 flex items-center justify-between"
+                    className="group w-full py-4 px-6 rounded-2xl bg-white/85 hover:bg-white text-[#181715] border-2 border-[#181715]/15 hover:border-[#181715] font-bold text-base shadow-[0_6px_20px_rgba(24,23,21,0.04)] hover:shadow-[0_16px_34px_rgba(24,23,21,0.10)] transition-all duration-500 ease-out hover:-translate-y-2 flex items-center justify-between"
                   >
                     <span className="flex items-center gap-3">
-                      <span className="w-9 h-9 rounded-xl bg-[#181715]/8 flex items-center justify-center">
+                      <span className="w-9 h-9 rounded-xl bg-[#181715]/8 flex items-center justify-center transition-transform duration-500 ease-out group-hover:-translate-y-1 group-hover:scale-105">
                         <UserPlus className="w-4 h-4 text-[#181715]" />
                       </span>
-                      <span>Tạo tài khoản</span>
+                      <span className="transition-transform duration-500 ease-out group-hover:translate-x-0.5">
+                        Tạo tài khoản
+                      </span>
                     </span>
-                    <ArrowRight className="w-5 h-5 text-[#57534E] group-hover:text-[#181715] transition-transform duration-200 group-hover:translate-x-1" />
+                    <ArrowRight className="w-5 h-5 text-[#57534E] group-hover:text-[#181715] transition-transform duration-500 ease-out group-hover:translate-x-1.5 group-hover:-translate-y-0.5" />
                   </button>
                 </div>
 

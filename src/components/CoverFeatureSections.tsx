@@ -31,7 +31,7 @@ export default function CoverFeatureSections({
       </div>
 
       {/* ================= SECTION 1: PHƯƠNG PHÁP 5 BƯỚC TƯƠNG TÁC SÂU ================= */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center group">
         {/* Left: 2D Illustration of the 5-Step Interactive Memory Loop */}
         <div className="lg:col-span-6 flex items-center justify-center">
           <svg
@@ -73,7 +73,7 @@ export default function CoverFeatureSections({
             />
 
             {/* 2D Step Node 1: Nhìn từ (Widened to fit all text comfortably) */}
-            <g>
+            <g className="transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:-translate-x-1">
               <rect
                 x="24"
                 y="210"
@@ -104,7 +104,7 @@ export default function CoverFeatureSections({
             </g>
 
             {/* 2D Step Node 2 & 3: Nghe & Hiểu ngữ cảnh (Widened) */}
-            <g>
+            <g className="transition-transform duration-500 delay-75 ease-out group-hover:-translate-y-2">
               <rect
                 x="156"
                 y="62"
@@ -133,7 +133,7 @@ export default function CoverFeatureSections({
             </g>
 
             {/* 2D Step Node 4: Gõ từ khuyết 3 vòng (Widened to contain header & input box) */}
-            <g>
+            <g className="transition-transform duration-500 delay-100 ease-out group-hover:-translate-y-1.5">
               <rect
                 x="212"
                 y="188"
@@ -177,7 +177,7 @@ export default function CoverFeatureSections({
             </g>
 
             {/* 2D Step Node 5: Dịch câu hoàn chỉnh (Widened) */}
-            <g>
+            <g className="transition-transform duration-500 delay-150 ease-out group-hover:-translate-y-2 group-hover:translate-x-1">
               <rect
                 x="368"
                 y="54"
@@ -233,7 +233,7 @@ export default function CoverFeatureSections({
       </section>
 
       {/* ================= SECTION 2: LỘ TRÌNH 10 NGÀY & GIẢI NGHĨA TỪNG TỪ TRONG CÂU ================= */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center group">
         {/* Left on Desktop: Editorial Description */}
         <div className="lg:col-span-6 space-y-4 order-2 lg:order-1">
           <div className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#9E2A2B] font-semibold">
@@ -272,7 +272,7 @@ export default function CoverFeatureSections({
             <ellipse cx="260" cy="175" rx="210" ry="135" fill="#F2EFE9" />
 
             {/* 10-Day Stepping Stones */}
-            <g>
+            <g className="transition-transform duration-500 ease-out group-hover:-translate-y-2">
               <rect
                 x="56"
                 y="62"
@@ -353,7 +353,7 @@ export default function CoverFeatureSections({
             </g>
 
             {/* Sentence Card with Interactive Hover Tooltip Popover */}
-            <g>
+            <g className="transition-transform duration-500 delay-75 ease-out group-hover:-translate-y-1.5">
               <rect
                 x="56"
                 y="178"
@@ -423,7 +423,7 @@ export default function CoverFeatureSections({
       </section>
 
       {/* ================= SECTION 3: NGƯỜI BẠN BẢN XỨ AI & ĐA NGÔN NGỮ ================= */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center group">
         {/* Left: 2D Illustration of AI Native Conversation & Grammar Correction */}
         <div className="lg:col-span-6 flex items-center justify-center">
           <svg
@@ -435,7 +435,7 @@ export default function CoverFeatureSections({
             <ellipse cx="260" cy="160" rx="210" ry="130" fill="#F2EFE9" />
 
             {/* User Chat Bubble */}
-            <g>
+            <g className="transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:translate-x-1">
               <rect
                 x="150"
                 y="46"
@@ -453,7 +453,7 @@ export default function CoverFeatureSections({
             </g>
 
             {/* AI Tutor Correction & Native Reply Bubble */}
-            <g>
+            <g className="transition-transform duration-500 delay-75 ease-out group-hover:-translate-y-1.5 group-hover:-translate-x-1">
               <rect
                 x="56"
                 y="136"
