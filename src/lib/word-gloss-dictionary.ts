@@ -1,4 +1,5 @@
 import { LanguageCode, VocabCard } from "@/types/language";
+import { INITIAL_VOCAB_CARDS } from "@/lib/seed-data";
 
 export interface WordGlossInfo {
   word: string;
@@ -250,7 +251,187 @@ const ZH_WORD_GLOSSES: Record<string, Omit<WordGlossInfo, "word">> = {
   "喜欢": { phonetic: "xǐ huan", partOfSpeech: "động từ", meaningVi: "thích, yêu thích" },
   "休息": { phonetic: "xiū xi", partOfSpeech: "động từ", meaningVi: "nghỉ ngơi" },
   "再见": { phonetic: "zài jiàn", partOfSpeech: "động từ", meaningVi: "tạm biệt" },
+  "天气": { phonetic: "tiān qì", partOfSpeech: "danh từ", meaningVi: "thời tiết" },
+  "真好": { phonetic: "zhēn hǎo", partOfSpeech: "tính từ", meaningVi: "thật đẹp, thật tốt" },
+  "很": { phonetic: "hěn", partOfSpeech: "phó từ", meaningVi: "rất" },
+  "非常": { phonetic: "fēi cháng", partOfSpeech: "phó từ", meaningVi: "vô cùng, cực kỳ" },
+  "的": { phonetic: "de", partOfSpeech: "trợ từ kết cấu", meaningVi: "của / (nối định ngữ)" },
+  "了": { phonetic: "le", partOfSpeech: "trợ từ ngữ khí", meaningVi: "rồi, đã" },
+  "吧": { phonetic: "ba", partOfSpeech: "trợ từ cuối câu", meaningVi: "nhé, đi nào" },
+  "在": { phonetic: "zài", partOfSpeech: "giới từ / phó từ", meaningVi: "ở tại; đang" },
+  "和": { phonetic: "hé", partOfSpeech: "liên từ", meaningVi: "và, cùng với" },
+  "去": { phonetic: "qù", partOfSpeech: "động từ", meaningVi: "đi, đến" },
+  "工作": { phonetic: "gōng zuò", partOfSpeech: "danh từ / động từ", meaningVi: "công việc; làm việc" },
+  "学习": { phonetic: "xué xí", partOfSpeech: "động từ", meaningVi: "học tập" },
+  "这个": { phonetic: "zhè ge", partOfSpeech: "đại từ chỉ định", meaningVi: "cái này, điều này" },
+  "大家": { phonetic: "dà jiā", partOfSpeech: "đại từ", meaningVi: "mọi người" },
+  "每天": { phonetic: "měi tiān", partOfSpeech: "danh từ", meaningVi: "mỗi ngày" },
 };
+
+const JA_WORD_GLOSSES: Record<string, Omit<WordGlossInfo, "word">> = {
+  "私": { phonetic: "watashi", partOfSpeech: "đại từ", meaningVi: "tôi, mình" },
+  "私たち": { phonetic: "watashitachi", partOfSpeech: "đại từ", meaningVi: "chúng mình, chúng tôi" },
+  "今日": { phonetic: "kyō", partOfSpeech: "danh từ", meaningVi: "hôm nay" },
+  "明日": { phonetic: "ashita", partOfSpeech: "danh từ", meaningVi: "ngày mai" },
+  "毎日": { phonetic: "mainichi", partOfSpeech: "danh từ", meaningVi: "mỗi ngày" },
+  "とても": { phonetic: "totemo", partOfSpeech: "phó từ", meaningVi: "rất, lắm" },
+  "一緒": { phonetic: "issho", partOfSpeech: "danh từ", meaningVi: "cùng nhau" },
+  "友達": { phonetic: "tomodachi", partOfSpeech: "danh từ", meaningVi: "người bạn" },
+  "先生": { phonetic: "sensei", partOfSpeech: "danh từ", meaningVi: "thầy/cô giáo" },
+  "仕事": { phonetic: "shigoto", partOfSpeech: "danh từ", meaningVi: "công việc" },
+  "勉強": { phonetic: "benkyō", partOfSpeech: "danh từ / động từ", meaningVi: "việc học tập" },
+  "です": { phonetic: "desu", partOfSpeech: "trợ động từ lịch sự", meaningVi: "thì, là (lịch sự)" },
+  "ます": { phonetic: "masu", partOfSpeech: "đuôi động từ lịch sự", meaningVi: "(đuôi lịch sự hiện tại/tương lai)" },
+  "は": { phonetic: "wa", partOfSpeech: "trợ từ chủ đề", meaningVi: "thì, về phần" },
+  "を": { phonetic: "o", partOfSpeech: "trợ từ tân ngữ", meaningVi: "(đánh dấu tân ngữ)" },
+  "に": { phonetic: "ni", partOfSpeech: "trợ từ", meaningVi: "vào lúc, ở tại, đến" },
+  "で": { phonetic: "de", partOfSpeech: "trợ từ", meaningVi: "tại (nơi chốn), bằng (phương tiện)" },
+  "の": { phonetic: "no", partOfSpeech: "trợ từ sở hữu", meaningVi: "của" },
+  "と": { phonetic: "to", partOfSpeech: "trợ từ", meaningVi: "và, cùng với" },
+};
+
+const KO_WORD_GLOSSES: Record<string, Omit<WordGlossInfo, "word">> = {
+  "저는": { phonetic: "jeo-neun", partOfSpeech: "đại từ", meaningVi: "tôi, mình (lịch sự)" },
+  "나는": { phonetic: "na-neun", partOfSpeech: "đại từ", meaningVi: "mình, tớ" },
+  "우리는": { phonetic: "u-ri-neun", partOfSpeech: "đại từ", meaningVi: "chúng mình, chúng ta" },
+  "오늘": { phonetic: "o-neul", partOfSpeech: "danh từ", meaningVi: "hôm nay" },
+  "내일": { phonetic: "nae-il", partOfSpeech: "danh từ", meaningVi: "ngày mai" },
+  "매일": { phonetic: "mae-il", partOfSpeech: "phó từ", meaningVi: "mỗi ngày" },
+  "정말": { phonetic: "jeong-mal", partOfSpeech: "phó từ", meaningVi: "thật sự, rất" },
+  "아주": { phonetic: "a-ju", partOfSpeech: "phó từ", meaningVi: "rất, vô cùng" },
+  "함께": { phonetic: "ham-kke", partOfSpeech: "phó từ", meaningVi: "cùng nhau" },
+  "같이": { phonetic: "ga-chi", partOfSpeech: "phó từ", meaningVi: "cùng với nhau" },
+  "친구": { phonetic: "chin-gu", partOfSpeech: "danh từ", meaningVi: "người bạn" },
+  "선생님": { phonetic: "seon-saeng-nim", partOfSpeech: "danh từ", meaningVi: "thầy/cô giáo" },
+};
+
+const FR_WORD_GLOSSES: Record<string, Omit<WordGlossInfo, "word">> = {
+  "je": { phonetic: "/ʒə/", partOfSpeech: "đại từ", meaningVi: "tôi, mình" },
+  "tu": { phonetic: "/ty/", partOfSpeech: "đại từ", meaningVi: "bạn" },
+  "il": { phonetic: "/il/", partOfSpeech: "đại từ", meaningVi: "anh ấy" },
+  "elle": { phonetic: "/ɛl/", partOfSpeech: "đại từ", meaningVi: "cô ấy" },
+  "nous": { phonetic: "/nu/", partOfSpeech: "đại từ", meaningVi: "chúng mình, chúng tôi" },
+  "vous": { phonetic: "/vu/", partOfSpeech: "đại từ", meaningVi: "bạn (lịch sự), các bạn" },
+  "ils": { phonetic: "/il/", partOfSpeech: "đại từ", meaningVi: "họ" },
+  "le": { phonetic: "/lə/", partOfSpeech: "mạo từ xác định", meaningVi: "(giống đực số ít)" },
+  "la": { phonetic: "/la/", partOfSpeech: "mạo từ xác định", meaningVi: "(giống cái số ít)" },
+  "les": { phonetic: "/le/", partOfSpeech: "mạo từ số nhiều", meaningVi: "những, các" },
+  "un": { phonetic: "/œ̃/", partOfSpeech: "mạo từ", meaningVi: "một (giống đực)" },
+  "une": { phonetic: "/yn/", partOfSpeech: "mạo từ", meaningVi: "một (giống cái)" },
+  "de": { phonetic: "/də/", partOfSpeech: "giới từ", meaningVi: "của, từ" },
+  "dans": { phonetic: "/dɑ̃/", partOfSpeech: "giới từ", meaningVi: "ở trong" },
+  "avec": { phonetic: "/a.vɛk/", partOfSpeech: "giới từ", meaningVi: "với, cùng với" },
+  "pour": { phonetic: "/puʁ/", partOfSpeech: "giới từ", meaningVi: "cho, để" },
+  "est": { phonetic: "/ɛ/", partOfSpeech: "động từ être", meaningVi: "thì, là, ở" },
+  "sont": { phonetic: "/sɔ̃/", partOfSpeech: "động từ être", meaningVi: "thì, là (số nhiều)" },
+  "très": { phonetic: "/tʁɛ/", partOfSpeech: "phó từ", meaningVi: "rất, lắm" },
+  "toujours": { phonetic: "/tu.ʒuʁ/", partOfSpeech: "phó từ", meaningVi: "luôn luôn" },
+  "aujourd'hui": { phonetic: "/o.ʒuʁ.dɥi/", partOfSpeech: "phó từ", meaningVi: "hôm nay" },
+};
+
+/**
+ * Smartly segments a sentence into interactive hoverable tokens.
+ * For spaced languages (en, ko, fr), splits by whitespace.
+ * For unspaced CJK languages (zh-CN, zh-TW, ja), greedily matches known vocabulary terms and glosses first,
+ * then groups remaining characters into natural 2-char / 1-char tokens so every word in the sentence is hoverable!
+ */
+export function segmentSentenceIntoTokens(
+  sentence: string,
+  languageCode: LanguageCode,
+  allCards: VocabCard[] = []
+): string[] {
+  const trimmed = sentence.trim();
+  if (!trimmed) return [];
+
+  if (
+    languageCode !== "zh-CN" &&
+    languageCode !== "zh-TW" &&
+    languageCode !== "ja"
+  ) {
+    return trimmed.split(/\s+/).filter(Boolean);
+  }
+
+  // If the sentence already contains spaces (e.g. a cloze blank "______" with spaces), preserve blanks
+  const combinedCards =
+    allCards.length > 0 ? allCards : INITIAL_VOCAB_CARDS;
+  const knownTerms = new Set<string>();
+
+  for (const c of combinedCards) {
+    if (
+      c.languageCode === languageCode ||
+      ((languageCode === "zh-CN" || languageCode === "zh-TW") &&
+        (c.languageCode === "zh-CN" || c.languageCode === "zh-TW"))
+    ) {
+      if (c.term) knownTerms.add(c.term.trim());
+      if (c.traditionalTerm) knownTerms.add(c.traditionalTerm.trim());
+    }
+  }
+
+  Object.keys(ZH_WORD_GLOSSES).forEach((k) => knownTerms.add(k));
+  Object.keys(JA_WORD_GLOSSES).forEach((k) => knownTerms.add(k));
+
+  const chars = Array.from(trimmed);
+  const tokens: string[] = [];
+  let i = 0;
+
+  while (i < chars.length) {
+    // Skip whitespace
+    if (/\s/.test(chars[i])) {
+      i++;
+      continue;
+    }
+
+    // Check for cloze blank "______"
+    if (chars[i] === "_") {
+      let endBlank = i;
+      while (endBlank < chars.length && chars[endBlank] === "_") {
+        endBlank++;
+      }
+      tokens.push(chars.slice(i, endBlank).join(""));
+      i = endBlank;
+      continue;
+    }
+
+    // Punctuation standalone
+    if (/[。！？，、.,!?;:"'“”‘’（）()「」]/.test(chars[i])) {
+      if (tokens.length > 0) {
+        tokens[tokens.length - 1] += chars[i];
+      } else {
+        tokens.push(chars[i]);
+      }
+      i++;
+      continue;
+    }
+
+    // Greedy match from 5 characters down to 2 characters against knownTerms
+    let matchedLen = 0;
+    for (let len = Math.min(5, chars.length - i); len >= 2; len--) {
+      const candidate = chars.slice(i, i + len).join("");
+      if (knownTerms.has(candidate)) {
+        matchedLen = len;
+        break;
+      }
+    }
+
+    if (matchedLen > 0) {
+      tokens.push(chars.slice(i, i + matchedLen).join(""));
+      i += matchedLen;
+    } else if (
+      i + 1 < chars.length &&
+      !/[。！？，、.,!?;:_]/.test(chars[i + 1]) &&
+      !knownTerms.has(chars[i]) &&
+      !knownTerms.has(chars[i + 1])
+    ) {
+      tokens.push(chars.slice(i, i + 2).join(""));
+      i += 2;
+    } else {
+      tokens.push(chars[i]);
+      i += 1;
+    }
+  }
+
+  return tokens;
+}
 
 /**
  * Looks up the pronunciation and Vietnamese meaning of any single word or tile token.
@@ -261,7 +442,7 @@ export function lookupWordGloss(
   allCards: VocabCard[] = []
 ): WordGlossInfo | null {
   const cleaned = rawToken
-    .replace(/[.,!?;:"'“”‘’()[\]—–-。！？，、]/g, "")
+    .replace(/[.,!?;:"'“”‘’()[\]—–-。！？，、（）「」]/g, "")
     .trim();
 
   if (!cleaned || /^_+$/.test(cleaned)) {
@@ -269,11 +450,17 @@ export function lookupWordGloss(
   }
 
   const lower = cleaned.toLowerCase();
+  const pool =
+    allCards.length > 0
+      ? [...allCards, ...INITIAL_VOCAB_CARDS]
+      : INITIAL_VOCAB_CARDS;
 
-  // 1. Check user's active vocabulary cards first
-  const matchedCard = allCards.find(
+  // 1. Exact match in vocabulary pool
+  const matchedCard = pool.find(
     (c) =>
-      c.languageCode === languageCode &&
+      (c.languageCode === languageCode ||
+        ((languageCode === "zh-CN" || languageCode === "zh-TW") &&
+          (c.languageCode === "zh-CN" || c.languageCode === "zh-TW"))) &&
       (c.term.toLowerCase() === lower ||
         c.traditionalTerm?.toLowerCase() === lower)
   );
@@ -286,15 +473,11 @@ export function lookupWordGloss(
     };
   }
 
-  // 2. Check English micro-dictionary
+  // 2. Language-specific core glossaries
   if (languageCode === "en") {
     if (EN_WORD_GLOSSES[lower]) {
-      return {
-        word: cleaned,
-        ...EN_WORD_GLOSSES[lower],
-      };
+      return { word: cleaned, ...EN_WORD_GLOSSES[lower] };
     }
-    // Check base stems (-s, -ed, -ing)
     if (lower.endsWith("s") && EN_WORD_GLOSSES[lower.slice(0, -1)]) {
       const base = EN_WORD_GLOSSES[lower.slice(0, -1)];
       return {
@@ -315,36 +498,97 @@ export function lookupWordGloss(
     }
   }
 
-  // 3. Check Chinese micro-dictionary
   if (languageCode === "zh-CN" || languageCode === "zh-TW") {
     if (ZH_WORD_GLOSSES[cleaned]) {
-      return {
-        word: cleaned,
-        ...ZH_WORD_GLOSSES[cleaned],
-      };
-    }
-    // Partial match inside user cards
-    const partialCard = allCards.find(
-      (c) =>
-        (c.languageCode === "zh-CN" || c.languageCode === "zh-TW") &&
-        (c.term.includes(cleaned) || cleaned.includes(c.term))
-    );
-    if (partialCard) {
-      return {
-        word: partialCard.term,
-        phonetic: partialCard.phonetic,
-        partOfSpeech: partialCard.partOfSpeech,
-        meaningVi: partialCard.meaningVi,
-      };
+      return { word: cleaned, ...ZH_WORD_GLOSSES[cleaned] };
     }
   }
 
-  // 4. Universal fallback so every hovered word shows a helpful phonetic/audio card
+  if (languageCode === "ja") {
+    if (JA_WORD_GLOSSES[cleaned]) {
+      return { word: cleaned, ...JA_WORD_GLOSSES[cleaned] };
+    }
+  }
+
+  if (languageCode === "ko") {
+    if (KO_WORD_GLOSSES[cleaned]) {
+      return { word: cleaned, ...KO_WORD_GLOSSES[cleaned] };
+    }
+    // Strip common Korean particles (은/는/이/가/을/를/에/에서/도) to match stem in pool
+    const strippedKo = cleaned.replace(/(은|는|이|가|을|를|에서|에게|에|도|와|과)$/, "");
+    if (strippedKo && strippedKo !== cleaned) {
+      if (KO_WORD_GLOSSES[strippedKo]) {
+        return { word: cleaned, ...KO_WORD_GLOSSES[strippedKo] };
+      }
+      const koStemCard = pool.find(
+        (c) =>
+          c.languageCode === "ko" &&
+          (c.term === strippedKo || c.term.startsWith(strippedKo))
+      );
+      if (koStemCard) {
+        return {
+          word: cleaned,
+          phonetic: koStemCard.phonetic,
+          partOfSpeech: koStemCard.partOfSpeech,
+          meaningVi: koStemCard.meaningVi,
+        };
+      }
+    }
+  }
+
+  if (languageCode === "fr") {
+    if (FR_WORD_GLOSSES[lower]) {
+      return { word: cleaned, ...FR_WORD_GLOSSES[lower] };
+    }
+    // Handle French elision (l'ami, d'eau, j'aime)
+    if (lower.includes("'")) {
+      const afterApostrophe = lower.split("'").pop() || "";
+      if (afterApostrophe) {
+        if (FR_WORD_GLOSSES[afterApostrophe]) {
+          return { word: cleaned, ...FR_WORD_GLOSSES[afterApostrophe] };
+        }
+        const frCard = pool.find(
+          (c) =>
+            c.languageCode === "fr" &&
+            c.term.toLowerCase().includes(afterApostrophe)
+        );
+        if (frCard) {
+          return {
+            word: cleaned,
+            phonetic: frCard.phonetic,
+            partOfSpeech: frCard.partOfSpeech,
+            meaningVi: frCard.meaningVi,
+          };
+        }
+      }
+    }
+  }
+
+  // 3. Partial / Substring match inside the 800-card pool for the current language
+  const partialCard = pool.find(
+    (c) =>
+      (c.languageCode === languageCode ||
+        ((languageCode === "zh-CN" || languageCode === "zh-TW") &&
+          (c.languageCode === "zh-CN" || c.languageCode === "zh-TW"))) &&
+      cleaned.length >= 2 &&
+      (c.term.toLowerCase().includes(lower) ||
+        lower.includes(c.term.toLowerCase()))
+  );
+  if (partialCard) {
+    return {
+      word: cleaned,
+      phonetic: partialCard.phonetic,
+      partOfSpeech: partialCard.partOfSpeech,
+      meaningVi: partialCard.meaningVi,
+    };
+  }
+
+  // 4. Universal fallback with click-to-listen
   return {
     word: cleaned,
     phonetic: "Bấm loa để nghe phát âm",
     partOfSpeech: "từ trong câu",
-    meaningVi: "Di chuột và bấm biểu tượng loa để nghe cách đọc chuẩn của từ này",
+    meaningVi: "Chạm hoặc bấm biểu tượng loa để nghe phát âm chuẩn bản xứ",
   };
 }
 

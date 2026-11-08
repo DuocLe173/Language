@@ -248,8 +248,28 @@ export default function PolyglotHomePage() {
       activeTopicId,
       dayNumber
     );
-    setUser(updatedUser);
-    setAllUsers(loadAllUsers());
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().slice(0, 10);
+
+    const nextStreak =
+      user.lastStudyDate === todayStr
+        ? Math.max(1, user.streakDays)
+        : user.lastStudyDate === yesterdayStr
+        ? user.streakDays + 1
+        : Math.max(1, user.streakDays + 1);
+    const nextReviewedToday =
+      user.lastStudyDate === todayStr ? user.reviewedToday + 1 : 1;
+
+    const finalUser: UserProfile = {
+      ...updatedUser,
+      streakDays: nextStreak,
+      reviewedToday: nextReviewedToday,
+      lastStudyDate: todayStr,
+    };
+    setUser(finalUser);
+    setAllUsers(saveUserProfile(finalUser));
     setCards(updatedCards);
     showToast(
       `✓ Đã hoàn thành Ngày ${dayNumber} (100%) và mở khóa Ngày ${Math.min(
@@ -304,11 +324,26 @@ export default function PolyglotHomePage() {
       (c) => c.isCompletedInTopic
     ).length;
 
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().slice(0, 10);
+
+    const nextStreak =
+      user.lastStudyDate === todayStr
+        ? Math.max(1, user.streakDays)
+        : user.lastStudyDate === yesterdayStr
+        ? user.streakDays + 1
+        : Math.max(1, user.streakDays + 1);
+    const nextReviewedToday =
+      user.lastStudyDate === todayStr ? user.reviewedToday + 1 : 1;
+
     const updatedUser: UserProfile = {
       ...user,
-      reviewedToday: user.reviewedToday + 1,
+      streakDays: nextStreak,
+      reviewedToday: nextReviewedToday,
       totalLearnedWords: totalLearnedAllLangs,
-      lastStudyDate: new Date().toISOString().slice(0, 10),
+      lastStudyDate: todayStr,
       topicProgressMap: {
         ...user.topicProgressMap,
         [key]: {
@@ -500,11 +535,17 @@ export default function PolyglotHomePage() {
             />
 
             <div
-              className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#B45309]/10 text-[#B45309] text-xs font-semibold"
-              title="Chuỗi ngày học liên tiếp"
+              className="hidden sm:inline-flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-[#B45309]/10 text-[#B45309] text-xs font-semibold"
+              title={`Chuỗi ${user.streakDays} ngày học liên tiếp • Hôm nay đã học ${user.reviewedToday}/${user.dailyGoalCards || 10} từ`}
             >
-              <Flame className="w-3.5 h-3.5 fill-current" />
-              <span>{user.streakDays} ngày</span>
+              <span className="inline-flex items-center gap-1">
+                <Flame className="w-3.5 h-3.5 fill-current" />
+                <span>{user.streakDays} ngày</span>
+              </span>
+              <span className="text-[#B45309]/40">•</span>
+              <span className="font-mono text-[11px] text-[#1F5E3B]">
+                {user.reviewedToday}/{user.dailyGoalCards || 10} từ
+              </span>
             </div>
 
             {/* Unified User Profile + Logout Capsule */}

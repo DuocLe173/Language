@@ -35,20 +35,35 @@ export function getWordCollocationsAndTip(
     highlightedParts.push({ text: sentence, isMatch: false });
   }
 
-  // Extract a surrounding 2-4 word collocation from the example sentence
+  // Extract a surrounding 2-4 word collocation (or 4-6 char CJK phrase) from the example sentence
   let collocationTarget = term;
   if (sentence && term) {
-    const words = sentence
-      .replace(/[.,!?;:"“”()]/g, "")
-      .split(/\s+/)
-      .filter(Boolean);
-    const matchIdx = words.findIndex((w) =>
-      w.toLowerCase().includes(term.toLowerCase().split(/\s+/)[0])
-    );
-    if (matchIdx !== -1) {
-      const start = Math.max(0, matchIdx - 1);
-      const end = Math.min(words.length, matchIdx + 3);
-      collocationTarget = words.slice(start, end).join(" ");
+    const isUnspacedCjk =
+      card.languageCode === "zh-CN" ||
+      card.languageCode === "zh-TW" ||
+      card.languageCode === "ja";
+
+    if (isUnspacedCjk) {
+      const cleanSent = sentence.replace(/[。！？，、.,!?;:"“”()（）「」]/g, "");
+      const idx = cleanSent.indexOf(term);
+      if (idx !== -1) {
+        const start = Math.max(0, idx - 2);
+        const end = Math.min(cleanSent.length, idx + term.length + 2);
+        collocationTarget = cleanSent.slice(start, end);
+      }
+    } else {
+      const words = sentence
+        .replace(/[.,!?;:"“”()]/g, "")
+        .split(/\s+/)
+        .filter(Boolean);
+      const matchIdx = words.findIndex((w) =>
+        w.toLowerCase().includes(term.toLowerCase().split(/\s+/)[0])
+      );
+      if (matchIdx !== -1) {
+        const start = Math.max(0, matchIdx - 1);
+        const end = Math.min(words.length, matchIdx + 3);
+        collocationTarget = words.slice(start, end).join(" ");
+      }
     }
   }
 
@@ -123,12 +138,31 @@ export function buildVietnameseWordBank(
 
 /**
  * Generates shuffled target-language word tiles for Reverse Sentence Assembly practice.
+ * Supports both spaced languages (en, ko, fr) and unspaced CJK languages (zh-CN, zh-TW, ja).
  */
-export function buildTargetLanguageWordBank(exampleTarget: string): string[] {
+export function buildTargetLanguageWordBank(
+  exampleTarget: string,
+  languageCode?: LanguageCode
+): string[] {
   const clean = exampleTarget
-    .replace(/[.,!?;:"“”()]/g, "")
+    .replace(/[.,!?;:"“”()。！？，、（）「」]/g, "")
     .trim();
-  const words = clean.split(/\s+/).filter(Boolean);
+
+  let words: string[] = [];
+  if (
+    languageCode === "zh-CN" ||
+    languageCode === "zh-TW" ||
+    languageCode === "ja" ||
+    (!clean.includes(" ") && clean.length > 4)
+  ) {
+    const chars = Array.from(clean.replace(/\s+/g, ""));
+    for (let i = 0; i < chars.length; i += 2) {
+      words.push(chars.slice(i, i + 2).join(""));
+    }
+  } else {
+    words = clean.split(/\s+/).filter(Boolean);
+  }
+
   return words
     .map((item, idx) => ({
       item,

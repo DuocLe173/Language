@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import {
   LanguageCode,
+  SRSRating,
   TopicId,
   TopicProgress,
   VocabCard,
@@ -266,8 +267,8 @@ export default function SRSStudyStudio({
   // Reverse Word Bank for Step 5 (Foreign sentence tiles)
   const targetLangWordBankTiles = useMemo(() => {
     if (!activeCard) return [];
-    return buildTargetLanguageWordBank(activeCard.exampleTarget);
-  }, [activeCard]);
+    return buildTargetLanguageWordBank(activeCard.exampleTarget, languageCode);
+  }, [activeCard, languageCode]);
 
   // Step 4 Character / Syllable Tile Picker Bank
   const step4CharacterTiles = useMemo(() => {
@@ -505,16 +506,13 @@ export default function SRSStudyStudio({
     if (!activeCard) return;
     const assembled = selectedReverseIndices
       .map((i) => targetLangWordBankTiles[i])
-      .join(" ")
+      .join("")
       .toLowerCase()
-      .replace(/[.,!?;:"“”()]/g, "")
+      .replace(/[.,!?;:"'“”‘’()[\]。！？，、（）「」\s]/g, "")
       .trim();
     const expected = activeCard.exampleTarget
       .toLowerCase()
-      .replace(/[.,!?;:"“”()]/g, "")
-      .split(/\s+/)
-      .filter(Boolean)
-      .join(" ")
+      .replace(/[.,!?;:"'“”‘’()[\]。！？，、（）「」\s]/g, "")
       .trim();
     const isOk = assembled === expected;
     setReverseCheckPassed(isOk);
@@ -526,10 +524,10 @@ export default function SRSStudyStudio({
     }
   };
 
-  const handleFinishWord5Steps = () => {
+  const handleFinishWord5Steps = (rating: SRSRating = "good") => {
     if (!activeCard) return;
     playCelebrationFanfare();
-    const srsResult = calculateNextReview(activeCard, "good");
+    const srsResult = calculateNextReview(activeCard, rating);
     const updatedCard: VocabCard = {
       ...activeCard,
       ...srsResult,
@@ -1692,17 +1690,40 @@ export default function SRSStudyStudio({
                     </div>
                   )}
 
-                  <button
-                    type="button"
-                    onClick={handleFinishWord5Steps}
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#1F5E3B] text-white text-xs sm:text-sm font-bold hover:bg-[#18492E]"
-                  >
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>
-                      Hoàn thành từ &ldquo;{displayTerm}&rdquo; & Sang từ tiếp
-                      theo →
+                  {/* SRS Spaced Repetition Confidence Rating + Finish Word */}
+                  <div className="pt-2 border-t border-current/15 space-y-2">
+                    <span className="block text-[11px] font-mono uppercase tracking-wider text-[#57534E]">
+                      Đánh giá độ nhớ từ &ldquo;{displayTerm}&rdquo; để xếp lịch ôn tập SRS:
                     </span>
-                  </button>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleFinishWord5Steps("hard")}
+                        className="px-4 py-2.5 rounded-xl bg-white border border-[#E5E0D8] text-xs font-semibold text-[#B45309] hover:bg-[#B45309]/10 transition-colors"
+                      >
+                        🔄 Hơi khó (Ôn lại ngày mai)
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleFinishWord5Steps("good")}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1F5E3B] text-white text-xs sm:text-sm font-bold hover:bg-[#18492E] transition-colors"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>
+                          Đã nắm vững & Sang từ tiếp theo →
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleFinishWord5Steps("easy")}
+                        className="px-4 py-2.5 rounded-xl bg-white border border-[#E5E0D8] text-xs font-semibold text-[#181715] hover:bg-[#FAF8F5] transition-colors"
+                      >
+                        ⚡ Thuộc làu (Nhớ lâu • Ôn sau 4-7 ngày)
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

@@ -31,6 +31,7 @@ import {
   playCelebrationFanfare,
 } from "@/lib/sound-effects";
 import { HoverWordTooltip, HoverableSentence } from "./HoverWordTooltip";
+import { buildStep4CharacterBank } from "@/lib/study-enhancements";
 
 interface PracticeArenaModalProps {
   isOpen: boolean;
@@ -169,6 +170,11 @@ export default function PracticeArenaModal({
     if (!currentClozeCard) return null;
     return getDistinctPracticeSentences(currentClozeCard);
   }, [currentClozeCard]);
+
+  const clozeCharacterBank = useMemo(() => {
+    if (!currentClozeCard) return [];
+    return buildStep4CharacterBank(currentClozeCard.term, cardsToTest, 1);
+  }, [currentClozeCard, cardsToTest]);
 
   const currentListeningCard =
     listeningDeck[
@@ -794,7 +800,7 @@ export default function PracticeArenaModal({
                   setClozeInput(e.target.value);
                   if (clozeChecked === false) setClozeChecked(null);
                 }}
-                placeholder="Nhập từ vựng còn thiếu vào chỗ trống..."
+                placeholder="Nhập từ vựng còn thiếu vào chỗ trống (hoặc bấm các ô chữ gợi ý bên dưới)..."
                 className="flex-1 px-4 py-3 rounded-xl border border-[#E5E0D8] text-sm font-medium focus:outline-none focus:border-[#181715]"
                 autoFocus
               />
@@ -805,6 +811,45 @@ export default function PracticeArenaModal({
                 Kiểm tra
               </button>
             </form>
+
+            {/* Interactive Character / Syllable Tile Bank for Cloze (Supports CJK & accented characters without switching keyboards) */}
+            {clozeCharacterBank.length > 0 && clozeChecked !== true && (
+              <div className="p-3.5 rounded-2xl bg-[#FAF8F5] border border-[#E5E0D8] space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-mono uppercase tracking-wider text-[#8A847C]">
+                    ⌨️ Bàn phím ghép ký tự nhanh (Hỗ trợ Hán tự, Kana, Hangul, dấu Pháp):
+                  </span>
+                  {clozeInput.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        playTileClick();
+                        setClozeInput((prev) => prev.slice(0, -1));
+                      }}
+                      className="text-[11px] font-semibold text-[#9E2A2B] hover:underline"
+                    >
+                      ⌫ Xóa 1 ký tự
+                    </button>
+                  )}
+                </div>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {clozeCharacterBank.map((charTile, idx) => (
+                    <button
+                      key={`${charTile}_${idx}`}
+                      type="button"
+                      onClick={() => {
+                        playTileClick();
+                        setClozeInput((prev) => prev + charTile);
+                        if (clozeChecked === false) setClozeChecked(null);
+                      }}
+                      className="min-w-[36px] h-9 px-2.5 rounded-xl bg-white border border-[#E5E0D8] hover:border-[#181715] hover:bg-[#F2EFE9] text-sm font-bold text-[#181715] shadow-2xs transition-all"
+                    >
+                      {charTile}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {clozeChecked === false && (
               <div className="p-4 rounded-2xl bg-[#9E2A2B]/10 border border-[#9E2A2B]/30 text-xs font-semibold text-[#9E2A2B]">

@@ -13,11 +13,13 @@ import {
   Eye,
   EyeOff,
   Clock,
+  Pencil,
 } from "lucide-react";
-import { LanguageCode, TopicId, VocabCard } from "@/types/language";
+import { LanguageCode, SRSRating, TopicId, VocabCard } from "@/types/language";
 import { BUILTIN_DICTIONARY, LANGUAGES, TOPICS } from "@/lib/seed-data";
 import { speakText } from "@/lib/speech";
 import { playTileClick, playSuccessChime } from "@/lib/sound-effects";
+import { calculateNextReview } from "@/lib/srs";
 
 interface VocabularyVaultProps {
   userId: string;
@@ -52,7 +54,8 @@ export default function VocabularyVault({
     Record<string, boolean>
   >({});
 
-  // Form states for Quick Add
+  // Form states for Quick Add or Edit Existing Card
+  const [editingCard, setEditingCard] = useState<VocabCard | null>(null);
   const [selectedTopicForNew, setSelectedTopicForNew] =
     useState<TopicId>(activeTopicId);
   const [term, setTerm] = useState("");
@@ -142,9 +145,67 @@ export default function VocabularyVault({
     setLevel(preset.level);
   };
 
+  const resetFormFields = () => {
+    setEditingCard(null);
+    setTerm("");
+    setTraditionalTerm("");
+    setPhonetic("");
+    setPartOfSpeech("phrase / verb");
+    setMeaningVi("");
+    setNaturalContextVi("");
+    setExampleTarget("");
+    setExampleVi("");
+    setNotes("");
+    setLevel("Thông dụng");
+  };
+
+  const handleOpenEditCard = (card: VocabCard) => {
+    setEditingCard(card);
+    setSelectedTopicForNew(card.topicId);
+    setTerm(card.term);
+    setTraditionalTerm(card.traditionalTerm || "");
+    setPhonetic(card.phonetic);
+    setPartOfSpeech(card.partOfSpeech);
+    setMeaningVi(card.meaningVi);
+    setNaturalContextVi(card.naturalContextVi || "");
+    setExampleTarget(card.exampleTarget);
+    setExampleVi(card.exampleVi);
+    setNotes(card.notes || "");
+    setLevel(card.level || "Thông dụng");
+    onOpenQuickAddModal();
+  };
+
+  const handleCloseFormModal = () => {
+    resetFormFields();
+    onCloseQuickAddModal();
+  };
+
   const handleCreateCard = (e: React.FormEvent) => {
     e.preventDefault();
     if (!term.trim() || !meaningVi.trim()) return;
+
+    if (editingCard) {
+      const updatedCard: VocabCard = {
+        ...editingCard,
+        topicId: selectedTopicForNew,
+        term: term.trim(),
+        traditionalTerm: traditionalTerm.trim() || undefined,
+        phonetic: phonetic.trim() || "—",
+        partOfSpeech: partOfSpeech.trim() || "từ vựng",
+        meaningVi: meaningVi.trim(),
+        naturalContextVi:
+          naturalContextVi.trim() ||
+          editingCard.naturalContextVi ||
+          "Từ vựng thiết thực được bạn cá nhân hóa trong sổ học tập.",
+        exampleTarget: exampleTarget.trim() || term.trim(),
+        exampleVi: exampleVi.trim() || meaningVi.trim(),
+        notes: notes.trim() || undefined,
+        level: level.trim() || editingCard.level || "Thông dụng",
+      };
+      onAddOrUpdateCard(updatedCard);
+      handleCloseFormModal();
+      return;
+    }
 
     const topicCardsCount = cards.filter(
       (c) =>
@@ -181,15 +242,17 @@ export default function VocabularyVault({
     };
 
     onAddOrUpdateCard(newCard);
-    setTerm("");
-    setTraditionalTerm("");
-    setPhonetic("");
-    setMeaningVi("");
-    setNaturalContextVi("");
-    setExampleTarget("");
-    setExampleVi("");
-    setNotes("");
-    onCloseQuickAddModal();
+    handleCloseFormModal();
+  };
+
+  const handleRateSrsCard = (card: VocabCard, rating: SRSRating) => {
+    playSuccessChime();
+    const srsUpdated = calculateNextReview(card, rating);
+    onAddOrUpdateCard({
+      ...card,
+      ...srsUpdated,
+      isCompletedInTopic: true,
+    });
   };
 
   const handleToggleCompleted = (card: VocabCard) => {
@@ -245,7 +308,10 @@ export default function VocabularyVault({
 
             <button
               type="button"
-              onClick={onOpenQuickAddModal}
+              onClick={() => {
+                resetFormFields();
+                onOpenQuickAddModal();
+              }}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1F5E3B] text-white text-xs font-semibold hover:bg-[#18492E] transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -425,6 +491,44 @@ export default function VocabularyVault({
                       <p className="text-xs text-[#8A847C] mt-0.5">
                         → {card.exampleVi}
                       </p>
+                      {card.notes && (
+                        <div className="mt-2 px-2.5 py-1.5 rounded-xl bg-[#FAF8F5] border border-[#E5E0D8] text-[11px] text-[#57534E]">
+                          📌 <strong className="text-[#181715]">Ghi chú:</strong>{" "}
+                          {card.notes}
+                        </div>
+                      )}
+
+                      {(statusFilter === "due_srs" ||
+                        (isSelfTestMode && revealedCardIds[card.id])) && (
+                        <div className="mt-3 pt-2.5 border-t border-dashed border-[#E5E0D8] space-y-1.5">
+                          <span className="text-[10px] font-mono uppercase tracking-wider text-[#8A847C] block">
+                            Đánh giá trí nhớ SRS:
+                          </span>
+                          <div className="grid grid-cols-3 gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleRateSrsCard(card, "hard")}
+                              className="py-1.5 px-2 rounded-lg bg-[#B45309]/10 hover:bg-[#B45309]/20 text-[#B45309] text-[11px] font-semibold transition-colors"
+                            >
+                              🔄 Khó (1d)
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleRateSrsCard(card, "good")}
+                              className="py-1.5 px-2 rounded-lg bg-[#1F5E3B]/12 hover:bg-[#1F5E3B]/20 text-[#1F5E3B] text-[11px] font-semibold transition-colors"
+                            >
+                              ✓ Nhớ (3d)
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleRateSrsCard(card, "easy")}
+                              className="py-1.5 px-2 rounded-lg bg-[#181715] hover:bg-[#2E2C28] text-white text-[11px] font-semibold transition-colors"
+                            >
+                              ⚡ Làu (7d)
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </>
                   )}
                 </div>
@@ -448,6 +552,14 @@ export default function VocabularyVault({
                 </div>
 
                 <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => handleOpenEditCard(card)}
+                    className="p-1.5 rounded-lg text-[#8A847C] hover:text-[#1F5E3B] hover:bg-[#1F5E3B]/10"
+                    title="Chỉnh sửa thẻ / Thêm ghi chú cá nhân"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
                   <button
                     type="button"
                     onClick={() => {
@@ -474,21 +586,25 @@ export default function VocabularyVault({
         })}
       </div>
 
-      {/* Quick Add Modal */}
+      {/* Quick Add / Edit Modal */}
       {showQuickAddModal && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white border border-[#E5E0D8] rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-xl font-bold text-[#181715]">
-                  Thêm Từ Mới Theo Chủ Đề ({langMeta.nameVi})
+                  {editingCard
+                    ? `Chỉnh Sửa Thẻ & Ghi Chú (${editingCard.term})`
+                    : `Thêm Từ Mới Theo Chủ Đề (${langMeta.nameVi})`}
                 </h3>
                 <p className="text-xs text-[#57534E]">
-                  Từ mới sẽ được lưu cố định vào chủ đề bạn chọn.
+                  {editingCard
+                    ? "Cập nhật nghĩa, câu ví dụ hoặc thêm mẹo ghi nhớ của riêng bạn."
+                    : "Từ mới sẽ được lưu cố định vào chủ đề bạn chọn."}
                 </p>
               </div>
               <button
-                onClick={onCloseQuickAddModal}
+                onClick={handleCloseFormModal}
                 className="p-2 rounded-xl hover:bg-[#F2EFE9] text-[#57534E]"
               >
                 <X className="w-5 h-5" />
@@ -622,10 +738,23 @@ export default function VocabularyVault({
                 />
               </div>
 
+              <div>
+                <label className="block text-xs font-mono uppercase text-[#57534E] mb-1">
+                  📌 Ghi chú cá nhân / Mẹo ghi nhớ từ (Tùy chọn)
+                </label>
+                <input
+                  type="text"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="VD: Dùng khi họp nhóm sáng thứ Hai / Đồng nghĩa với..."
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E5E0D8] text-sm bg-[#FAF8F5]"
+                />
+              </div>
+
               <div className="pt-3 flex justify-end gap-2">
                 <button
                   type="button"
-                  onClick={onCloseQuickAddModal}
+                  onClick={handleCloseFormModal}
                   className="px-4 py-2.5 rounded-xl border border-[#E5E0D8] text-xs font-medium text-[#57534E]"
                 >
                   Hủy
@@ -634,7 +763,7 @@ export default function VocabularyVault({
                   type="submit"
                   className="px-6 py-2.5 rounded-xl bg-[#1F5E3B] text-white text-xs font-medium hover:bg-[#18492E]"
                 >
-                  Lưu vào Chủ đề
+                  {editingCard ? "Lưu cập nhật thẻ" : "Lưu vào Chủ đề"}
                 </button>
               </div>
             </form>

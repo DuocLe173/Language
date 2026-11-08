@@ -406,11 +406,37 @@ export function getDistinctPracticeSentences(card: VocabCard): {
         clozeFullTarget = `Today we learned a lot about the ${card.term}.`;
         clozeVi = `Hôm nay chúng mình đã tìm hiểu rất nhiều về ${shortMeaning}.`;
       }
-    } else if (card.languageCode === "zh-CN" || card.languageCode === "zh-TW") {
+    } else if (card.languageCode === "zh-CN") {
+      const shortMeaning = card.meaningVi.split(/[;,]/)[0].trim();
       sentenceBuildTarget = `我们在日常交流中经常会用到${card.term}。`;
-      sentenceBuildVi = `Chúng mình thường xuyên dùng từ "${card.meaningVi}" trong giao tiếp hàng ngày.`;
+      sentenceBuildVi = `Chúng mình thường xuyên dùng từ "${shortMeaning}" trong giao tiếp hàng ngày.`;
       clozeFullTarget = `这句话里的${card.term}用得非常自然。`;
-      clozeVi = `Từ "${card.meaningVi}" trong câu này được dùng rất tự nhiên.`;
+      clozeVi = `Từ "${shortMeaning}" trong câu này được dùng rất tự nhiên.`;
+    } else if (card.languageCode === "zh-TW") {
+      const shortMeaning = card.meaningVi.split(/[;,]/)[0].trim();
+      const termTw = card.traditionalTerm || card.term;
+      sentenceBuildTarget = `我們在日常交流中經常會用到${termTw}。`;
+      sentenceBuildVi = `Chúng mình thường xuyên dùng từ "${shortMeaning}" trong giao tiếp hàng ngày.`;
+      clozeFullTarget = `這句話裡的${termTw}用得非常自然。`;
+      clozeVi = `Từ "${shortMeaning}" trong câu này được dùng rất tự nhiên.`;
+    } else if (card.languageCode === "ja") {
+      const shortMeaning = card.meaningVi.split(/[;,]/)[0].trim();
+      sentenceBuildTarget = `今日の会話で${card.term}を楽しく練習しましょう。`;
+      sentenceBuildVi = `Trong cuộc trò chuyện hôm nay, chúng mình hãy vui vẻ luyện tập từ "${shortMeaning}" nhé.`;
+      clozeFullTarget = `毎日少しずつ${card.term}を覚えるのが大切です。`;
+      clozeVi = `Việc ghi nhớ từ "${shortMeaning}" từng chút một mỗi ngày rất quan trọng.`;
+    } else if (card.languageCode === "ko") {
+      const shortMeaning = card.meaningVi.split(/[;,]/)[0].trim();
+      sentenceBuildTarget = `오늘 대화에서 ${card.term} 표현을 자연스럽게 사용해 봐요.`;
+      sentenceBuildVi = `Trong cuộc trò chuyện hôm nay, hãy thử dùng diễn đạt "${shortMeaning}" thật tự nhiên nhé.`;
+      clozeFullTarget = `일상생활에서 ${card.term} 단어를 자주 들을 수 있어요.`;
+      clozeVi = `Trong cuộc sống hàng ngày, bạn có thể nghe thấy từ "${shortMeaning}" rất thường xuyên.`;
+    } else if (card.languageCode === "fr") {
+      const shortMeaning = card.meaningVi.split(/[;,]/)[0].trim();
+      sentenceBuildTarget = `Aujourd'hui nous utilisons ${card.term.toLowerCase()} dans notre conversation.`;
+      sentenceBuildVi = `Hôm nay chúng mình sử dụng từ "${shortMeaning}" trong cuộc trò chuyện.`;
+      clozeFullTarget = `C'est très utile de connaître ${card.term} en français.`;
+      clozeVi = `Thật hữu ích khi biết từ "${shortMeaning}" trong tiếng Pháp.`;
     } else {
       sentenceBuildTarget = card.exampleTarget;
       sentenceBuildVi = card.exampleVi;
