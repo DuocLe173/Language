@@ -196,6 +196,18 @@ export default function PracticeArenaModal({
     }
   }, [activeExercise, currentListeningCard, languageCode, isOpen]);
 
+  // Allow Esc key to close non-gatekeeping Practice Arena modal
+  useEffect(() => {
+    if (!isOpen || isGatekeepingTest) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onCloseOrBackToPrevDay();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isOpen, isGatekeepingTest, onCloseOrBackToPrevDay]);
+
   if (!isOpen || totalCount === 0) return null;
 
   const isMatchingDone = matchedIds.length >= totalCount;
@@ -486,7 +498,7 @@ export default function PracticeArenaModal({
               </div>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
               {/* Left Column: Shuffled Target Words */}
               <div className="space-y-2">
                 {leftWordsOrder.map((c) => {

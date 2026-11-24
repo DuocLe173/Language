@@ -17,6 +17,7 @@ import { UserProfile } from "@/types/language";
 import {
   authenticateUserAccount,
   registerUserAccount,
+  startGuestTrialSession,
 } from "@/lib/storage";
 import CoverFeatureSections from "@/components/CoverFeatureSections";
 
@@ -110,13 +111,8 @@ export default function CoverAuthGate({
       return;
     }
 
-    // Per task.md requirement: after creating account, save credentials and return to Cover page
-    // so the user selects "Đăng nhập" and logs in with their newly created account.
-    const createdName = res.user.username || regUsername.trim();
-    setJustCreatedUsername(createdName);
-    setLoginUsername(createdName);
-    setLoginPassword("");
-    setPanelMode("welcome");
+    // Zero-friction Auto-Login immediately after account creation
+    onAuthenticated(res.user);
   };
 
   return (
@@ -537,39 +533,54 @@ export default function CoverAuthGate({
                   </div>
                 )}
 
-                {/* 2 Primary Action Buttons Directly on the Unified Page (with 2D Multi-Layer Float Effect) */}
-                <div className="space-y-3.5 pt-1">
+                {/* Primary Action Buttons: Instant 60s Guest Trial + Login + Register */}
+                <div className="space-y-3 pt-1">
                   <button
                     type="button"
-                    onClick={() => handleOpenLogin()}
-                    className="group w-full py-4 px-6 rounded-2xl bg-[#181715] hover:bg-[#1F5E3B] text-white font-bold text-base shadow-[0_12px_28px_rgba(24,23,21,0.14)] hover:shadow-[0_18px_36px_rgba(31,94,59,0.26)] transition-all duration-500 ease-out hover:-translate-y-2 flex items-center justify-between"
+                    onClick={() => onAuthenticated(startGuestTrialSession())}
+                    className="group w-full py-4 px-6 rounded-2xl bg-[#1F5E3B] hover:bg-[#18492E] text-white font-bold text-base shadow-[0_14px_30px_rgba(31,94,59,0.24)] hover:shadow-[0_18px_38px_rgba(31,94,59,0.32)] transition-all duration-300 ease-out hover:-translate-y-1 flex items-center justify-between"
                   >
                     <span className="flex items-center gap-3">
-                      <span className="w-9 h-9 rounded-xl bg-white/12 flex items-center justify-center transition-transform duration-500 ease-out group-hover:-translate-y-1 group-hover:scale-105">
-                        <LogIn className="w-4 h-4 text-white" />
+                      <span className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center">
+                        <Sparkles className="w-4 h-4 text-white" />
                       </span>
-                      <span className="transition-transform duration-500 ease-out group-hover:translate-x-0.5">
-                        Đăng nhập
+                      <span className="text-left">
+                        <span className="block leading-tight">
+                          Học thử ngay (Miễn phí)
+                        </span>
+                        <span className="block text-[11px] font-normal text-white/80">
+                          Vào thẳng Ngày 1 • Không cần tạo tài khoản
+                        </span>
                       </span>
                     </span>
-                    <ArrowRight className="w-5 h-5 transition-transform duration-500 ease-out group-hover:translate-x-1.5 group-hover:-translate-y-0.5" />
+                    <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
                   </button>
 
-                  <button
-                    type="button"
-                    onClick={handleOpenRegister}
-                    className="group w-full py-4 px-6 rounded-2xl bg-white/85 hover:bg-white text-[#181715] border-2 border-[#181715]/15 hover:border-[#181715] font-bold text-base shadow-[0_6px_20px_rgba(24,23,21,0.04)] hover:shadow-[0_16px_34px_rgba(24,23,21,0.10)] transition-all duration-500 ease-out hover:-translate-y-2 flex items-center justify-between"
-                  >
-                    <span className="flex items-center gap-3">
-                      <span className="w-9 h-9 rounded-xl bg-[#181715]/8 flex items-center justify-center transition-transform duration-500 ease-out group-hover:-translate-y-1 group-hover:scale-105">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenLogin()}
+                      className="group w-full py-3.5 px-5 rounded-2xl bg-[#181715] hover:bg-[#2E2C28] text-white font-bold text-sm shadow-[0_10px_24px_rgba(24,23,21,0.12)] transition-all duration-300 ease-out hover:-translate-y-0.5 flex items-center justify-between"
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <LogIn className="w-4 h-4 text-white/90" />
+                        <span>Đăng nhập</span>
+                      </span>
+                      <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleOpenRegister}
+                      className="group w-full py-3.5 px-5 rounded-2xl bg-white/90 hover:bg-white text-[#181715] border-2 border-[#181715]/15 hover:border-[#181715] font-bold text-sm shadow-[0_6px_16px_rgba(24,23,21,0.04)] transition-all duration-300 ease-out hover:-translate-y-0.5 flex items-center justify-between"
+                    >
+                      <span className="flex items-center gap-2.5">
                         <UserPlus className="w-4 h-4 text-[#181715]" />
+                        <span>Tạo tài khoản</span>
                       </span>
-                      <span className="transition-transform duration-500 ease-out group-hover:translate-x-0.5">
-                        Tạo tài khoản
-                      </span>
-                    </span>
-                    <ArrowRight className="w-5 h-5 text-[#57534E] group-hover:text-[#181715] transition-transform duration-500 ease-out group-hover:translate-x-1.5 group-hover:-translate-y-0.5" />
-                  </button>
+                      <ArrowRight className="w-4 h-4 text-[#57534E] group-hover:text-[#181715] transition-transform duration-300 group-hover:translate-x-1" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Saved Accounts Quick Hint (Subtle Inline Pills) */}

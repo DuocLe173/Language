@@ -207,9 +207,41 @@ export function registerUserAccount(
   users.push(newUser);
   if (typeof window !== "undefined") {
     localStorage.setItem(KEYS.USERS, JSON.stringify(users));
+    localStorage.setItem(KEYS.ACTIVE_USER_ID, newUser.id);
+    setLoggedInSessionUserId(newUser.id);
   }
 
   return { ok: true, user: newUser };
+}
+
+/**
+ * Starts or resumes an instant Guest Trial session (Zero-Friction Try-Before-Signup).
+ */
+export function startGuestTrialSession(): UserProfile {
+  const users = loadAllUsers();
+  let guest = users.find((u) => u.id === "guest_trial");
+  if (!guest) {
+    guest = normalizeUserProfile({
+      ...INITIAL_USER_PROFILE,
+      id: "guest_trial",
+      name: "Khách trải nghiệm",
+      username: "guest_trial",
+      streakDays: 1,
+      reviewedToday: 0,
+      totalLearnedWords: 0,
+      topicProgressMap: {},
+      createdAt: new Date().toISOString(),
+    });
+    users.push(guest);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(KEYS.USERS, JSON.stringify(users));
+    }
+  }
+  if (typeof window !== "undefined") {
+    localStorage.setItem(KEYS.ACTIVE_USER_ID, guest.id);
+    setLoggedInSessionUserId(guest.id);
+  }
+  return guest;
 }
 
 /**

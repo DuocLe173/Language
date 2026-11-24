@@ -180,6 +180,16 @@ export default function AITutorCoach({
     setMessages((prev) => [...prev, optimisticUserMsg]);
 
     try {
+      const recentHistory = messages.slice(-8).map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
+      const targetDayWords = currentDayCards.map((c) => ({
+        term: c.term,
+        meaningVi: c.meaningVi,
+        used: usedDayWordIds.has(c.id),
+      }));
+
       const res = await fetch("/api/ai/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -188,6 +198,8 @@ export default function AITutorCoach({
           languageCode,
           scenarioId: selectedScenarioId,
           scenarioTitle: activeScenario.titleVi,
+          history: recentHistory,
+          targetDayWords,
           geminiApiKey: user.geminiApiKey,
           openaiApiKey: user.openaiApiKey,
         }),
@@ -287,8 +299,8 @@ export default function AITutorCoach({
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-      {/* Left Sidebar: Scenarios & Sample Prompts (4 cols) */}
-      <div className="lg:col-span-4 space-y-4">
+      {/* Left Sidebar (Appears below chat on mobile so users jump straight into chatting): Scenarios & Sample Prompts (4 cols) */}
+      <div className="order-2 lg:order-1 lg:col-span-4 space-y-4">
         <div className="bg-white border border-[#E5E0D8] rounded-3xl p-5 shadow-[0_4px_20px_rgba(24,23,21,0.03)]">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-xs font-mono uppercase tracking-wider text-[#57534E]">
@@ -371,8 +383,8 @@ export default function AITutorCoach({
         </div>
       </div>
 
-      {/* Right Column: Live Chat & Grammar Coach Inspector (8 cols) */}
-      <div className="lg:col-span-8 bg-white border border-[#E5E0D8] rounded-3xl flex flex-col h-[700px] shadow-[0_12px_36px_rgba(24,23,21,0.04)] overflow-hidden">
+      {/* Right Column (Appears first on mobile): Live Chat & Grammar Coach Inspector (8 cols) */}
+      <div className="order-1 lg:order-2 lg:col-span-8 bg-white border border-[#E5E0D8] rounded-3xl flex flex-col h-[calc(100dvh-13rem)] min-h-[520px] max-h-[760px] shadow-[0_12px_36px_rgba(24,23,21,0.04)] overflow-hidden">
         {/* Chat Header */}
         <div className="px-6 py-4 border-b border-[#E5E0D8] flex flex-wrap items-center justify-between gap-3 bg-[#FAF8F5]">
           <div>

@@ -13,7 +13,9 @@ import {
   CalendarDays,
   Users,
   LogOut,
+  Clock,
 } from "lucide-react";
+import { isCardDue } from "@/lib/srs";
 import {
   INITIAL_USER_PROFILE,
   INITIAL_VOCAB_CARDS,
@@ -48,6 +50,7 @@ import AITutorCoach from "@/components/AITutorCoach";
 import VocabularyVault from "@/components/VocabularyVault";
 import MultiUserSettingsModal from "@/components/MultiUserSettingsModal";
 import CoverAuthGate from "@/components/CoverAuthGate";
+import SRSDueReviewModal from "@/components/SRSDueReviewModal";
 
 type ActiveTab = "study" | "ai-coach" | "vault";
 
@@ -62,6 +65,7 @@ export default function PolyglotHomePage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("study");
   const [showQuickAddModal, setShowQuickAddModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showSrsReviewModal, setShowSrsReviewModal] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -166,6 +170,17 @@ export default function PolyglotHomePage() {
     [cards, activeLang, activeTopicId]
   );
 
+  // Active SRS Due Queue for current language (powered by SM-2 isCardDue)
+  const dueReviewCards = useMemo(() => {
+    const now = new Date();
+    return cards.filter(
+      (c) =>
+        c.languageCode === activeLang &&
+        Boolean(c.isCompletedInTopic) &&
+        isCardDue(c, now)
+    );
+  }, [cards, activeLang]);
+
   const currentTopicProgress = useMemo(
     () =>
       getOrInitTopicProgress(
@@ -258,7 +273,7 @@ export default function PolyglotHomePage() {
         ? Math.max(1, user.streakDays)
         : user.lastStudyDate === yesterdayStr
         ? user.streakDays + 1
-        : Math.max(1, user.streakDays + 1);
+        : 1;
     const nextReviewedToday =
       user.lastStudyDate === todayStr ? user.reviewedToday + 1 : 1;
 
@@ -334,7 +349,7 @@ export default function PolyglotHomePage() {
         ? Math.max(1, user.streakDays)
         : user.lastStudyDate === yesterdayStr
         ? user.streakDays + 1
-        : Math.max(1, user.streakDays + 1);
+        : 1;
     const nextReviewedToday =
       user.lastStudyDate === todayStr ? user.reviewedToday + 1 : 1;
 
@@ -628,6 +643,31 @@ export default function PolyglotHomePage() {
 
       {/* Main Content Container (Streamlined Layering so Study Card is Immediately Centered) */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 space-y-4">
+        {/* Active SRS Due Review Banner (Real SM-2 isCardDue Queue) */}
+        {dueReviewCards.length > 0 && (
+          <div className="bg-[#B45309]/8 border border-[#B45309]/30 rounded-2xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 text-xs sm:text-sm">
+              <span className="w-8 h-8 rounded-xl bg-[#B45309]/15 text-[#B45309] flex items-center justify-center shrink-0">
+                <Clock className="w-4 h-4" />
+              </span>
+              <div>
+                <span className="font-bold text-[#181715]">
+                  Có {dueReviewCards.length} từ {langMeta.nameVi} đến hạn ôn tập SRS hôm nay!
+                </span>
+                <span className="hidden sm:inline text-xs text-[#57534E] ml-1.5">
+                  Ôn lại ngay đúng điểm rơi trí nhớ để không bị quên.
+                </span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowSrsReviewModal(true)}
+              className="px-4 py-2 rounded-xl bg-[#B45309] hover:bg-[#92400E] text-white text-xs font-bold shrink-0"
+            >
+              ⚡ Ôn tập ngay ({dueReviewCards.length} từ)
+            </button>
+          </div>
+        )}
         {/* Compact Status & Progress Ribbon (Only shown on AI Coach & Vault tabs; merged into Unified Studio Bar on Study tab) */}
         {activeTab !== "study" && (
           <section className="bg-white/80 border border-[#E5E0D8] rounded-2xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-[0_2px_10px_rgba(24,23,21,0.02)]">
@@ -734,6 +774,18 @@ export default function PolyglotHomePage() {
           />
         )}
       </main>
+
+      {/* SRS Due Review Queue Modal */}
+      <SRSDueReviewModal
+        isOpen={showSrsReviewModal}
+        languageCode={activeLang}
+        dueCards={dueReviewCards}
+        onClose={() => setShowSrsReviewModal(false)}
+        onReviewCard={(updatedCard) => {
+          const nextCards = upsertVocabCard(updatedCard);
+          setCards(nextCards);
+        }}
+      />
 
       {/* Multi-User & AI Settings Modal */}
       <MultiUserSettingsModal

@@ -27,6 +27,8 @@ export async function POST(req: NextRequest) {
       languageCode = "en",
       scenarioId = "daily_checkin",
       scenarioTitle = "Giao tiếp tự nhiên",
+      history = [],
+      targetDayWords = [],
       geminiApiKey,
       openaiApiKey,
     } = body as {
@@ -34,6 +36,8 @@ export async function POST(req: NextRequest) {
       languageCode: LanguageCode;
       scenarioId: string;
       scenarioTitle?: string;
+      history?: Array<{ role: "user" | "assistant"; content: string }>;
+      targetDayWords?: Array<{ term: string; meaningVi: string; used?: boolean }>;
       geminiApiKey?: string;
       openaiApiKey?: string;
     };
@@ -44,6 +48,31 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Input length guardrail to prevent prompt/token abuse
+    const safeUserText = userText.trim().slice(0, 600);
+    const recentHistory = Array.isArray(history) ? history.slice(-8) : [];
+    const historyTranscript =
+      recentHistory.length > 0
+        ? recentHistory
+            .map(
+              (m) =>
+                `${m.role === "user" ? "Người học" : "AI"}: ${String(
+                  m.content || ""
+                ).slice(0, 260)}`
+            )
+            .join("\n")
+        : "(Mở đầu cuộc hội thoại)";
+
+    const unusedMissionWords = Array.isArray(targetDayWords)
+      ? targetDayWords.filter((w) => !w.used).slice(0, 5)
+      : [];
+    const missionInstruction =
+      unusedMissionWords.length > 0
+        ? `\nNHIỆM VỤ CHỦ ĐỘNG GÀI TỪ VỰNG HÔM NAY:\nNgười học đang cần luyện sử dụng các từ sau chưa dùng: ${unusedMissionWords
+            .map((w) => `"${w.term}" (${w.meaningVi})`)
+            .join(", ")}. Hãy khéo léo đặt câu hỏi hoặc dẫn dắt tình huống tự nhiên để khuyến khích người học dùng 1 trong các từ này ở lượt trả lời tiếp theo!`
+        : "";
 
     const activeGeminiKey =
       geminiApiKey?.trim() || process.env.GEMINI_API_KEY || "";
@@ -56,7 +85,11 @@ export async function POST(req: NextRequest) {
 
 Ngôn ngữ mục tiêu đang học: ${langMeta.nameVi} (${langMeta.nativeName}).
 Bối cảnh hội thoại hiện tại: "${scenarioTitle}".
-Câu người học vừa nói: "${userText}"
+Lịch sử hội thoại gần nhất (để giữ đúng mạch trò chuyện):
+${historyTranscript}
+${missionInstruction}
+
+Câu người học vừa nói ở lượt này: "${safeUserText}"
 
 Hãy thực hiện:
 1. Phân tích câu của người học, kiểm tra ngữ pháp và mức độ tự nhiên trong giao tiếp thực tế của người bản xứ.
@@ -93,8 +126,10 @@ Hãy thực hiện:
   }
 }`;
 
-    // 1. Try Gemini API if key is available
+    // 1. Try Gemini API if key is available (with 15s AbortController timeout)
     if (activeGeminiKey) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
       try {
         const geminiRes = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(
@@ -103,11 +138,13 @@ Hãy thực hiện:
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            signal: controller.signal,
             body: JSON.stringify({
               contents: [{ parts: [{ text: fullPrompt }] }],
               generationConfig: {
                 responseMimeType: "application/json",
                 temperature: 0.45,
+                maxOutputTokens: 900,
               },
             }),
           }
@@ -118,18 +155,24 @@ Hãy thực hiện:
           const rawText =
             data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
           const parsed = JSON.parse(rawText) as AIResponsePayload;
-          return NextResponse.json({
-            ...parsed,
-            engineUsed: "gemini",
-          });
+          if (parsed?.replyTarget && parsed?.grammarAnalysis) {
+            return NextResponse.json({
+              ...parsed,
+              engineUsed: "gemini",
+            });
+          }
         }
       } catch {
-        // Fallback if Gemini call fails
+        // Fallback if Gemini call fails or times out
+      } finally {
+        clearTimeout(timeoutId);
       }
     }
 
-    // 2. Try OpenAI API if key is available
+    // 2. Try OpenAI API if key is available (with 15s AbortController timeout)
     if (activeOpenAiKey) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
       try {
         const openAiRes = await fetch(
           "https://api.openai.com/v1/chat/completions",
@@ -139,11 +182,13 @@ Hãy thực hiện:
               "Content-Type": "application/json",
               Authorization: `Bearer ${activeOpenAiKey}`,
             },
+            signal: controller.signal,
             body: JSON.stringify({
               model: "gpt-4o-mini",
               response_format: { type: "json_object" },
               messages: [{ role: "user", content: fullPrompt }],
               temperature: 0.45,
+              max_tokens: 900,
             }),
           }
         );
@@ -152,19 +197,23 @@ Hãy thực hiện:
           const data = await openAiRes.json();
           const rawText = data?.choices?.[0]?.message?.content || "";
           const parsed = JSON.parse(rawText) as AIResponsePayload;
-          return NextResponse.json({
-            ...parsed,
-            engineUsed: "openai",
-          });
+          if (parsed?.replyTarget && parsed?.grammarAnalysis) {
+            return NextResponse.json({
+              ...parsed,
+              engineUsed: "openai",
+            });
+          }
         }
       } catch {
-        // Fallback if OpenAI call fails
+        // Fallback if OpenAI call fails or times out
+      } finally {
+        clearTimeout(timeoutId);
       }
     }
 
     // 3. Built-in Local Smart Grammar & Conversation Engine
     const localResult = analyzeAndRespondLocally(
-      userText,
+      safeUserText,
       languageCode,
       scenarioId
     );
