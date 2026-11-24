@@ -14,6 +14,7 @@ import {
   Users,
   LogOut,
   Clock,
+  Target,
 } from "lucide-react";
 import { isCardDue } from "@/lib/srs";
 import {
@@ -63,6 +64,14 @@ const SRSDueReviewModal = dynamic(
   () => import("@/components/SRSDueReviewModal"),
   { ssr: false }
 );
+const PlacementTestModal = dynamic(
+  () => import("@/components/PlacementTestModal"),
+  { ssr: false }
+);
+const AchievementShareModal = dynamic(
+  () => import("@/components/AchievementShareModal"),
+  { ssr: false }
+);
 
 type ActiveTab = "study" | "ai-coach" | "vault";
 
@@ -78,6 +87,8 @@ export default function PolyglotHomePage() {
   const [showQuickAddModal, setShowQuickAddModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showSrsReviewModal, setShowSrsReviewModal] = useState(false);
+  const [showPlacementModal, setShowPlacementModal] = useState(false);
+  const [showAchievementModal, setShowAchievementModal] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -241,6 +252,36 @@ export default function PolyglotHomePage() {
     };
     setUser(updated);
     setAllUsers(saveUserProfile(updated));
+  };
+
+  const handleApplyPlacementResult = (recommendedDay: number) => {
+    const key = makeTopicKey(activeLang, activeTopicId);
+    const unlockedDaysArray = Array.from(
+      { length: recommendedDay },
+      (_, idx) => idx + 1
+    );
+    const mergedGatePassed = Array.from(
+      new Set([...currentTopicProgress.gateTestPassedDays, ...unlockedDaysArray])
+    );
+    const updated: UserProfile = {
+      ...user,
+      topicProgressMap: {
+        ...user.topicProgressMap,
+        [key]: {
+          ...currentTopicProgress,
+          unlockedDay: Math.max(currentTopicProgress.unlockedDay, recommendedDay),
+          activeDay: recommendedDay,
+          gateTestPassedDays: mergedGatePassed,
+          currentCardIndex: 0,
+          lastStudiedAt: new Date().toISOString(),
+        },
+      },
+    };
+    setUser(updated);
+    setAllUsers(saveUserProfile(updated));
+    showToast(
+      `🎯 Đã mở khóa tới Ngày ${recommendedDay} dựa theo kết quả kiểm tra trình độ của bạn!`
+    );
   };
 
   const handlePassGateTestForDay = (dayNumber: number) => {
@@ -561,9 +602,21 @@ export default function PolyglotHomePage() {
               onSelectLanguage={handleSelectLanguage}
             />
 
-            <div
-              className="hidden sm:inline-flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-[#B45309]/10 text-[#B45309] text-xs font-semibold"
-              title={`Chuỗi ${user.streakDays} ngày học liên tiếp • Hôm nay đã học ${user.reviewedToday}/${user.dailyGoalCards || 10} từ`}
+            <button
+              type="button"
+              onClick={() => setShowPlacementModal(true)}
+              className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white border border-[#E5E0D8] hover:border-[#1F5E3B] text-xs font-semibold text-[#181715]"
+              title="Kiểm tra trình độ đầu vào (1 phút) để mở khóa đúng ngày phù hợp"
+            >
+              <Target className="w-3.5 h-3.5 text-[#1F5E3B]" />
+              <span className="hidden xl:inline">Test trình độ</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowAchievementModal(true)}
+              className="hidden sm:inline-flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-[#B45309]/10 hover:bg-[#B45309]/15 text-[#B45309] text-xs font-semibold"
+              title={`Xem thẻ thành tích & Streak Freeze (${user.streakFreezes ?? 2} lá chắn) • Hôm nay: ${user.reviewedToday}/${user.dailyGoalCards || 10} từ`}
             >
               <span className="inline-flex items-center gap-1">
                 <Flame className="w-3.5 h-3.5 fill-current" />
@@ -573,7 +626,7 @@ export default function PolyglotHomePage() {
               <span className="font-mono text-[11px] text-[#1F5E3B]">
                 {user.reviewedToday}/{user.dailyGoalCards || 10} từ
               </span>
-            </div>
+            </button>
 
             {/* Unified User Profile + Logout Capsule */}
             <div className="inline-flex items-center rounded-xl bg-white border border-[#E5E0D8] p-0.5 shadow-2xs">
@@ -786,6 +839,25 @@ export default function PolyglotHomePage() {
           />
         )}
       </main>
+
+      {/* Adaptive Placement Test Modal */}
+      <PlacementTestModal
+        isOpen={showPlacementModal}
+        onClose={() => setShowPlacementModal(false)}
+        languageCode={activeLang}
+        topicCards={activeTopicCards}
+        onApplyPlacementResult={handleApplyPlacementResult}
+      />
+
+      {/* Shareable Achievement Card & Streak Freeze Modal */}
+      <AchievementShareModal
+        isOpen={showAchievementModal}
+        onClose={() => setShowAchievementModal(false)}
+        user={user}
+        languageCode={activeLang}
+        learnedCount={langStats.learnedCount}
+        totalCount={langStats.total}
+      />
 
       {/* SRS Due Review Queue Modal */}
       <SRSDueReviewModal

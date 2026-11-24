@@ -3,6 +3,7 @@ import { calculateNextReview, isCardDue } from "@/lib/srs";
 import { verifyStep4WordInput, verifyStep5SentenceTranslation } from "@/lib/learning-utils";
 import { segmentSentenceIntoTokens } from "@/lib/word-gloss-dictionary";
 import { INITIAL_VOCAB_CARDS } from "@/lib/seed-data";
+import { computePlacementUnlockDay } from "@/lib/placement-utils";
 import { VocabCard } from "@/types/language";
 
 const MOCK_CARD: VocabCard = {
@@ -80,5 +81,12 @@ describe("Active Recall Verification & CJK Segmentation", () => {
       const count = INITIAL_VOCAB_CARDS.filter((c) => c.languageCode === lang).length;
       expect(count).toBeGreaterThanOrEqual(10);
     }
+  });
+
+  it("computes adaptive Placement Test unlock days accurately", () => {
+    expect(computePlacementUnlockDay(1, 6).recommendedDay).toBe(1);
+    expect(computePlacementUnlockDay(3, 6).recommendedDay).toBe(4);
+    expect(computePlacementUnlockDay(5, 6).recommendedDay).toBe(6);
+    expect(computePlacementUnlockDay(6, 6).recommendedDay).toBe(8);
   });
 });

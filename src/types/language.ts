@@ -162,6 +162,7 @@ export interface UserProfile {
   topicProgressMap: Record<string, TopicProgress>; // key: `${languageCode}__${topicId}`
   enabledLangs: LanguageCode[];
   streakDays: number;
+  streakFreezes?: number;
   lastStudyDate: string; // YYYY-MM-DD
   dailyGoalCards: number;
   reviewedToday: number;
