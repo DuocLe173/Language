@@ -17,6 +17,7 @@ import {
   TECH_DIGITAL_CURRICULUM,
   FOOD_CULINARY_CURRICULUM,
 } from "./curriculum-tech-food";
+import { MULTILANG_CURRICULUM_WORDS } from "./curriculum-multilang";
 import {
   SHOPPING_LIFESTYLE_CURRICULUM,
   CORE_ACADEMIC_CURRICULUM,
@@ -1019,6 +1020,35 @@ builtCards.push(
     level: "DELF A1 • Ngày 1",
   })
 );
+
+// 5. Append expanded multi-language curriculum (zh-CN Day 2, zh-TW, ja, ko, fr)
+const langDayOrderTracker: Record<string, number> = {
+  "zh-CN:daily_communication:2": 3,
+  "zh-TW:daily_communication:1": 2,
+  "ja:daily_communication:1": 1,
+  "ko:daily_communication:1": 1,
+  "fr:daily_communication:1": 1,
+};
+
+MULTILANG_CURRICULUM_WORDS.forEach((spec) => {
+  const key = `${spec.languageCode}:${spec.topicId}:${spec.dayNumber}`;
+  const nextOrder = (langDayOrderTracker[key] || 0) + 1;
+  langDayOrderTracker[key] = nextOrder;
+  builtCards.push(
+    buildCard(spec.languageCode, spec.topicId, spec.dayNumber, nextOrder, {
+      term: spec.term,
+      traditionalTerm: spec.traditionalTerm,
+      phonetic: spec.phonetic,
+      partOfSpeech: spec.partOfSpeech,
+      meaningVi: spec.meaningVi,
+      naturalContextVi: spec.naturalContextVi,
+      exampleTarget: spec.exampleTarget,
+      examplePhonetic: spec.examplePhonetic,
+      exampleVi: spec.exampleVi,
+      level: spec.level,
+    })
+  );
+});
 
 export const INITIAL_VOCAB_CARDS: VocabCard[] = builtCards;
 

@@ -157,6 +157,26 @@ export function logoutCurrentUser(): void {
  * Registers a brand-new user account with username + password.
  * Does NOT auto-login so the user returns to the Cover page and clicks "Đăng nhập" as required.
  */
+function hashPasswordLocal(username: string, rawPassword: string): string {
+  const salted = `lf_v1::${username.trim().toLowerCase()}::${rawPassword}`;
+  let h1 = 0xdeadbeef ^ salted.length;
+  let h2 = 0x41c6ce57 ^ salted.length;
+  for (let i = 0; i < salted.length; i++) {
+    const ch = salted.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 =
+    Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^
+    Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 =
+    Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^
+    Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return `lf_h1:${(h2 >>> 0).toString(16).padStart(8, "0")}${(h1 >>> 0)
+    .toString(16)
+    .padStart(8, "0")}`;
+}
+
 export function registerUserAccount(
   usernameInput: string,
   passwordInput: string
@@ -196,7 +216,7 @@ export function registerUserAccount(
     id: newId,
     name: cleanUsername,
     username: cleanUsername,
-    password: passwordInput,
+    password: hashPasswordLocal(cleanUsername, passwordInput),
     streakDays: 1,
     reviewedToday: 0,
     totalLearnedWords: 0,
@@ -272,11 +292,26 @@ export function authenticateUserAccount(
     };
   }
 
-  if (matched.password !== passwordInput) {
+  const hashedAttempt = hashPasswordLocal(
+    matched.username || cleanUsername,
+    passwordInput
+  );
+  const isLegacyMatch = matched.password === passwordInput;
+  const isHashedMatch = matched.password === hashedAttempt;
+
+  if (!isLegacyMatch && !isHashedMatch) {
     return {
       ok: false,
       error: "Mật khẩu chưa chính xác. Vui lòng thử lại!",
     };
+  }
+
+  // Transparently upgrade legacy plaintext password to hashed format on login
+  if (isLegacyMatch && !matched.password?.startsWith("lf_h1:")) {
+    matched.password = hashedAttempt;
+    if (typeof window !== "undefined") {
+      localStorage.setItem(KEYS.USERS, JSON.stringify(users));
+    }
   }
 
   setLoggedInSessionUserId(matched.id);
@@ -660,7 +695,9 @@ export function saveChatMessage(msg: ChatMessage): void {
     const raw = localStorage.getItem(KEYS.CHATS);
     const all = raw ? (JSON.parse(raw) as ChatMessage[]) : [];
     all.push(msg);
-    localStorage.setItem(KEYS.CHATS, JSON.stringify(all));
+    // Keep latest 300 chat messages to prevent silent localStorage quota overflow
+    const trimmed = all.length > 300 ? all.slice(-300) : all;
+    localStorage.setItem(KEYS.CHATS, JSON.stringify(trimmed));
   } catch {
     // ignore
   }

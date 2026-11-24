@@ -3,6 +3,31 @@ import { analyzeAndRespondLocally, AIResponsePayload } from "@/lib/grammar-engin
 import { LANGUAGES } from "@/lib/seed-data";
 import { LanguageCode } from "@/types/language";
 
+// Sliding-window in-memory IP rate limiter (30 requests / 60s per IP)
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_REQUESTS = 30;
+const ipRequestTimestamps = new Map<string, number[]>();
+
+function checkRateLimit(ip: string): { allowed: boolean; retryAfterSec: number } {
+  const now = Date.now();
+  const prev = (ipRequestTimestamps.get(ip) || []).filter(
+    (ts) => now - ts < RATE_LIMIT_WINDOW_MS
+  );
+  if (prev.length >= RATE_LIMIT_MAX_REQUESTS) {
+    const oldest = prev[0] || now;
+    return {
+      allowed: false,
+      retryAfterSec: Math.max(1, Math.ceil((RATE_LIMIT_WINDOW_MS - (now - oldest)) / 1000)),
+    };
+  }
+  prev.push(now);
+  ipRequestTimestamps.set(ip, prev);
+  if (ipRequestTimestamps.size > 5000) {
+    ipRequestTimestamps.clear();
+  }
+  return { allowed: true, retryAfterSec: 0 };
+}
+
 const NATURAL_MENTOR_SYSTEM_PROMPT = `Bạn là một Người Bạn Bản Xứ kiêm Chuyên Gia Hướng Dẫn Ngôn Ngữ (Native Language Mentor) vô cùng ấm áp, tinh tế và gần gũi, đang trực tiếp đồng hành cùng một người Việt học ngoại ngữ.
 
 NGUYÊN TẮC CỐT LÕI VỀ GIỌNG VĂN, DỊCH THUẬT & PHẢN HỒI:
@@ -21,6 +46,23 @@ NGUYÊN TẮC CỐT LÕI VỀ GIỌNG VĂN, DỊCH THUẬT & PHẢN HỒI:
 
 export async function POST(req: NextRequest) {
   try {
+    const clientIp =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      req.headers.get("x-real-ip") ||
+      "anonymous";
+    const rateCheck = checkRateLimit(clientIp);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        {
+          error: `Bạn đang gửi tin nhắn quá nhanh. Vui lòng thử lại sau ${rateCheck.retryAfterSec} giây.`,
+        },
+        {
+          status: 429,
+          headers: { "Retry-After": String(rateCheck.retryAfterSec) },
+        }
+      );
+    }
+
     const body = await req.json();
     const {
       userText,

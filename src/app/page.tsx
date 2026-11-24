@@ -44,13 +44,25 @@ import {
   switchUserProfile,
   upsertVocabCard,
 } from "@/lib/storage";
+import dynamic from "next/dynamic";
 import LanguageDropdown from "@/components/LanguageDropdown";
 import SRSStudyStudio from "@/components/SRSStudyStudio";
-import AITutorCoach from "@/components/AITutorCoach";
-import VocabularyVault from "@/components/VocabularyVault";
-import MultiUserSettingsModal from "@/components/MultiUserSettingsModal";
 import CoverAuthGate from "@/components/CoverAuthGate";
-import SRSDueReviewModal from "@/components/SRSDueReviewModal";
+
+const AITutorCoach = dynamic(() => import("@/components/AITutorCoach"), {
+  ssr: false,
+});
+const VocabularyVault = dynamic(() => import("@/components/VocabularyVault"), {
+  ssr: false,
+});
+const MultiUserSettingsModal = dynamic(
+  () => import("@/components/MultiUserSettingsModal"),
+  { ssr: false }
+);
+const SRSDueReviewModal = dynamic(
+  () => import("@/components/SRSDueReviewModal"),
+  { ssr: false }
+);
 
 type ActiveTab = "study" | "ai-coach" | "vault";
 

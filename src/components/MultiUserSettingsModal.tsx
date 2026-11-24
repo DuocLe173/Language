@@ -165,8 +165,7 @@ export default function MultiUserSettingsModal({
                           isCurrent ? "text-[#E5E0D8]" : "text-[#8A847C]"
                         }`}
                       >
-                        User: {u.username || "Mặc định"} • MK:{" "}
-                        {u.password || "—"} • Streak {u.streakDays} ngày
+                        User: {u.username || "Mặc định"} • Bảo mật: •••••• • Streak {u.streakDays} ngày
                       </div>
                     </button>
 
