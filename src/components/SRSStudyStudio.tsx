@@ -993,7 +993,7 @@ export default function SRSStudyStudio({
                   }}
                   title={
                     !isUnlocked
-                      ? `🔒 Hoàn thành từ #${maxUnlockedWordIdx + 1} trước để mở khóa "${wCard.term}"`
+                      ? `🔒 Hoàn thành từ #${maxUnlockedWordIdx + 1} trước để mở khóa Từ ${idx + 1}`
                       : hideTermForTest
                       ? `Từ #${idx + 1} (Đang kiểm tra trí nhớ)`
                       : `${idx + 1}. ${wCard.term} — ${wCard.meaningVi}`
@@ -1008,21 +1008,28 @@ export default function SRSStudyStudio({
                       : "bg-[#FAF8F5] text-[#6B655E] border-[#E5E0D8]/80 opacity-75 cursor-not-allowed"
                   }`}
                 >
-                  <span className="font-mono text-[11px] opacity-80">
-                    {idx + 1}.
-                  </span>
-                  <span className="max-w-[96px] truncate">
-                    {hideTermForTest ? "•••" : wCard.term}
-                  </span>
-                  {isDone ? (
-                    <CheckCircle2
-                      className={`w-3.5 h-3.5 shrink-0 ${
-                        isCurrent ? "text-[#4ADE80]" : "text-[#1F5E3B]"
-                      }`}
-                    />
-                  ) : !isUnlocked ? (
-                    <Lock className="w-3 h-3 shrink-0 opacity-70" />
-                  ) : null}
+                  {!isUnlocked ? (
+                    <>
+                      <span className="font-mono text-[11px]">Từ {idx + 1}</span>
+                      <Lock className="w-3 h-3 shrink-0 opacity-75" />
+                    </>
+                  ) : (
+                    <>
+                      <span className="font-mono text-[11px] opacity-80">
+                        {idx + 1}.
+                      </span>
+                      <span className="max-w-[96px] truncate">
+                        {hideTermForTest ? "•••" : wCard.term}
+                      </span>
+                      {isDone && (
+                        <CheckCircle2
+                          className={`w-3.5 h-3.5 shrink-0 ${
+                            isCurrent ? "text-[#4ADE80]" : "text-[#1F5E3B]"
+                          }`}
+                        />
+                      )}
+                    </>
+                  )}
                 </button>
               );
             })}

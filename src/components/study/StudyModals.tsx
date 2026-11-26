@@ -111,16 +111,24 @@ export function WordListDrawerModal({
                   />
                 )}
                 <div className="truncate">
-                  <span className="font-bold">
-                    {idx + 1}. {item.term}
-                  </span>{" "}
-                  <span
-                    className={`font-mono ${
-                      isCurrent ? "text-white/75" : "text-[#9E2A2B]"
-                    }`}
-                  >
-                    {item.phonetic}
-                  </span>
+                  {!isUnlocked ? (
+                    <span className="font-semibold text-[#6B655E]">
+                      Từ {idx + 1} • Đang khóa
+                    </span>
+                  ) : (
+                    <>
+                      <span className="font-bold">
+                        {idx + 1}. {item.term}
+                      </span>{" "}
+                      <span
+                        className={`font-mono ${
+                          isCurrent ? "text-white/75" : "text-[#9E2A2B]"
+                        }`}
+                      >
+                        {item.phonetic}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
               <span
@@ -128,7 +136,7 @@ export function WordListDrawerModal({
                   isCurrent ? "text-[#E5E0D8]" : "text-[#57534E]"
                 }`}
               >
-                {item.meaningVi}
+                {!isUnlocked ? "🔒 Hoàn thành từ trước" : item.meaningVi}
               </span>
             </button>
           );
