@@ -26,6 +26,12 @@ import {
   RefreshCw,
   Lightbulb,
   Delete,
+  SlidersHorizontal,
+  Maximize2,
+  Minimize2,
+  ChevronLeft,
+  ChevronRight,
+  Target,
 } from "lucide-react";
 import {
   LanguageCode,
@@ -92,6 +98,9 @@ interface SRSStudyStudioProps {
   ) => void;
   onResetTopicProgress: (topicId: TopicId) => void;
   onOpenQuickAdd: () => void;
+  isZenMode?: boolean;
+  onToggleZenMode?: () => void;
+  onOpenPlacementTest?: () => void;
 }
 
 type LearningStep = 1 | 2 | 3 | 4 | 5;
@@ -116,12 +125,16 @@ export default function SRSStudyStudio({
   onCompleteCardInTopic,
   onResetTopicProgress,
   onOpenQuickAdd,
+  isZenMode = false,
+  onToggleZenMode,
+  onOpenPlacementTest,
 }: SRSStudyStudioProps) {
   const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
   const [isDayGridModalOpen, setIsDayGridModalOpen] = useState(false);
   const [isPracticeModalOpen, setIsPracticeModalOpen] = useState(false);
   const [isWordListDrawerOpen, setIsWordListDrawerOpen] = useState(false);
   const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
+  const [isToolsMenuOpen, setIsToolsMenuOpen] = useState(false);
   const [soundMuted, setSoundMuted] = useState(false);
 
   useEffect(() => {
@@ -582,166 +595,308 @@ export default function SRSStudyStudio({
   };
 
   const isChinese = languageCode === "zh-CN" || languageCode === "zh-TW";
-  // Anti-spoiler mask during Step 4 & Step 5 tests
-  const isSpoilerHidden = currentStep === 4 || currentStep === 5;
+  const stepMeta: Record<LearningStep, { label: string; accent: string }> = {
+    1: { label: "Nhìn mặt chữ", accent: "#181715" },
+    2: { label: "Nghe & Phát âm", accent: "#1F5E3B" },
+    3: { label: "Hiểu sâu ngữ cảnh", accent: "#1F5E3B" },
+    4: { label: "Gõ khuyết 3 vòng", accent: "#B45309" },
+    5: { label: "Ghép câu phản xạ", accent: "#9E2A2B" },
+  };
+  const activeStepInfo = stepMeta[currentStep];
+  const dayProgressPercent =
+    currentDayCards.length > 0
+      ? Math.round(
+          ((safeIndex + (activeCard?.isCompletedInTopic ? 1 : 0.2)) /
+            currentDayCards.length) *
+            100
+        )
+      : 0;
 
   return (
     <div className="space-y-4">
-      {/* SINGLE UNIFIED CONTROL & STATUS BAR (Saves ~65px vertical height) */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 bg-white/95 border border-[#E5E0D8] rounded-2xl px-3 py-2.5 shadow-[0_2px_10px_rgba(24,23,21,0.025)]">
-        {/* Left Cluster: Connected Topic › Day Breadcrumb Capsule + Practice Arena + 10-Word Story */}
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="inline-flex flex-wrap items-center rounded-xl bg-[#FAF8F5] border border-[#E5E0D8] p-1 gap-1">
-            {/* Topic Selector */}
-            <button
-              type="button"
-              onClick={() => setIsTopicModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#181715] text-white text-xs font-semibold hover:bg-[#2E2C28] transition-all"
-            >
-              <FolderKanban className="w-3.5 h-3.5 text-[#1F5E3B]" />
-              <span>{activeTopicMeta.titleVi}</span>
-            </button>
-
-            <span className="text-[#8A847C] text-xs px-0.5 select-none">›</span>
-
-            {/* Day Selector */}
-            <button
-              type="button"
-              onClick={() => setIsDayGridModalOpen(true)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                currentDayStat.isDone
-                  ? "bg-[#1F5E3B]/12 text-[#1F5E3B]"
-                  : "bg-white hover:bg-[#F2EFE9] text-[#181715] shadow-2xs"
-              }`}
-            >
-              {currentDayStat.isDone ? (
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#1F5E3B]" />
-              ) : (
-                <CalendarDays className="w-3.5 h-3.5 text-[#9E2A2B]" />
-              )}
-              <span>
-                Ngày {activeDay}/10 ({currentDayStat.completed}/
-                {currentDayStat.total})
-              </span>
-            </button>
-          </div>
-
-          {/* Practice Arena Trigger */}
+      {/* MINIMAL DISTRACTION-FREE SESSION BAR (1 sleek row aligned to the Hero Stage) */}
+      <div className="max-w-3xl mx-auto flex items-center justify-between gap-3">
+        {/* Left: Compact Topic › Day Pill */}
+        <div className="inline-flex items-center rounded-2xl bg-white border border-[#E5E0D8] p-1 gap-0.5 shadow-[0_2px_8px_rgba(24,23,21,0.03)] min-w-0">
           <button
             type="button"
-            onClick={() => setIsPracticeModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#1F5E3B]/10 text-[#1F5E3B] hover:bg-[#1F5E3B] hover:text-white text-xs font-semibold transition-all"
+            onClick={() => setIsTopicModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#181715] text-white text-xs font-semibold hover:bg-[#2E2C28] truncate max-w-[140px] sm:max-w-[200px]"
+            title={`Đổi chủ đề (${activeTopicMeta.titleVi})`}
           >
-            <Puzzle className="w-3.5 h-3.5" />
-            <span>Bài Tập ({currentDayCards.length} từ)</span>
+            <FolderKanban className="w-3.5 h-3.5 text-[#4ADE80] shrink-0" />
+            <span className="truncate">{activeTopicMeta.titleVi}</span>
           </button>
 
-          {/* Daily 10-Word Context Story Trigger */}
+          <span className="text-[#8A847C] text-xs px-0.5 select-none">›</span>
+
           <button
             type="button"
-            onClick={() => setIsStoryModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#9E2A2B]/10 text-[#9E2A2B] hover:bg-[#9E2A2B] hover:text-white text-xs font-semibold transition-all"
-            title="Đọc hội thoại ngắn kết nối toàn bộ 10 từ vựng của Ngày học này"
+            onClick={() => setIsDayGridModalOpen(true)}
+            className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold shrink-0 ${
+              currentDayStat.isDone
+                ? "bg-[#1F5E3B]/12 text-[#1F5E3B]"
+                : "hover:bg-[#F2EFE9] text-[#181715]"
+            }`}
+            title="Mở bảng lộ trình 10 ngày"
           >
-            <BookOpenCheck className="w-3.5 h-3.5" />
-            <span>Hội thoại 10 từ</span>
+            {currentDayStat.isDone ? (
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#1F5E3B]" />
+            ) : (
+              <CalendarDays className="w-3.5 h-3.5 text-[#9E2A2B]" />
+            )}
+            <span>Ngày {activeDay}</span>
           </button>
         </div>
 
-        {/* Right Cluster: Overall Progress Badge + 10-Word Drawer + Phonetics + Admin + Add Word */}
-        <div className="flex flex-wrap items-center gap-1.5">
-          {totalCount > 0 && (
-            <span
-              className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#FAF8F5] border border-[#E5E0D8] text-[11px] text-[#57534E]"
-              title="Tổng số từ đã thuộc trong ngôn ngữ hiện tại"
-            >
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#1F5E3B]" />
-              <span>
-                Đã thuộc:{" "}
-                <strong className="font-mono text-[#181715]">
-                  {learnedCount}/{totalCount}
-                </strong>
-              </span>
-            </span>
-          )}
-
-          <button
-            type="button"
-            onClick={() => setIsWordListDrawerOpen(true)}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-[#E5E0D8] bg-[#FAF8F5] hover:bg-[#F2EFE9] text-xs font-semibold text-[#181715] transition-colors"
-            title="Xem danh sách 10 từ của ngày hiện tại"
-          >
-            <ListChecks className="w-3.5 h-3.5 text-[#1F5E3B]" />
-            <span>
-              DS 10 từ ({currentDayStat.completed}/{currentDayStat.total})
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={onTogglePhonetics}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-[#E5E0D8] bg-[#FAF8F5] hover:bg-[#F2EFE9] text-xs font-medium text-[#57534E] hover:text-[#181715] transition-colors"
-          >
-            {showPhonetics ? (
-              <Eye className="w-3.5 h-3.5 text-[#1F5E3B]" />
-            ) : (
-              <EyeOff className="w-3.5 h-3.5" />
-            )}
-            <span className="hidden sm:inline">
-              {langMeta.phoneticLabel}: {showPhonetics ? "Bật" : "Ẩn"}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleToggleSoundMute}
-            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-[#E5E0D8] bg-[#FAF8F5] hover:bg-[#F2EFE9] text-xs font-medium text-[#57534E] hover:text-[#181715] transition-colors"
-            title={
-              soundMuted
-                ? "Bật âm thanh hiệu ứng khi trả lời đúng/sai"
-                : "Tắt âm thanh hiệu ứng"
-            }
-          >
-            {soundMuted ? (
-              <VolumeX className="w-3.5 h-3.5 text-[#9E2A2B]" />
-            ) : (
-              <Volume2 className="w-3.5 h-3.5 text-[#1F5E3B]" />
-            )}
-            <span className="hidden md:inline">
-              Âm: {soundMuted ? "Tắt" : "Bật"}
-            </span>
-          </button>
-
-          {isChinese && (
+        {/* Center: Smooth Word Progress Track (Replaces 10 noisy pill buttons) */}
+        {currentDayCards.length > 0 && (
+          <div className="hidden sm:flex items-center gap-2 flex-1 max-w-[240px]">
             <button
               type="button"
-              onClick={onToggleChineseScript}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-[#E5E0D8] text-xs font-medium text-[#9E2A2B] bg-[#9E2A2B]/5"
+              disabled={safeIndex <= 0}
+              onClick={() => onPersistCardIndex(activeTopicId, Math.max(0, safeIndex - 1))}
+              className="p-1.5 rounded-lg text-[#57534E] hover:bg-white hover:text-[#181715] disabled:opacity-30"
+              title="Từ trước"
             >
-              {chineseScript === "simplified" ? "Giản (简)" : "Phồn (繁)"}
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <div className="flex-1 space-y-1">
+              <div className="flex items-center justify-between text-[11px] font-mono text-[#57534E]">
+                <span>Từ {safeIndex + 1}/{currentDayCards.length}</span>
+                <span className="text-[#1F5E3B] font-semibold">
+                  {currentDayStat.completed}/{currentDayStat.total} ✓
+                </span>
+              </div>
+              <div className="h-1.5 rounded-full bg-[#E5E0D8]/80 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-[#1F5E3B] transition-all duration-500 ease-out"
+                  style={{ width: `${Math.min(100, dayProgressPercent)}%` }}
+                />
+              </div>
+            </div>
+            <button
+              type="button"
+              disabled={safeIndex >= currentDayCards.length - 1}
+              onClick={() =>
+                onPersistCardIndex(
+                  activeTopicId,
+                  Math.min(currentDayCards.length - 1, safeIndex + 1)
+                )
+              }
+              className="p-1.5 rounded-lg text-[#57534E] hover:bg-white hover:text-[#181715] disabled:opacity-30"
+              title="Từ tiếp theo"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {/* Right: Single Compact Tools Popover + Zen Focus Toggle */}
+        <div className="flex items-center gap-1.5 shrink-0 relative">
+          <button
+            type="button"
+            onClick={() => setIsToolsMenuOpen((o) => !o)}
+            className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-2xl border text-xs font-semibold transition-all ${
+              isToolsMenuOpen
+                ? "bg-[#181715] text-white border-[#181715]"
+                : "bg-white border-[#E5E0D8] text-[#181715] hover:border-[#181715]/40 shadow-[0_2px_8px_rgba(24,23,21,0.03)]"
+            }`}
+            title="Mở công cụ học tập & cài đặt hiển thị"
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            <span>Công cụ</span>
+          </button>
+
+          {onToggleZenMode && (
+            <button
+              type="button"
+              onClick={onToggleZenMode}
+              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-2xl border text-xs font-semibold transition-all ${
+                isZenMode
+                  ? "bg-[#1F5E3B] text-white border-[#1F5E3B] shadow-sm"
+                  : "bg-white border-[#E5E0D8] text-[#57534E] hover:text-[#181715] hover:border-[#181715]/40 shadow-[0_2px_8px_rgba(24,23,21,0.03)]"
+              }`}
+              title={
+                isZenMode
+                  ? "Thoát Chế độ Tập trung (Hiện lại thanh điều hướng)"
+                  : "Bật Chế độ Tập trung Zen (Ẩn mọi thanh điều hướng phụ)"
+              }
+            >
+              {isZenMode ? (
+                <>
+                  <Minimize2 className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Thoát Zen</span>
+                </>
+              ) : (
+                <>
+                  <Maximize2 className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Tập trung</span>
+                </>
+              )}
             </button>
           )}
 
-          {isAdmin && (
-            <button
-              type="button"
-              onClick={() => onCompleteFullDay(activeDay)}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#B45309]/10 border border-[#B45309]/30 text-[#B45309] text-xs font-semibold hover:bg-[#B45309]/20 transition-colors"
-              title="Quyền Quản trị viên: Đánh dấu hoàn thành nhanh Ngày hiện tại"
-            >
-              <Unlock className="w-3.5 h-3.5" />
-              <span>Admin: Xong Ngày {activeDay}</span>
-            </button>
-          )}
+          {/* Compact Tools Popover Drawer */}
+          {isToolsMenuOpen && (
+            <>
+              <div
+                className="fixed inset-0 z-30"
+                onClick={() => setIsToolsMenuOpen(false)}
+              />
+              <div className="absolute right-0 top-12 z-40 w-64 bg-white border border-[#E5E0D8] rounded-2xl shadow-2xl p-2 space-y-1">
+                <div className="px-2.5 py-1.5 text-[10px] font-mono uppercase tracking-wider text-[#6B655E]">
+                  Luyện tập & Lộ trình Ngày {activeDay}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsToolsMenuOpen(false);
+                    setIsPracticeModalOpen(true);
+                  }}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#FAF8F5] text-xs font-semibold text-[#181715]"
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <Puzzle className="w-4 h-4 text-[#1F5E3B]" />
+                    Bài tập tổng hợp ({currentDayCards.length} từ)
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsToolsMenuOpen(false);
+                    setIsStoryModalOpen(true);
+                  }}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#FAF8F5] text-xs font-semibold text-[#181715]"
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <BookOpenCheck className="w-4 h-4 text-[#9E2A2B]" />
+                    Hội thoại kết nối 10 từ
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsToolsMenuOpen(false);
+                    setIsWordListDrawerOpen(true);
+                  }}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#FAF8F5] text-xs font-semibold text-[#181715]"
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <ListChecks className="w-4 h-4 text-[#1F5E3B]" />
+                    Danh sách 10 từ hôm nay
+                  </span>
+                  <span className="text-[11px] font-mono text-[#6B655E]">
+                    {currentDayStat.completed}/{currentDayStat.total}
+                  </span>
+                </button>
+                {onOpenPlacementTest && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsToolsMenuOpen(false);
+                      onOpenPlacementTest();
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#FAF8F5] text-xs font-semibold text-[#181715]"
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <Target className="w-4 h-4 text-[#B45309]" />
+                      Kiểm tra trình độ đầu vào
+                    </span>
+                  </button>
+                )}
 
-          <button
-            type="button"
-            onClick={onOpenQuickAdd}
-            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-[#181715]/20 bg-white hover:bg-[#181715] text-[#181715] hover:text-white text-xs font-semibold transition-colors"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Thêm từ</span>
-          </button>
+                <div className="my-1 border-t border-[#E5E0D8]" />
+                <div className="px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider text-[#6B655E]">
+                  Cài đặt hiển thị & Âm thanh
+                </div>
+
+                <button
+                  type="button"
+                  onClick={onTogglePhonetics}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#FAF8F5] text-xs font-medium text-[#181715]"
+                >
+                  <span className="inline-flex items-center gap-2">
+                    {showPhonetics ? (
+                      <Eye className="w-4 h-4 text-[#1F5E3B]" />
+                    ) : (
+                      <EyeOff className="w-4 h-4 text-[#6B655E]" />
+                    )}
+                    Phiên âm ({langMeta.phoneticLabel})
+                  </span>
+                  <span className="text-[11px] font-mono text-[#1F5E3B] font-semibold">
+                    {showPhonetics ? "Bật" : "Ẩn"}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleToggleSoundMute}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#FAF8F5] text-xs font-medium text-[#181715]"
+                >
+                  <span className="inline-flex items-center gap-2">
+                    {soundMuted ? (
+                      <VolumeX className="w-4 h-4 text-[#9E2A2B]" />
+                    ) : (
+                      <Volume2 className="w-4 h-4 text-[#1F5E3B]" />
+                    )}
+                    Âm thanh hiệu ứng
+                  </span>
+                  <span className="text-[11px] font-mono text-[#1F5E3B] font-semibold">
+                    {soundMuted ? "Tắt" : "Bật"}
+                  </span>
+                </button>
+
+                {isChinese && (
+                  <button
+                    type="button"
+                    onClick={onToggleChineseScript}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#FAF8F5] text-xs font-medium text-[#9E2A2B]"
+                  >
+                    <span>Kiểu chữ Hán</span>
+                    <span className="font-mono font-bold">
+                      {chineseScript === "simplified" ? "Giản (简)" : "Phồn (繁)"}
+                    </span>
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsToolsMenuOpen(false);
+                    onOpenQuickAdd();
+                  }}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-[#FAF8F5] text-xs font-semibold text-[#181715]"
+                >
+                  <Plus className="w-4 h-4 text-[#1F5E3B]" />
+                  Thêm từ vựng cá nhân
+                </button>
+
+                {isAdmin && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsToolsMenuOpen(false);
+                      onCompleteFullDay(activeDay);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-[#B45309]/10 hover:bg-[#B45309]/20 text-xs font-semibold text-[#B45309]"
+                  >
+                    <Unlock className="w-4 h-4" />
+                    Admin: Hoàn thành nhanh Ngày {activeDay}
+                  </button>
+                )}
+
+                {totalCount > 0 && (
+                  <div className="mt-1 pt-1.5 border-t border-[#E5E0D8] px-3 py-1 flex items-center justify-between text-[11px] text-[#6B655E]">
+                    <span>Tổng đã thuộc ({langMeta.shortLabel}):</span>
+                    <strong className="font-mono text-[#181715]">
+                      {learnedCount}/{totalCount} từ
+                    </strong>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -776,7 +931,7 @@ export default function SRSStudyStudio({
 
       {/* DAY COMPLETED CELEBRATION BANNER */}
       {currentDayStat.isDone && activeCard ? (
-        <div className="max-w-4xl mx-auto bg-[#1F5E3B]/8 border border-[#1F5E3B]/30 rounded-3xl p-5 sm:p-6 flex flex-wrap items-center justify-between gap-4 shadow-xs">
+        <div className="max-w-3xl mx-auto bg-[#1F5E3B]/8 border border-[#1F5E3B]/30 rounded-3xl p-5 sm:p-6 flex flex-wrap items-center justify-between gap-4 shadow-xs">
           <div className="flex items-center gap-3.5">
             <div className="w-11 h-11 rounded-2xl bg-[#1F5E3B] text-white flex items-center justify-center shrink-0">
               <CheckCircle2 className="w-6 h-6" />
@@ -855,116 +1010,68 @@ export default function SRSStudyStudio({
           </div>
         </div>
       ) : (
-        <div className="max-w-4xl mx-auto bg-white border border-[#E5E0D8] rounded-3xl p-5 sm:p-8 shadow-[0_12px_36px_rgba(24,23,21,0.04)]">
-          {/* Top Compact Header inside Focus Studio */}
-          <div className="mb-6 space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-bold text-[#181715]">
-                  Ngày {activeDay} • Từ {safeIndex + 1}/{currentDayCards.length}{" "}
-                  <span className="font-mono text-[#8A847C]">
-                    ({activeCard.level})
-                  </span>
+        <div className="max-w-3xl mx-auto bg-white border border-[#E5E0D8] rounded-[28px] overflow-hidden shadow-[0_24px_60px_rgba(24,23,21,0.06)] transition-all">
+          {/* Subtle Dynamic Step Accent Ribbon (Gives clear visual rhythm across Steps 1 → 5) */}
+          <div
+            className="h-1 w-full transition-colors duration-300"
+            style={{ backgroundColor: activeStepInfo.accent }}
+          />
+
+          <div className="p-6 sm:p-10">
+            {/* Whisper-Quiet 1-Line Stepper Header (Zero Cockpit Clutter) */}
+            <div className="flex items-center justify-between gap-4 mb-6 pb-4 border-b border-[#E5E0D8]/60">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span
+                  className="px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold text-white shrink-0 transition-colors"
+                  style={{ backgroundColor: activeStepInfo.accent }}
+                >
+                  Bước {currentStep}/5
                 </span>
-                {activeTopicMeta.dayThemes?.[activeDay] && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-[#1F5E3B]/10 text-[11px] font-semibold text-[#1F5E3B]">
-                    <Sparkles className="w-3 h-3" />
-                    {activeTopicMeta.dayThemes[activeDay]}
+                <span className="text-xs sm:text-sm font-semibold text-[#181715] truncate">
+                  {activeStepInfo.label}
+                </span>
+                {activeCard.isCompletedInTopic && (
+                  <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#1F5E3B]/10 text-[#1F5E3B] text-[10px] font-bold">
+                    ✓ Đã thuộc
                   </span>
                 )}
               </div>
 
-              <div className="flex items-center gap-3">
-                <span className="hidden sm:inline text-[11px] font-mono text-[#8A847C]">
-                  Phím tắt: [Space] Nghe âm • [Enter] Tiếp tục
-                </span>
-                <span className="font-mono text-xs text-[#1F5E3B] font-bold">
-                  Bước {currentStep}/5
-                </span>
+              {/* 5 Sleek Progress Segments (Clickable for completed steps) */}
+              <div
+                className="flex items-center gap-1.5 shrink-0"
+                role="tablist"
+                aria-label="Tiến trình 5 bước học"
+              >
+                {([1, 2, 3, 4, 5] as LearningStep[]).map((stepNum) => {
+                  const isActive = currentStep === stepNum;
+                  const isDone = currentStep > stepNum;
+                  const canJump =
+                    isAdmin ||
+                    stepNum <= currentStep ||
+                    activeCard.isCompletedInTopic;
+                  return (
+                    <button
+                      key={stepNum}
+                      type="button"
+                      disabled={!canJump}
+                      onClick={() => {
+                        if (canJump) setCurrentStep(stepNum);
+                      }}
+                      title={`Bước ${stepNum}: ${stepMeta[stepNum].label}`}
+                      aria-label={`Bước ${stepNum}: ${stepMeta[stepNum].label}`}
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        isActive
+                          ? "w-8 bg-[#181715]"
+                          : isDone
+                          ? "w-4 bg-[#1F5E3B]"
+                          : "w-3 bg-[#E5E0D8]"
+                      } ${canJump ? "cursor-pointer hover:opacity-80" : "cursor-default"}`}
+                    />
+                  );
+                })}
               </div>
             </div>
-
-            {/* Anti-Spoiler Horizontal 1..10 Word Strip */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-              {currentDayCards.map((wCard, idx) => {
-                const isCurrentWord = idx === safeIndex;
-                const isWordDone = wCard.isCompletedInTopic;
-                return (
-                  <button
-                    key={wCard.id}
-                    type="button"
-                    onClick={() => onPersistCardIndex(activeTopicId, idx)}
-                    title={
-                      isSpoilerHidden
-                        ? `Từ #${idx + 1} (Đang ẩn mặt chữ để kiểm tra trí nhớ)`
-                        : `${idx + 1}. ${wCard.term} — ${wCard.meaningVi}`
-                    }
-                    className={`h-8 px-2.5 rounded-xl text-xs font-medium transition-all flex items-center justify-center gap-1.5 shrink-0 ${
-                      isCurrentWord
-                        ? "bg-[#181715] text-white font-semibold shadow-2xs"
-                        : isWordDone
-                        ? "bg-[#1F5E3B]/12 text-[#1F5E3B] border border-[#1F5E3B]/30"
-                        : "bg-[#FAF8F5] hover:bg-[#F2EFE9] text-[#57534E] border border-[#E5E0D8]"
-                    }`}
-                  >
-                    <span className="font-mono font-bold">{idx + 1}</span>
-                    {!isSpoilerHidden && (
-                      <span className="max-w-[85px] truncate hidden md:inline">
-                        {wCard.term}
-                      </span>
-                    )}
-                    {isWordDone && (
-                      <span
-                        className={`text-[10px] font-bold ${
-                          isCurrentWord ? "text-[#4ADE80]" : "text-[#1F5E3B]"
-                        }`}
-                      >
-                        ✓
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* 5-Step Progress Pills */}
-            <div className="grid grid-cols-5 gap-1.5">
-              {[
-                { step: 1, label: "1. Nhìn từ" },
-                { step: 2, label: "2. Nghe & Đọc" },
-                { step: 3, label: "3. Hiểu sâu" },
-                { step: 4, label: "4. Gõ khuyết" },
-                { step: 5, label: "5. Ghép câu" },
-              ].map((item) => {
-                const isActive = currentStep === item.step;
-                const isDone = currentStep > item.step;
-                return (
-                  <button
-                    key={item.step}
-                    type="button"
-                    onClick={() => {
-                      if (
-                        isAdmin ||
-                        item.step <= currentStep ||
-                        activeCard.isCompletedInTopic
-                      ) {
-                        setCurrentStep(item.step as LearningStep);
-                      }
-                    }}
-                    className={`py-2 px-2 rounded-xl text-[11px] font-semibold text-center transition-all ${
-                      isActive
-                        ? "bg-[#181715] text-white shadow-2xs"
-                        : isDone
-                        ? "bg-[#1F5E3B]/15 text-[#1F5E3B]"
-                        : "bg-[#F2EFE9] text-[#8A847C]"
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
 
           {/* ================= STEP 1: NHÌN TỪ (LOOK & COLLOCATION PREVIEW) ================= */}
           {currentStep === 1 && (
@@ -1734,6 +1841,7 @@ export default function SRSStudyStudio({
               )}
             </div>
           )}
+          </div>
         </div>
       )}
 

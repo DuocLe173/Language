@@ -89,6 +89,7 @@ export default function PolyglotHomePage() {
   const [showSrsReviewModal, setShowSrsReviewModal] = useState(false);
   const [showPlacementModal, setShowPlacementModal] = useState(false);
   const [showAchievementModal, setShowAchievementModal] = useState(false);
+  const [isZenMode, setIsZenMode] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -529,7 +530,8 @@ export default function PolyglotHomePage() {
         </div>
       )}
 
-      {/* Unified Sticky Top Header: Brand + Center Navigation Tabs + Right User Cluster */}
+      {/* Unified Sticky Top Header (Hidden automatically in Zen Focus Mode) */}
+      {!(isZenMode && activeTab === "study") && (
       <header className="sticky top-0 z-30 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#E5E0D8]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
           {/* Left: Brand Logo */}
@@ -601,16 +603,6 @@ export default function PolyglotHomePage() {
               progressByLang={progressByLang}
               onSelectLanguage={handleSelectLanguage}
             />
-
-            <button
-              type="button"
-              onClick={() => setShowPlacementModal(true)}
-              className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white border border-[#E5E0D8] hover:border-[#1F5E3B] text-xs font-semibold text-[#181715]"
-              title="Kiểm tra trình độ đầu vào (1 phút) để mở khóa đúng ngày phù hợp"
-            >
-              <Target className="w-3.5 h-3.5 text-[#1F5E3B]" />
-              <span className="hidden xl:inline">Test trình độ</span>
-            </button>
 
             <button
               type="button"
@@ -705,11 +697,18 @@ export default function PolyglotHomePage() {
           </div>
         </div>
       </header>
+      )}
 
       {/* Main Content Container (Streamlined Layering so Study Card is Immediately Centered) */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 space-y-4">
-        {/* Active SRS Due Review Banner (Real SM-2 isCardDue Queue) */}
-        {dueReviewCards.length > 0 && (
+      <main
+        className={`flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 space-y-4 ${
+          isZenMode && activeTab === "study"
+            ? "py-6 sm:py-10 flex flex-col justify-center"
+            : "py-4 sm:py-6"
+        }`}
+      >
+        {/* Active SRS Due Review Banner (Hidden in Zen Mode so learner stays 100% locked in) */}
+        {!(isZenMode && activeTab === "study") && dueReviewCards.length > 0 && (
           <div className="bg-[#B45309]/8 border border-[#B45309]/30 rounded-2xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 text-xs sm:text-sm">
               <span className="w-8 h-8 rounded-xl bg-[#B45309]/15 text-[#B45309] flex items-center justify-center shrink-0">
@@ -805,6 +804,9 @@ export default function PolyglotHomePage() {
             }
             onCompleteCardInTopic={handleCompleteCardInTopic}
             onResetTopicProgress={handleResetTopicProgress}
+            isZenMode={isZenMode}
+            onToggleZenMode={() => setIsZenMode((z) => !z)}
+            onOpenPlacementTest={() => setShowPlacementModal(true)}
             onOpenQuickAdd={() => {
               setActiveTab("vault");
               setShowQuickAddModal(true);
