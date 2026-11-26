@@ -32,6 +32,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Target,
+  Zap,
+  Headphones,
 } from "lucide-react";
 import {
   LanguageCode,
@@ -101,6 +103,8 @@ interface SRSStudyStudioProps {
   isZenMode?: boolean;
   onToggleZenMode?: () => void;
   onOpenPlacementTest?: () => void;
+  onOpenSpeedBlitz?: () => void;
+  onOpenAudioPodcast?: () => void;
 }
 
 type LearningStep = 1 | 2 | 3 | 4 | 5;
@@ -128,6 +132,8 @@ export default function SRSStudyStudio({
   isZenMode = false,
   onToggleZenMode,
   onOpenPlacementTest,
+  onOpenSpeedBlitz,
+  onOpenAudioPodcast,
 }: SRSStudyStudioProps) {
   const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
   const [isDayGridModalOpen, setIsDayGridModalOpen] = useState(false);
@@ -849,6 +855,39 @@ export default function SRSStudyStudio({
                     {currentDayStat.completed}/{currentDayStat.total}
                   </span>
                 </button>
+                {onOpenSpeedBlitz && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsToolsMenuOpen(false);
+                      onOpenSpeedBlitz();
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#B45309]/10 text-xs font-bold text-[#B45309]"
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <Zap className="w-4 h-4 fill-current" />
+                      Đấu trường tốc độ 60s
+                    </span>
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#B45309]/15">
+                      HOT
+                    </span>
+                  </button>
+                )}
+                {onOpenAudioPodcast && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsToolsMenuOpen(false);
+                      onOpenAudioPodcast();
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#FAF8F5] text-xs font-semibold text-[#181715]"
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <Headphones className="w-4 h-4 text-[#1F5E3B]" />
+                      Nghe thụ động (Podcast)
+                    </span>
+                  </button>
+                )}
                 {onOpenPlacementTest && (
                   <button
                     type="button"

@@ -163,6 +163,9 @@ export interface UserProfile {
   enabledLangs: LanguageCode[];
   streakDays: number;
   streakFreezes?: number;
+  studyHistoryByDate?: Record<string, number>; // YYYY-MM-DD -> words studied
+  bestBlitzScore?: number;
+  weakCardIds?: string[];
   lastStudyDate: string; // YYYY-MM-DD
   dailyGoalCards: number;
   reviewedToday: number;

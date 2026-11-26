@@ -132,6 +132,54 @@ export default function AchievementShareModal({
         </div>
       </div>
 
+      {/* 28-Day Study Activity Heatmap (GitHub / Duolingo-style Consistency Grid) */}
+      <div className="p-4 rounded-2xl bg-white border border-[#E5E0D8] space-y-2.5">
+        <div className="flex items-center justify-between text-xs">
+          <span className="font-bold text-[#181715]">
+            Bản Đồ Nhiệt Chuyên Cần (28 ngày gần nhất)
+          </span>
+          <span className="font-mono text-[11px] text-[#1F5E3B] font-semibold">
+            Kỷ lục Tốc độ: {user.bestBlitzScore ?? 0} pts
+          </span>
+        </div>
+        <div className="grid grid-cols-14 gap-1.5">
+          {Array.from({ length: 28 }, (_, idx) => {
+            const d = new Date();
+            d.setDate(d.getDate() - (27 - idx));
+            const key = d.toISOString().slice(0, 10);
+            const todayKey = new Date().toISOString().slice(0, 10);
+            const count =
+              user.studyHistoryByDate?.[key] ??
+              (key === todayKey ? user.reviewedToday : 0);
+            let bg = "bg-[#F2EFE9]";
+            if (count >= 10) bg = "bg-[#1F5E3B]";
+            else if (count >= 5) bg = "bg-[#1F5E3B]/70";
+            else if (count >= 1) bg = "bg-[#1F5E3B]/35";
+            return (
+              <div
+                key={key}
+                title={`${key}: ${count} từ đã luyện`}
+                className={`aspect-square rounded-md ${bg} ${
+                  key === todayKey ? "ring-2 ring-[#B45309] ring-offset-1" : ""
+                }`}
+              />
+            );
+          })}
+        </div>
+        <div className="flex items-center justify-between text-[10px] font-mono text-[#6B655E]">
+          <span>4 tuần trước</span>
+          <div className="inline-flex items-center gap-1">
+            <span>Ít</span>
+            <span className="w-2.5 h-2.5 rounded-xs bg-[#F2EFE9]" />
+            <span className="w-2.5 h-2.5 rounded-xs bg-[#1F5E3B]/35" />
+            <span className="w-2.5 h-2.5 rounded-xs bg-[#1F5E3B]/70" />
+            <span className="w-2.5 h-2.5 rounded-xs bg-[#1F5E3B]" />
+            <span>Nhiều</span>
+          </div>
+          <span>Hôm nay</span>
+        </div>
+      </div>
+
       {/* Streak Freeze Explanation */}
       <div className="p-3.5 rounded-2xl bg-[#FAF8F5] border border-[#E5E0D8] flex items-start gap-2.5 text-xs text-[#57534E]">
         <Snowflake className="w-4 h-4 text-[#1F5E3B] shrink-0 mt-0.5" />

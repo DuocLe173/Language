@@ -72,6 +72,14 @@ const AchievementShareModal = dynamic(
   () => import("@/components/AchievementShareModal"),
   { ssr: false }
 );
+const SpeedBlitzModal = dynamic(
+  () => import("@/components/SpeedBlitzModal"),
+  { ssr: false }
+);
+const AudioPodcastModal = dynamic(
+  () => import("@/components/AudioPodcastModal"),
+  { ssr: false }
+);
 
 type ActiveTab = "study" | "ai-coach" | "vault";
 
@@ -89,6 +97,8 @@ export default function PolyglotHomePage() {
   const [showSrsReviewModal, setShowSrsReviewModal] = useState(false);
   const [showPlacementModal, setShowPlacementModal] = useState(false);
   const [showAchievementModal, setShowAchievementModal] = useState(false);
+  const [showBlitzModal, setShowBlitzModal] = useState(false);
+  const [showPodcastModal, setShowPodcastModal] = useState(false);
   const [isZenMode, setIsZenMode] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -411,6 +421,10 @@ export default function PolyglotHomePage() {
       ...user,
       streakDays: nextStreak,
       reviewedToday: nextReviewedToday,
+      studyHistoryByDate: {
+        ...(user.studyHistoryByDate || {}),
+        [todayStr]: (user.studyHistoryByDate?.[todayStr] || 0) + 1,
+      },
       totalLearnedWords: totalLearnedAllLangs,
       lastStudyDate: todayStr,
       topicProgressMap: {
@@ -807,6 +821,8 @@ export default function PolyglotHomePage() {
             isZenMode={isZenMode}
             onToggleZenMode={() => setIsZenMode((z) => !z)}
             onOpenPlacementTest={() => setShowPlacementModal(true)}
+            onOpenSpeedBlitz={() => setShowBlitzModal(true)}
+            onOpenAudioPodcast={() => setShowPodcastModal(true)}
             onOpenQuickAdd={() => {
               setActiveTab("vault");
               setShowQuickAddModal(true);
@@ -841,6 +857,48 @@ export default function PolyglotHomePage() {
           />
         )}
       </main>
+
+      {/* 60-Second Speed Blitz Reflex Arena */}
+      <SpeedBlitzModal
+        isOpen={showBlitzModal}
+        onClose={() => setShowBlitzModal(false)}
+        languageCode={activeLang}
+        cardsPool={cards.filter((c) => c.languageCode === activeLang)}
+        bestScore={user.bestBlitzScore || 0}
+        onFinishBlitz={(score, correctCount, missedIds) => {
+          const todayStr = new Date().toISOString().slice(0, 10);
+          const mergedWeak = Array.from(
+            new Set([...(user.weakCardIds || []), ...missedIds])
+          ).slice(-50);
+          const updated: UserProfile = {
+            ...user,
+            bestBlitzScore: Math.max(user.bestBlitzScore || 0, score),
+            weakCardIds: mergedWeak,
+            studyHistoryByDate: {
+              ...(user.studyHistoryByDate || {}),
+              [todayStr]:
+                (user.studyHistoryByDate?.[todayStr] || 0) + correctCount,
+            },
+          };
+          handleUpdateUser(updated);
+          showToast(
+            `⚡ Đấu trường 60s hoàn tất: ${score} điểm (${correctCount} câu đúng)!`
+          );
+        }}
+      />
+
+      {/* Hands-Free Audio Podcast Loop Player */}
+      <AudioPodcastModal
+        isOpen={showPodcastModal}
+        onClose={() => setShowPodcastModal(false)}
+        languageCode={activeLang}
+        playlistCards={activeTopicCards.filter(
+          (c) =>
+            (c.dayNumber || 1) <=
+            (user.isAdmin ? 10 : currentTopicProgress.unlockedDay)
+        )}
+        titleLabel={`Nghe Thụ Động — ${activeTopicMeta.titleVi}`}
+      />
 
       {/* Adaptive Placement Test Modal */}
       <PlacementTestModal
