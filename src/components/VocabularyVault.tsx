@@ -262,8 +262,77 @@ export default function VocabularyVault({
     });
   };
 
+  const masteryLevels = useMemo(() => {
+    const levels = [0, 0, 0, 0, 0];
+    for (const c of langCards) {
+      if (!c.isCompletedInTopic) {
+        levels[0]++;
+      } else if (c.intervalDays <= 1) {
+        levels[1]++;
+      } else if (c.intervalDays <= 3) {
+        levels[2]++;
+      } else if (c.intervalDays <= 10) {
+        levels[3]++;
+      } else {
+        levels[4]++;
+      }
+    }
+    const maxVal = Math.max(1, ...levels);
+    return [
+      { label: "Cấp 1", sub: "Mới gặp", count: levels[0], color: "#D4CEC3", pct: Math.round((levels[0] / maxVal) * 100) },
+      { label: "Cấp 2", sub: "Sơ nhớ", count: levels[1], color: "#B45309", pct: Math.round((levels[1] / maxVal) * 100) },
+      { label: "Cấp 3", sub: "Đang nhớ", count: levels[2], color: "#D97706", pct: Math.round((levels[2] / maxVal) * 100) },
+      { label: "Cấp 4", sub: "Nhớ chắc", count: levels[3], color: "#15803D", pct: Math.round((levels[3] / maxVal) * 100) },
+      { label: "Cấp 5", sub: "Thành thạo", count: levels[4], color: "#1F5E3B", pct: Math.round((levels[4] / maxVal) * 100) },
+    ];
+  }, [langCards]);
+
   return (
     <div className="space-y-5">
+      {/* MochiMochi-inspired 5-Level Memory Mastery Visualizer */}
+      <div className="bg-white border border-[#E5E0D8] rounded-3xl p-5 shadow-[0_4px_16px_rgba(24,23,21,0.025)]">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <h3 className="text-sm font-bold text-[#181715]">
+              Biểu Đồ 5 Cấp Độ Trí Nhớ ({langMeta.nameVi})
+            </h3>
+            <p className="text-xs text-[#57534E]">
+              Mỗi lần ôn đúng SRS, từ vựng sẽ tự động thăng hạng từ Cấp 1 lên Cấp 5 (Trí nhớ dài hạn).
+            </p>
+          </div>
+          <span className="px-3 py-1 rounded-full bg-[#1F5E3B]/10 text-[#1F5E3B] text-xs font-mono font-bold">
+            {statusCounts.completed}/{statusCounts.all} từ đã nạp
+          </span>
+        </div>
+
+        <div className="grid grid-cols-5 gap-2.5 sm:gap-4 items-end h-28 pt-2">
+          {masteryLevels.map((lvl) => (
+            <div key={lvl.label} className="flex flex-col items-center gap-1.5 h-full justify-end">
+              <span className="text-xs font-mono font-bold text-[#181715]">
+                {lvl.count}
+              </span>
+              <div className="w-full max-w-[56px] bg-[#FAF8F5] rounded-t-xl h-16 flex items-end overflow-hidden border border-[#E5E0D8]/60">
+                <div
+                  className="w-full rounded-t-lg transition-all duration-500"
+                  style={{
+                    height: `${Math.max(10, lvl.pct)}%`,
+                    backgroundColor: lvl.color,
+                  }}
+                />
+              </div>
+              <div className="text-center leading-tight">
+                <div className="text-[11px] font-bold text-[#181715]">
+                  {lvl.label}
+                </div>
+                <div className="text-[10px] text-[#6B655E] hidden sm:block">
+                  {lvl.sub}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Search, Self-Test Mode & Status Filter Header */}
       <div className="bg-white border border-[#E5E0D8] rounded-2xl p-4 space-y-3.5 shadow-[0_2px_10px_rgba(24,23,21,0.03)]">
         <div className="flex flex-wrap items-center justify-between gap-3">

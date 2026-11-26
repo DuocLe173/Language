@@ -137,6 +137,22 @@ export default function SRSStudyStudio({
   const [isToolsMenuOpen, setIsToolsMenuOpen] = useState(false);
   const [soundMuted, setSoundMuted] = useState(false);
 
+  // Duolingo-inspired Session Dopamine Engine (XP + Combo + Mentor Cheer)
+  const [sessionXp, setSessionXp] = useState(0);
+  const [comboStreak, setComboStreak] = useState(0);
+  const [mentorCheer, setMentorCheer] = useState<string | null>(null);
+
+  const triggerMentorCheer = (msg: string, xpGain: number, incrementCombo = true) => {
+    setSessionXp((prev) => prev + xpGain);
+    if (incrementCombo) {
+      setComboStreak((prev) => prev + 1);
+    }
+    setMentorCheer(msg);
+    setTimeout(() => {
+      setMentorCheer((current) => (current === msg ? null : current));
+    }, 2600);
+  };
+
   useEffect(() => {
     setSoundMuted(isSoundEffectsMuted());
   }, []);
@@ -473,6 +489,7 @@ export default function SRSStudyStudio({
 
     if (!isMatch) {
       playErrorTone();
+      setComboStreak(0);
       setStep4Error(
         `Chưa chính xác. Hãy nhìn gợi ý khuyết "${maskedWordPreview}" và gõ (hoặc chạm ký tự) lại đầy đủ từ "${displayTerm}" nhé!`
       );
@@ -485,8 +502,18 @@ export default function SRSStudyStudio({
     speakText(activeCard.term, languageCode, 0.94);
 
     if (step4Round < 3) {
+      triggerMentorCheer(
+        `🦉 Chuẩn xác! +10 XP • Chuỗi đúng ${comboStreak + 1} liên tiếp!`,
+        10,
+        true
+      );
       setStep4Round((prev) => (prev + 1) as 1 | 2 | 3);
     } else {
+      triggerMentorCheer(
+        `🔥 Vượt trọn 3 vòng gõ khuyết! +15 XP — Sang Bước 5 ghép câu nào!`,
+        15,
+        true
+      );
       setCurrentStep(5);
     }
   };
@@ -546,6 +573,11 @@ export default function SRSStudyStudio({
   const handleFinishWord5Steps = (rating: SRSRating = "good") => {
     if (!activeCard) return;
     playCelebrationFanfare();
+    triggerMentorCheer(
+      `🏆 Tuyệt vời! +25 XP — Bạn vừa nạp sâu từ "${activeCard.term}" vào trí nhớ dài hạn!`,
+      25,
+      true
+    );
     const srsResult = calculateNextReview(activeCard, rating);
     const updatedCard: VocabCard = {
       ...activeCard,
@@ -692,8 +724,19 @@ export default function SRSStudyStudio({
           </div>
         )}
 
-        {/* Right: Single Compact Tools Popover + Zen Focus Toggle */}
+        {/* Right: Live Session XP/Combo + Single Compact Tools Popover + Zen Focus Toggle */}
         <div className="flex items-center gap-1.5 shrink-0 relative">
+          {sessionXp > 0 && (
+            <div className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-2xl bg-[#1F5E3B]/10 border border-[#1F5E3B]/25 text-xs font-bold text-[#1F5E3B] animate-pop">
+              <span>⚡ +{sessionXp} XP</span>
+              {comboStreak >= 2 && (
+                <span className="px-1.5 py-0.5 rounded-md bg-[#B45309] text-white text-[10px] font-mono">
+                  🔥 x{comboStreak}
+                </span>
+              )}
+            </div>
+          )}
+
           <button
             type="button"
             onClick={() => setIsToolsMenuOpen((o) => !o)}
@@ -1114,7 +1157,7 @@ export default function SRSStudyStudio({
                     speakText(activeCard.term, languageCode, 0.92);
                     setHasListenedInStep2(true);
                   }}
-                  className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-[#181715] text-white text-sm font-semibold hover:bg-[#2E2C28] transition-all shadow-sm"
+                  className="btn-tactile-ink inline-flex items-center gap-2 px-8 py-4 rounded-2xl text-sm font-bold shadow-sm"
                 >
                   <span>Đã nhìn rõ mặt chữ → Qua Bước 2 (Nghe & Tập phát âm)</span>
                   <ArrowRight className="w-4 h-4" />
@@ -1219,7 +1262,7 @@ export default function SRSStudyStudio({
                   type="button"
                   disabled={!hasListenedInStep2}
                   onClick={() => setCurrentStep(3)}
-                  className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-[#181715] text-white text-sm font-semibold hover:bg-[#2E2C28] disabled:opacity-40 transition-all"
+                  className="btn-tactile-green inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl text-sm font-bold disabled:opacity-40"
                 >
                   <span>Đã nghe rõ → Qua Bước 3 (Hiểu sâu nghĩa & Ngữ cảnh)</span>
                   <ArrowRight className="w-4 h-4" />
@@ -1839,6 +1882,16 @@ export default function SRSStudyStudio({
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Expressive Duolingo-style Mentor Feedback Strip */}
+          {mentorCheer && (
+            <div className="mt-5 p-3.5 rounded-2xl bg-[#1F5E3B]/10 border border-[#1F5E3B]/30 text-[#1F5E3B] text-xs sm:text-sm font-bold flex items-center justify-between gap-2 animate-pop">
+              <span>{mentorCheer}</span>
+              <span className="font-mono text-[11px] px-2 py-0.5 rounded-lg bg-[#1F5E3B] text-white shrink-0">
+                {sessionXp} XP
+              </span>
             </div>
           )}
           </div>
