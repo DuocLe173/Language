@@ -1,6 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { calculateNextReview, isCardDue } from "@/lib/srs";
-import { verifyStep4WordInput, verifyStep5SentenceTranslation } from "@/lib/learning-utils";
+import {
+  verifyStep4WordInput,
+  verifyStep5SentenceTranslation,
+  getDistinctPracticeSentences,
+} from "@/lib/learning-utils";
 import { segmentSentenceIntoTokens } from "@/lib/word-gloss-dictionary";
 import { INITIAL_VOCAB_CARDS } from "@/lib/seed-data";
 import { computePlacementUnlockDay } from "@/lib/placement-utils";
@@ -88,5 +92,35 @@ describe("Active Recall Verification & CJK Segmentation", () => {
     expect(computePlacementUnlockDay(3, 6).recommendedDay).toBe(4);
     expect(computePlacementUnlockDay(5, 6).recommendedDay).toBe(6);
     expect(computePlacementUnlockDay(6, 6).recommendedDay).toBe(8);
+  });
+
+  it("ensures all 5 non-English languages have >= 25 unique words with 0 duplicates per language", () => {
+    const nonEnglishLangs = ["zh-CN", "zh-TW", "ja", "ko", "fr"] as const;
+    for (const lang of nonEnglishLangs) {
+      const cards = INITIAL_VOCAB_CARDS.filter((c) => c.languageCode === lang);
+      expect(cards.length).toBeGreaterThanOrEqual(25);
+
+      const normalizedTerms = cards.map((c) => c.term.trim().toLowerCase());
+      const uniqueTerms = new Set(normalizedTerms);
+      expect(uniqueTerms.size).toBe(cards.length);
+    }
+  });
+
+  it("generates distinct non-empty practice sentences with valid cloze blanks for all 6 languages", () => {
+    const allLangs = ["en", "zh-CN", "zh-TW", "ja", "ko", "fr"] as const;
+    for (const lang of allLangs) {
+      const cards = INITIAL_VOCAB_CARDS.filter((c) => c.languageCode === lang);
+      expect(cards.length).toBeGreaterThan(0);
+
+      for (const card of cards) {
+        const res = getDistinctPracticeSentences(card);
+        expect(res.sentenceBuildTarget.trim().length).toBeGreaterThan(0);
+        expect(res.sentenceBuildVi.trim().length).toBeGreaterThan(0);
+        expect(res.clozeFullTarget.trim().length).toBeGreaterThan(0);
+        expect(res.clozeVi.trim().length).toBeGreaterThan(0);
+        expect(res.clozeSentenceWithBlank).toContain("______");
+        expect(res.sentenceBuildTarget.trim()).not.toBe(res.clozeFullTarget.trim());
+      }
+    }
   });
 });

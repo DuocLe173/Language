@@ -80,6 +80,14 @@ const AudioPodcastModal = dynamic(
   () => import("@/components/AudioPodcastModal"),
   { ssr: false }
 );
+const RescueDrillModal = dynamic(
+  () => import("@/components/RescueDrillModal"),
+  { ssr: false }
+);
+const DailyQuestsModal = dynamic(
+  () => import("@/components/DailyQuestsModal"),
+  { ssr: false }
+);
 
 type ActiveTab = "study" | "ai-coach" | "vault";
 
@@ -99,6 +107,9 @@ export default function PolyglotHomePage() {
   const [showAchievementModal, setShowAchievementModal] = useState(false);
   const [showBlitzModal, setShowBlitzModal] = useState(false);
   const [showPodcastModal, setShowPodcastModal] = useState(false);
+  const [showRescueModal, setShowRescueModal] = useState(false);
+  const [showQuestsModal, setShowQuestsModal] = useState(false);
+  const [blitzCompletedToday, setBlitzCompletedToday] = useState(false);
   const [isZenMode, setIsZenMode] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -214,6 +225,16 @@ export default function PolyglotHomePage() {
         isCardDue(c, now)
     );
   }, [cards, activeLang]);
+
+  const activeLangCards = useMemo(
+    () => cards.filter((c) => c.languageCode === activeLang),
+    [cards, activeLang]
+  );
+
+  const weakCardsForLang = useMemo(() => {
+    const weakSet = new Set(user.weakCardIds || []);
+    return activeLangCards.filter((c) => weakSet.has(c.id));
+  }, [activeLangCards, user.weakCardIds]);
 
   const currentTopicProgress = useMemo(
     () =>
@@ -500,6 +521,19 @@ export default function PolyglotHomePage() {
   const handleUpdateUser = (updated: UserProfile) => {
     setUser(updated);
     setAllUsers(saveUserProfile(updated));
+  };
+
+  const handleMasterWeakCard = (cardId: string) => {
+    const nextWeak = (user.weakCardIds || []).filter((id) => id !== cardId);
+    const updated: UserProfile = {
+      ...user,
+      weakCardIds: nextWeak,
+    };
+    handleUpdateUser(updated);
+    const matched = cards.find((c) => c.id === cardId);
+    showToast(
+      `🛟 Đã giải cứu thành công từ "${matched?.term || "từ vựng"}" khỏi danh sách hay sai!`
+    );
   };
 
   const handleLogout = () => {
@@ -823,6 +857,9 @@ export default function PolyglotHomePage() {
             onOpenPlacementTest={() => setShowPlacementModal(true)}
             onOpenSpeedBlitz={() => setShowBlitzModal(true)}
             onOpenAudioPodcast={() => setShowPodcastModal(true)}
+            weakCount={weakCardsForLang.length}
+            onOpenRescueDrill={() => setShowRescueModal(true)}
+            onOpenDailyQuests={() => setShowQuestsModal(true)}
             onOpenQuickAdd={() => {
               setActiveTab("vault");
               setShowQuickAddModal(true);
@@ -881,10 +918,34 @@ export default function PolyglotHomePage() {
             },
           };
           handleUpdateUser(updated);
+          setBlitzCompletedToday(true);
           showToast(
             `⚡ Đấu trường 60s hoàn tất: ${score} điểm (${correctCount} câu đúng)!`
           );
         }}
+      />
+
+      {/* Rescue Drill Modal for Weak Cards */}
+      <RescueDrillModal
+        isOpen={showRescueModal}
+        onClose={() => setShowRescueModal(false)}
+        languageCode={activeLang}
+        weakCards={weakCardsForLang}
+        allLangCards={activeLangCards}
+        onMasterWeakCard={handleMasterWeakCard}
+      />
+
+      {/* Daily Quests Progress Modal */}
+      <DailyQuestsModal
+        isOpen={showQuestsModal}
+        onClose={() => setShowQuestsModal(false)}
+        reviewedToday={user.reviewedToday}
+        bestBlitzScore={user.bestBlitzScore || 0}
+        blitzCompletedToday={blitzCompletedToday}
+        streakDays={user.streakDays}
+        weakCount={weakCardsForLang.length}
+        onOpenSpeedBlitz={() => setShowBlitzModal(true)}
+        onOpenRescueDrill={() => setShowRescueModal(true)}
       />
 
       {/* Hands-Free Audio Podcast Loop Player */}

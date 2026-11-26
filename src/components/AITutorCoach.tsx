@@ -298,15 +298,15 @@ export default function AITutorCoach({
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
       {/* Left Sidebar (Appears below chat on mobile so users jump straight into chatting): Scenarios & Sample Prompts (4 cols) */}
       <div className="order-2 lg:order-1 lg:col-span-4 space-y-4">
         <div className="bg-white border border-[#E5E0D8] rounded-3xl p-5 shadow-[0_4px_20px_rgba(24,23,21,0.03)]">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-mono uppercase tracking-wider text-[#57534E]">
+          <div className="flex items-center justify-between gap-2 mb-3.5">
+            <h3 className="text-xs font-mono uppercase tracking-wider text-[#57534E] font-semibold">
               Chủ Đề Hội Thoại ({langMeta.nameVi})
             </h3>
-            <span className="px-2 py-0.5 rounded-md text-[11px] font-mono bg-[#1F5E3B]/10 text-[#1F5E3B]">
+            <span className="px-2.5 py-0.5 rounded-lg text-[11px] font-mono font-medium bg-[#1F5E3B]/10 text-[#1F5E3B] shrink-0">
               {engineBadge}
             </span>
           </div>
@@ -317,17 +317,21 @@ export default function AITutorCoach({
               return (
                 <button
                   key={sc.id}
-                  onClick={() => setSelectedScenarioId(sc.id)}
+                  type="button"
+                  onClick={() => {
+                    playTileClick();
+                    setSelectedScenarioId(sc.id);
+                  }}
                   className={`w-full text-left p-3.5 rounded-2xl border transition-all ${
                     active
-                      ? "bg-[#181715] text-white border-[#181715] shadow-xs"
+                      ? "bg-[#181715] text-white border-[#181715] shadow-[0_4px_14px_rgba(24,23,21,0.14)]"
                       : "bg-[#FAF8F5] hover:bg-[#F2EFE9] text-[#181715] border-[#E5E0D8]"
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-sm font-semibold">{sc.titleVi}</span>
                     <span
-                      className={`text-[10px] font-mono px-2 py-0.5 rounded-md ${
+                      className={`text-[10px] font-mono px-2 py-0.5 rounded-md shrink-0 ${
                         active
                           ? "bg-white/15 text-white"
                           : "bg-[#E5E0D8] text-[#57534E]"
@@ -353,26 +357,27 @@ export default function AITutorCoach({
         <div className="bg-white border border-[#E5E0D8] rounded-3xl p-5 shadow-[0_4px_20px_rgba(24,23,21,0.03)]">
           <div className="flex items-center gap-1.5 mb-2">
             <Wand2 className="w-4 h-4 text-[#9E2A2B]" />
-            <h4 className="text-xs font-mono uppercase tracking-wider text-[#57534E]">
+            <h4 className="text-xs font-mono uppercase tracking-wider text-[#57534E] font-semibold">
               Gợi Ý Câu Phản Hồi Tự Nhiên
             </h4>
           </div>
-          <p className="text-xs text-[#8A847C] mb-3">
+          <p className="text-xs text-[#6B655E] leading-relaxed mb-3">
             Nhấn để gửi thử và xem cách AI dịch thuật truyền cảm, sửa lỗi ngữ pháp gần gũi như người bản xứ:
           </p>
           <div className="space-y-2">
             {greetingData.prompts.map((p, i) => (
               <button
                 key={i}
+                type="button"
                 onClick={() => handleSendMessage(p.target)}
                 disabled={isSending}
-                className="w-full text-left p-3 rounded-2xl border border-[#E5E0D8] bg-[#FAF8F5] hover:bg-[#F2EFE9] transition-colors group"
+                className="w-full text-left p-3.5 rounded-2xl border border-[#E5E0D8] bg-[#FAF8F5] hover:bg-[#F2EFE9] hover:border-[#D4CEC3] transition-colors group"
               >
-                <div className="text-xs font-medium text-[#181715] group-hover:text-[#1F5E3B]">
+                <div className="text-xs font-semibold text-[#181715] group-hover:text-[#1F5E3B] leading-snug">
                   &ldquo;{p.target}&rdquo;
                 </div>
                 {p.phonetic && (
-                  <div className="text-[11px] font-mono text-[#9E2A2B] mt-0.5">
+                  <div className="text-[11px] font-mono text-[#9E2A2B] mt-1">
                     {p.phonetic}
                   </div>
                 )}
@@ -384,65 +389,111 @@ export default function AITutorCoach({
       </div>
 
       {/* Right Column (Appears first on mobile): Live Chat & Grammar Coach Inspector (8 cols) */}
-      <div className="order-1 lg:order-2 lg:col-span-8 bg-white border border-[#E5E0D8] rounded-3xl flex flex-col h-[calc(100dvh-13rem)] min-h-[520px] max-h-[760px] shadow-[0_12px_36px_rgba(24,23,21,0.04)] overflow-hidden">
+      <div className="order-1 lg:order-2 lg:col-span-8 bg-white border border-[#E5E0D8] rounded-3xl flex flex-col h-[calc(100dvh-11.5rem)] sm:h-[calc(100dvh-13rem)] min-h-[520px] max-h-[780px] shadow-[0_12px_36px_rgba(24,23,21,0.05)] overflow-hidden">
         {/* Chat Header */}
-        <div className="px-6 py-4 border-b border-[#E5E0D8] flex flex-wrap items-center justify-between gap-3 bg-[#FAF8F5]">
-          <div>
-            <div className="flex items-center gap-2">
-              <span
-                className="w-2.5 h-2.5 rounded-full"
-                style={{ backgroundColor: langMeta.accentColor }}
-              />
-              <h3 className="font-semibold text-[#181715] text-sm sm:text-base">
-                {activeScenario.titleVi} — {langMeta.nativeName}
-              </h3>
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-[#E5E0D8] bg-[#FAF8F5] space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2.5">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span
+                  className="w-2.5 h-2.5 rounded-full shrink-0"
+                  style={{ backgroundColor: langMeta.accentColor }}
+                />
+                <h3 className="font-bold text-[#181715] text-sm sm:text-base truncate">
+                  {activeScenario.titleVi} — {langMeta.nativeName}
+                </h3>
+              </div>
+              <p className="text-xs text-[#6B655E] mt-0.5 truncate">
+                Đồng hành cùng bạn: {activeScenario.roleAi} • Tự động lưu lịch sử
+              </p>
             </div>
-            <p className="text-xs text-[#57534E]">
-              Đồng hành cùng bạn: {activeScenario.roleAi} • Tự động lưu lịch sử trò chuyện
-            </p>
+
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <button
+                type="button"
+                onClick={() => setShowPhonetics((v) => !v)}
+                className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-xs font-medium transition-colors ${
+                  showPhonetics
+                    ? "border-[#1F5E3B]/30 bg-[#1F5E3B]/10 text-[#1F5E3B]"
+                    : "border-[#E5E0D8] bg-white text-[#57534E] hover:text-[#181715]"
+                }`}
+              >
+                {showPhonetics ? (
+                  <Eye className="w-3.5 h-3.5" />
+                ) : (
+                  <EyeOff className="w-3.5 h-3.5" />
+                )}
+                <span>{langMeta.phoneticLabel}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowTranslations((v) => !v)}
+                className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-xs font-medium transition-colors ${
+                  showTranslations
+                    ? "border-[#1F5E3B]/30 bg-[#1F5E3B]/10 text-[#1F5E3B]"
+                    : "border-[#E5E0D8] bg-white text-[#57534E] hover:text-[#181715]"
+                }`}
+              >
+                <span>Dịch Việt: {showTranslations ? "Bật" : "Ẩn"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleResetChat}
+                className="inline-flex items-center justify-center p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border border-[#E5E0D8] bg-white text-xs text-[#57534E] hover:text-[#9E2A2B] hover:border-[#9E2A2B]/30 transition-colors"
+                title="Làm mới cuộc trò chuyện"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowPhonetics((v) => !v)}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-[#E5E0D8] bg-white text-xs text-[#57534E] hover:text-[#181715]"
-            >
-              {showPhonetics ? (
-                <Eye className="w-3.5 h-3.5 text-[#1F5E3B]" />
-              ) : (
-                <EyeOff className="w-3.5 h-3.5" />
-              )}
-              {langMeta.phoneticLabel}
-            </button>
-            <button
-              onClick={() => setShowTranslations((v) => !v)}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-[#E5E0D8] bg-white text-xs text-[#57534E] hover:text-[#181715]"
-            >
-              Dịch Việt: {showTranslations ? "Bật" : "Ẩn"}
-            </button>
-            <button
-              onClick={handleResetChat}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-[#E5E0D8] bg-white text-xs text-[#57534E] hover:text-[#9E2A2B]"
-              title="Làm mới cuộc trò chuyện"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-            </button>
+          {/* Mobile / Tablet Compact Scenario Quick-Switcher Strip */}
+          <div className="lg:hidden flex items-center gap-1.5 overflow-x-auto pt-1 pb-0.5 -mx-1 px-1">
+            {ROLEPLAY_SCENARIOS.map((sc) => {
+              const active = sc.id === selectedScenarioId;
+              return (
+                <button
+                  key={sc.id}
+                  type="button"
+                  onClick={() => {
+                    playTileClick();
+                    setSelectedScenarioId(sc.id);
+                  }}
+                  className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                    active
+                      ? "bg-[#181715] text-white border-[#181715] shadow-xs"
+                      : "bg-white text-[#57534E] border-[#E5E0D8] hover:text-[#181715] hover:bg-[#F2EFE9]"
+                  }`}
+                >
+                  <span>{sc.titleVi}</span>
+                  <span
+                    className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
+                      active
+                        ? "bg-white/20 text-white"
+                        : "bg-[#F2EFE9] text-[#6B655E]"
+                    }`}
+                  >
+                    {sc.difficulty}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {/* Daily 10-Word Active Mission Ribbon (Busuu / Duolingo Max style) */}
         {currentDayCards.length > 0 && (
-          <div className="px-5 py-3 bg-[#1F5E3B]/6 border-b border-[#E5E0D8] space-y-2">
-            <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div className="px-4 sm:px-5 py-2.5 sm:py-3 bg-[#1F5E3B]/6 border-b border-[#E5E0D8] space-y-2">
+            <div className="flex flex-wrap items-center justify-between gap-1.5 text-xs">
               <div className="inline-flex items-center gap-1.5 font-bold text-[#1F5E3B]">
-                <Target className="w-4 h-4" />
+                <Target className="w-4 h-4 shrink-0" />
                 <span>
                   Nhiệm vụ Ngày {activeDay} ({activeTopicTitle}): Đã vận dụng{" "}
-                  {usedDayWordIds.size}/{currentDayCards.length} từ vào hội thoại
+                  {usedDayWordIds.size}/{currentDayCards.length} từ
                 </span>
               </div>
-              <span className="text-[11px] text-[#57534E]">
-                Chạm vào từ bất kỳ để chèn nhanh vào câu chat của bạn
+              <span className="text-[11px] text-[#6B655E] hidden sm:inline">
+                Chạm vào từ bất kỳ để chèn nhanh vào ô chat
               </span>
             </div>
 
@@ -470,12 +521,12 @@ export default function AITutorCoach({
                     {isUsed ? (
                       <CheckCircle2 className="w-3.5 h-3.5 text-[#4ADE80]" />
                     ) : (
-                      <PlusCircle className="w-3 h-3 text-[#8A847C]" />
+                      <PlusCircle className="w-3 h-3 text-[#6B655E]" />
                     )}
                     <span className="font-semibold">{wCard.term}</span>
                     <span
                       className={`text-[10px] ${
-                        isUsed ? "text-white/80" : "text-[#8A847C]"
+                        isUsed ? "text-white/85" : "text-[#6B655E]"
                       }`}
                     >
                       ({wCard.meaningVi})
@@ -488,7 +539,7 @@ export default function AITutorCoach({
         )}
 
         {/* Messages Stream */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 sm:space-y-6 bg-white">
           {messages.map((msg) => {
             const isAi = msg.role === "assistant";
             return (
@@ -499,22 +550,23 @@ export default function AITutorCoach({
                 }`}
               >
                 <div
-                  className={`max-w-[88%] sm:max-w-[80%] rounded-3xl p-5 ${
+                  className={`max-w-[90%] sm:max-w-[82%] px-4 py-3.5 sm:px-5 sm:py-4 ${
                     isAi
-                      ? "bg-[#FAF8F5] border border-[#E5E0D8] text-[#181715]"
-                      : "bg-[#181715] text-white"
+                      ? "rounded-3xl rounded-tl-md bg-[#FAF8F5] border border-[#E5E0D8] text-[#181715] shadow-[0_2px_10px_rgba(24,23,21,0.03)]"
+                      : "rounded-3xl rounded-tr-md bg-[#181715] text-white shadow-[0_4px_14px_rgba(24,23,21,0.12)]"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <p className="text-base leading-relaxed font-medium">
+                    <p className="text-[15px] sm:text-base leading-[1.6] font-medium tracking-[-0.005em]">
                       {msg.content}
                     </p>
                     <button
+                      type="button"
                       onClick={() => speakText(msg.content, languageCode, 0.94)}
                       className={`p-1.5 rounded-xl shrink-0 transition-colors ${
                         isAi
                           ? "bg-[#F2EFE9] hover:bg-[#E5E0D8] text-[#1F5E3B]"
-                          : "bg-white/10 hover:bg-white/20 text-white"
+                          : "bg-white/12 hover:bg-white/20 text-white"
                       }`}
                       title="Nghe phát âm"
                     >
@@ -524,7 +576,7 @@ export default function AITutorCoach({
 
                   {showPhonetics && msg.phonetic && (
                     <p
-                      className={`text-xs font-mono mt-2 ${
+                      className={`text-xs font-mono mt-2 leading-relaxed ${
                         isAi ? "text-[#9E2A2B]" : "text-[#E5E0D8]"
                       }`}
                     >
@@ -534,7 +586,7 @@ export default function AITutorCoach({
 
                   {showTranslations && msg.translationVi && (
                     <p
-                      className={`text-xs mt-2 pt-2 border-t leading-relaxed ${
+                      className={`text-xs sm:text-[13px] mt-2.5 pt-2.5 border-t leading-relaxed ${
                         isAi
                           ? "border-[#E5E0D8] text-[#57534E]"
                           : "border-white/15 text-[#E5E0D8]"
@@ -547,22 +599,28 @@ export default function AITutorCoach({
 
                 {/* Live Grammar & Naturalness Inspector Card */}
                 {!isAi && msg.grammarAnalysis && (
-                  <div className="mt-3 w-full max-w-[92%] sm:max-w-[85%] rounded-2xl border border-[#E5E0D8] bg-[#FAF8F5] p-4 shadow-xs text-left space-y-3">
+                  <div
+                    className={`mt-2.5 w-full max-w-[94%] sm:max-w-[85%] rounded-2xl border border-[#E5E0D8] border-l-4 ${
+                      msg.grammarAnalysis.isCorrect
+                        ? "border-l-[#1F5E3B]"
+                        : "border-l-[#9E2A2B]"
+                    } bg-[#FAF8F5] p-3.5 sm:p-4 shadow-[0_2px_12px_rgba(24,23,21,0.03)] text-left space-y-3`}
+                  >
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         {msg.grammarAnalysis.isCorrect ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#1F5E3B]/10 text-[#1F5E3B] text-xs font-semibold">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#1F5E3B]/12 text-[#1F5E3B] text-xs font-semibold">
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             Diễn đạt tự nhiên ({msg.grammarAnalysis.score}/100)
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#9E2A2B]/10 text-[#9E2A2B] text-xs font-semibold">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#9E2A2B]/12 text-[#9E2A2B] text-xs font-semibold">
                             <AlertTriangle className="w-3.5 h-3.5" />
                             Gợi ý chỉnh ngữ pháp ({msg.grammarAnalysis.score}/100)
                           </span>
                         )}
                       </div>
-                      <span className="text-[11px] font-mono text-[#8A847C]">
+                      <span className="text-[11px] font-mono font-medium text-[#6B655E]">
                         Hướng dẫn từ Bản xứ
                       </span>
                     </div>
@@ -572,13 +630,13 @@ export default function AITutorCoach({
                         {msg.grammarAnalysis.mistakes.map((m, idx) => (
                           <div
                             key={idx}
-                            className="p-3 rounded-xl bg-white border border-[#9E2A2B]/25 text-xs space-y-1"
+                            className="p-3 rounded-xl bg-white border border-[#9E2A2B]/25 text-xs space-y-1.5"
                           >
                             <div className="flex flex-wrap items-center gap-2 font-mono">
                               <span className="line-through text-[#9E2A2B] bg-[#9E2A2B]/10 px-2 py-0.5 rounded">
                                 {m.wrong}
                               </span>
-                              <span className="text-[#8A847C]">→</span>
+                              <span className="text-[#6B655E]">→</span>
                               <span className="font-semibold text-[#1F5E3B] bg-[#1F5E3B]/10 px-2 py-0.5 rounded">
                                 {m.right}
                               </span>
@@ -589,16 +647,17 @@ export default function AITutorCoach({
                           </div>
                         ))}
 
-                        <div className="p-3 rounded-xl bg-[#1F5E3B]/6 border border-[#1F5E3B]/20 text-xs flex items-center justify-between gap-2">
-                          <div>
+                        <div className="p-3 rounded-xl bg-[#1F5E3B]/8 border border-[#1F5E3B]/25 text-xs flex items-center justify-between gap-2">
+                          <div className="leading-relaxed">
                             <span className="text-[#1F5E3B] font-semibold">
                               Câu chuẩn tự nhiên:{" "}
                             </span>
-                            <span className="font-medium text-[#181715]">
+                            <span className="font-semibold text-[#181715]">
                               {msg.grammarAnalysis.correctedText}
                             </span>
                           </div>
                           <button
+                            type="button"
                             onClick={() =>
                               speakText(
                                 msg.grammarAnalysis!.correctedText,
@@ -606,7 +665,8 @@ export default function AITutorCoach({
                                 0.92
                               )
                             }
-                            className="p-1.5 rounded-lg bg-white text-[#1F5E3B] hover:bg-[#1F5E3B]/10 shrink-0"
+                            className="p-1.5 rounded-lg bg-white border border-[#1F5E3B]/20 text-[#1F5E3B] hover:bg-[#1F5E3B]/10 shrink-0"
+                            title="Nghe câu chuẩn tự nhiên"
                           >
                             <Volume2 className="w-3.5 h-3.5" />
                           </button>
@@ -614,25 +674,26 @@ export default function AITutorCoach({
                       </div>
                     )}
 
-                    <p className="text-xs text-[#57534E] leading-relaxed">
+                    <p className="text-xs sm:text-[13px] text-[#57534E] leading-relaxed">
                       {msg.grammarAnalysis.explanationVi}
                     </p>
 
-                    <div className="p-3 rounded-xl bg-white border border-[#E5E0D8] text-xs flex items-start justify-between gap-2">
-                      <div>
-                        <span className="font-mono uppercase tracking-wider text-[10px] text-[#8A847C] block mb-0.5">
+                    <div className="p-3 rounded-xl bg-white border border-[#E5E0D8] text-xs flex items-start justify-between gap-2.5">
+                      <div className="space-y-0.5">
+                        <span className="font-mono uppercase tracking-wider text-[10px] font-semibold text-[#6B655E] block">
                           💡 Cách người bản xứ hay nói ngoài đời:
                         </span>
-                        <span className="font-medium text-[#181715]">
+                        <span className="font-semibold text-[#181715] text-[13px] leading-snug block">
                           {msg.grammarAnalysis.nativeAlternative}
                         </span>
                         {msg.grammarAnalysis.nativeAlternativePhonetic && (
-                          <span className="block font-mono text-[11px] text-[#9E2A2B] mt-0.5">
+                          <span className="block font-mono text-[11px] text-[#9E2A2B] pt-0.5">
                             {msg.grammarAnalysis.nativeAlternativePhonetic}
                           </span>
                         )}
                       </div>
                       <button
+                        type="button"
                         onClick={() =>
                           speakText(
                             msg.grammarAnalysis!.nativeAlternative,
@@ -648,9 +709,11 @@ export default function AITutorCoach({
                     </div>
 
                     {msg.grammarAnalysis.suggestedVocab && (
-                      <div className="pt-2 border-t border-[#E5E0D8] flex flex-wrap items-center justify-between gap-2">
-                        <div className="text-xs">
-                          <span className="text-[#8A847C]">Cụm từ nên nhớ: </span>
+                      <div className="pt-2.5 border-t border-[#E5E0D8] flex flex-wrap items-center justify-between gap-2.5">
+                        <div className="text-xs leading-relaxed text-[#57534E]">
+                          <span className="text-[#6B655E] font-medium">
+                            Cụm từ nên nhớ:{" "}
+                          </span>
                           <strong className="text-[#181715]">
                             {msg.grammarAnalysis.suggestedVocab.term}
                           </strong>{" "}
@@ -660,6 +723,7 @@ export default function AITutorCoach({
                           — {msg.grammarAnalysis.suggestedVocab.meaningVi}
                         </div>
                         <button
+                          type="button"
                           onClick={() =>
                             handleSaveSuggestedVocab(
                               msg.grammarAnalysis!.suggestedVocab!
@@ -668,10 +732,10 @@ export default function AITutorCoach({
                           disabled={
                             savedTerms[msg.grammarAnalysis.suggestedVocab.term]
                           }
-                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors ${
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold ${
                             savedTerms[msg.grammarAnalysis.suggestedVocab.term]
-                              ? "bg-[#1F5E3B]/15 text-[#1F5E3B]"
-                              : "bg-[#1F5E3B] text-white hover:bg-[#18492E]"
+                              ? "bg-[#1F5E3B]/15 text-[#1F5E3B] cursor-default"
+                              : "btn-tactile-green"
                           }`}
                         >
                           <BookmarkPlus className="w-3.5 h-3.5" />
@@ -688,7 +752,7 @@ export default function AITutorCoach({
           })}
 
           {isSending && (
-            <div className="flex items-center gap-2 text-xs text-[#57534E] font-mono">
+            <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-[#FAF8F5] border border-[#E5E0D8] text-xs text-[#57534E] font-mono">
               <Sparkles className="w-4 h-4 animate-spin text-[#1F5E3B]" />
               Đang phản hồi tự nhiên bằng {langMeta.nameVi}...
             </div>
@@ -697,9 +761,9 @@ export default function AITutorCoach({
         </div>
 
         {/* Voice / Text Input Footer */}
-        <div className="p-4 border-t border-[#E5E0D8] bg-[#FAF8F5]">
+        <div className="p-3 sm:p-4 border-t border-[#E5E0D8] bg-[#FAF8F5]">
           {voiceError && (
-            <div className="mb-2 px-3 py-1.5 rounded-xl bg-[#9E2A2B]/10 text-[#9E2A2B] text-xs">
+            <div className="mb-2 px-3 py-1.5 rounded-xl bg-[#9E2A2B]/10 text-[#9E2A2B] text-xs font-medium">
               {voiceError}
             </div>
           )}
@@ -709,15 +773,15 @@ export default function AITutorCoach({
               e.preventDefault();
               handleSendMessage();
             }}
-            className="flex items-center gap-2.5"
+            className="flex items-center gap-2 sm:gap-2.5"
           >
             <button
               type="button"
               onClick={handleToggleVoice}
-              className={`p-3.5 rounded-2xl border transition-all shrink-0 flex items-center gap-2 text-xs font-medium ${
+              className={`px-3.5 py-3 rounded-2xl shrink-0 flex items-center gap-2 text-xs font-semibold ${
                 isRecording
-                  ? "bg-[#9E2A2B] text-white border-[#9E2A2B] animate-pulse"
-                  : "bg-white text-[#181715] border-[#E5E0D8] hover:bg-[#F2EFE9]"
+                  ? "bg-[#9E2A2B] text-white border border-[#9E2A2B] animate-pulse"
+                  : "btn-tactile-soft"
               }`}
               title="Nhấn để nói bằng giọng của bạn (Speech-to-Text)"
             >
@@ -739,13 +803,13 @@ export default function AITutorCoach({
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder={`Nhắn hoặc nói bằng ${langMeta.nameVi} như đang trò chuyện với bạn bè...`}
-              className="flex-1 px-4 py-3.5 rounded-2xl border border-[#E5E0D8] bg-white text-sm text-[#181715] focus:outline-none focus:border-[#181715]"
+              className="flex-1 min-w-0 px-3.5 sm:px-4 py-3 rounded-2xl border border-[#E5E0D8] bg-white text-sm text-[#181715] placeholder:text-[#6B655E] focus:outline-none focus:border-[#181715] focus:ring-2 focus:ring-[#181715]/10"
             />
 
             <button
               type="submit"
               disabled={!inputText.trim() || isSending}
-              className="px-5 py-3.5 rounded-2xl bg-[#181715] text-white text-sm font-medium hover:bg-[#2E2C28] disabled:opacity-40 transition-colors inline-flex items-center gap-1.5 shrink-0"
+              className="btn-tactile-green px-4 sm:px-5 py-3 rounded-2xl text-sm font-semibold disabled:opacity-45 disabled:cursor-not-allowed inline-flex items-center gap-1.5 shrink-0"
             >
               <Send className="w-4 h-4" />
               <span className="hidden sm:inline">Gửi</span>
