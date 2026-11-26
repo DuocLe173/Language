@@ -635,6 +635,18 @@ export default function SRSStudyStudio({
     5: { label: "Ghép câu phản xạ", accent: "#9E2A2B" },
   };
   const activeStepInfo = stepMeta[currentStep];
+  const isSpoilerHidden = currentStep === 4 || currentStep === 5;
+
+  // Sequential word unlocking: learner must finish the current word before unlocking the next (Duolingo-style linear flow)
+  const firstUncompletedIdx = currentDayCards.findIndex(
+    (c) => !c.isCompletedInTopic
+  );
+  const maxUnlockedWordIdx = isAdmin
+    ? Math.max(0, currentDayCards.length - 1)
+    : firstUncompletedIdx === -1
+    ? Math.max(0, currentDayCards.length - 1)
+    : firstUncompletedIdx;
+
   const dayProgressPercent =
     currentDayCards.length > 0
       ? Math.round(
@@ -709,15 +721,19 @@ export default function SRSStudyStudio({
             </div>
             <button
               type="button"
-              disabled={safeIndex >= currentDayCards.length - 1}
+              disabled={safeIndex >= maxUnlockedWordIdx}
               onClick={() =>
                 onPersistCardIndex(
                   activeTopicId,
-                  Math.min(currentDayCards.length - 1, safeIndex + 1)
+                  Math.min(maxUnlockedWordIdx, safeIndex + 1)
                 )
               }
               className="p-1.5 rounded-lg text-[#57534E] hover:bg-white hover:text-[#181715] disabled:opacity-30"
-              title="Từ tiếp theo"
+              title={
+                safeIndex >= maxUnlockedWordIdx
+                  ? "Hoàn thành 5 bước của từ hiện tại để mở khóa từ tiếp theo"
+                  : "Từ tiếp theo"
+              }
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -942,6 +958,77 @@ export default function SRSStudyStudio({
           )}
         </div>
       </div>
+
+      {/* VISUAL 10-WORD LINEAR LEARNING PATH (See all today's words clearly; unlock sequentially after completing each word) */}
+      {currentDayCards.length > 0 && (
+        <div className="max-w-3xl mx-auto bg-white/85 border border-[#E5E0D8] rounded-2xl px-3.5 py-2.5 shadow-[0_2px_8px_rgba(24,23,21,0.02)]">
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <span className="text-[11px] font-semibold text-[#57534E]">
+              Lộ trình {currentDayCards.length} từ Ngày {activeDay}
+              {activeTopicMeta.dayThemes?.[activeDay]
+                ? ` — ${activeTopicMeta.dayThemes[activeDay]}`
+                : ""}
+            </span>
+            <span className="text-[11px] font-mono text-[#6B655E]">
+              Học xong từng từ để mở khóa từ tiếp theo
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+            {currentDayCards.map((wCard, idx) => {
+              const isCurrent = idx === safeIndex;
+              const isDone = Boolean(wCard.isCompletedInTopic);
+              const isUnlocked = idx <= maxUnlockedWordIdx || isDone;
+              const hideTermForTest = isCurrent && isSpoilerHidden;
+
+              return (
+                <button
+                  key={wCard.id}
+                  type="button"
+                  disabled={!isUnlocked}
+                  onClick={() => {
+                    if (isUnlocked) {
+                      onPersistCardIndex(activeTopicId, idx);
+                    }
+                  }}
+                  title={
+                    !isUnlocked
+                      ? `🔒 Hoàn thành từ #${maxUnlockedWordIdx + 1} trước để mở khóa "${wCard.term}"`
+                      : hideTermForTest
+                      ? `Từ #${idx + 1} (Đang kiểm tra trí nhớ)`
+                      : `${idx + 1}. ${wCard.term} — ${wCard.meaningVi}`
+                  }
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 shrink-0 transition-all border ${
+                    isCurrent
+                      ? "bg-[#181715] text-white border-[#181715] shadow-xs"
+                      : isDone
+                      ? "bg-[#1F5E3B]/10 text-[#1F5E3B] border-[#1F5E3B]/30 hover:bg-[#1F5E3B]/18"
+                      : isUnlocked
+                      ? "bg-white text-[#181715] border-[#E5E0D8] hover:border-[#181715]"
+                      : "bg-[#FAF8F5] text-[#6B655E] border-[#E5E0D8]/80 opacity-75 cursor-not-allowed"
+                  }`}
+                >
+                  <span className="font-mono text-[11px] opacity-80">
+                    {idx + 1}.
+                  </span>
+                  <span className="max-w-[96px] truncate">
+                    {hideTermForTest ? "•••" : wCard.term}
+                  </span>
+                  {isDone ? (
+                    <CheckCircle2
+                      className={`w-3.5 h-3.5 shrink-0 ${
+                        isCurrent ? "text-[#4ADE80]" : "text-[#1F5E3B]"
+                      }`}
+                    />
+                  ) : !isUnlocked ? (
+                    <Lock className="w-3 h-3 shrink-0 opacity-70" />
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* MANDATORY GATEKEEPING TEST FOR DAY N+1 */}
       {requiresGatekeepingTest && (
@@ -1907,6 +1994,7 @@ export default function SRSStudyStudio({
         activeTopicTitle={activeTopicMeta.titleVi}
         currentDayCards={currentDayCards}
         activeCardId={activeCard?.id}
+        maxUnlockedWordIdx={maxUnlockedWordIdx}
         completedCount={currentDayStat.completed}
         totalCount={currentDayStat.total}
         onSelectWordIndex={onPersistCardIndex}

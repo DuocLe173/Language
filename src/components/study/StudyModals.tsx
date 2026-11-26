@@ -25,6 +25,7 @@ interface WordListModalProps {
   activeTopicTitle: string;
   currentDayCards: VocabCard[];
   activeCardId?: string;
+  maxUnlockedWordIdx: number;
   completedCount: number;
   totalCount: number;
   onSelectWordIndex: (topicId: TopicId, idx: number) => void;
@@ -38,6 +39,7 @@ export function WordListDrawerModal({
   activeTopicTitle,
   currentDayCards,
   activeCardId,
+  maxUnlockedWordIdx,
   completedCount,
   totalCount,
   onSelectWordIndex,
@@ -72,17 +74,23 @@ export function WordListDrawerModal({
       <div className="space-y-2 pr-1">
         {currentDayCards.map((item, idx) => {
           const isCurrent = activeCardId === item.id;
+          const isUnlocked =
+            idx <= maxUnlockedWordIdx || Boolean(item.isCompletedInTopic);
           return (
             <button
               key={item.id}
               type="button"
+              disabled={!isUnlocked}
               onClick={() => {
+                if (!isUnlocked) return;
                 onSelectWordIndex(activeTopicId, idx);
                 onClose();
               }}
               className={`w-full text-left px-4 py-3 rounded-2xl text-xs flex items-center justify-between gap-3 transition-colors ${
                 isCurrent
                   ? "bg-[#181715] text-white font-semibold"
+                  : !isUnlocked
+                  ? "bg-[#FAF8F5] text-[#6B655E] border border-[#E5E0D8]/70 opacity-70 cursor-not-allowed"
                   : "bg-[#FAF8F5] hover:bg-[#F2EFE9] text-[#181715] border border-[#E5E0D8]"
               }`}
             >
@@ -93,6 +101,8 @@ export function WordListDrawerModal({
                       isCurrent ? "text-[#4ADE80]" : "text-[#1F5E3B]"
                     }`}
                   />
+                ) : !isUnlocked ? (
+                  <Lock className="w-3.5 h-3.5 shrink-0 text-[#6B655E]" />
                 ) : (
                   <span
                     className={`w-4 h-4 rounded-full border shrink-0 inline-block ${
