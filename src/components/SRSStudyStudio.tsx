@@ -35,6 +35,7 @@ import {
   Zap,
   Headphones,
   LifeBuoy,
+  Map,
 } from "lucide-react";
 import {
   LanguageCode,
@@ -75,6 +76,7 @@ import {
   TopicPickerModal,
   DayRoadmapModal,
 } from "@/components/study/StudyModals";
+import VisualJourneyPath from "@/components/study/VisualJourneyPath";
 
 interface SRSStudyStudioProps {
   languageCode: LanguageCode;
@@ -148,6 +150,7 @@ export default function SRSStudyStudio({
   const [isWordListDrawerOpen, setIsWordListDrawerOpen] = useState(false);
   const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
   const [isToolsMenuOpen, setIsToolsMenuOpen] = useState(false);
+  const [isPathViewOpen, setIsPathViewOpen] = useState(false);
   const [soundMuted, setSoundMuted] = useState(false);
 
   // Duolingo-inspired Session Dopamine Engine (XP + Combo + Mentor Cheer)
@@ -354,7 +357,8 @@ export default function SRSStudyStudio({
         isDayGridModalOpen ||
         isPracticeModalOpen ||
         isWordListDrawerOpen ||
-        isStoryModalOpen
+        isStoryModalOpen ||
+        isPathViewOpen
       ) {
         return;
       }
@@ -397,6 +401,7 @@ export default function SRSStudyStudio({
     isPracticeModalOpen,
     isWordListDrawerOpen,
     isStoryModalOpen,
+    isPathViewOpen,
   ]);
 
   const daysBreakdown = useMemo(() => {
@@ -768,6 +773,24 @@ export default function SRSStudyStudio({
 
           <button
             type="button"
+            onClick={() => setIsPathViewOpen((prev) => !prev)}
+            className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-2xl border text-xs font-semibold transition-all ${
+              isPathViewOpen
+                ? "bg-[#1F5E3B] text-white border-[#1F5E3B] shadow-sm"
+                : "bg-white border-[#E5E0D8] text-[#181715] hover:border-[#1F5E3B]/50 hover:text-[#1F5E3B] shadow-[0_2px_8px_rgba(24,23,21,0.03)]"
+            }`}
+            title={
+              isPathViewOpen
+                ? "Quay lại thẻ học 5 bước"
+                : "Xem bản đồ lộ trình 10 ngày trực quan"
+            }
+          >
+            <Map className="w-3.5 h-3.5" />
+            <span>Lộ trình</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setIsToolsMenuOpen((o) => !o)}
             className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-2xl border text-xs font-semibold transition-all ${
               isToolsMenuOpen
@@ -1043,7 +1066,7 @@ export default function SRSStudyStudio({
       </div>
 
       {/* VISUAL 10-WORD LINEAR LEARNING PATH (See all today's words clearly; unlock sequentially after completing each word) */}
-      {currentDayCards.length > 0 && (
+      {!isPathViewOpen && currentDayCards.length > 0 && (
         <div className="max-w-3xl mx-auto bg-white/85 border border-[#E5E0D8] rounded-2xl px-3.5 py-2.5 shadow-[0_2px_8px_rgba(24,23,21,0.02)]">
           <div className="flex items-center justify-between gap-2 mb-2">
             <span className="text-[11px] font-semibold text-[#57534E]">
@@ -1150,7 +1173,7 @@ export default function SRSStudyStudio({
       />
 
       {/* DAY COMPLETED CELEBRATION BANNER */}
-      {currentDayStat.isDone && activeCard ? (
+      {!isPathViewOpen && currentDayStat.isDone && activeCard ? (
         <div className="max-w-3xl mx-auto bg-[#1F5E3B]/8 border border-[#1F5E3B]/30 rounded-3xl p-5 sm:p-6 flex flex-wrap items-center justify-between gap-4 shadow-xs">
           <div className="flex items-center gap-3.5">
             <div className="w-11 h-11 rounded-2xl bg-[#1F5E3B] text-white flex items-center justify-center shrink-0">
@@ -1202,8 +1225,20 @@ export default function SRSStudyStudio({
         </div>
       ) : null}
 
-      {/* CENTERED FOCUS STUDIO WORKSPACE (No permanent right sidebar stealing 1/3 width) */}
-      {!activeCard ? (
+      {/* CENTERED FOCUS STUDIO WORKSPACE OR 10-DAY VISUAL JOURNEY PATH */}
+      {isPathViewOpen ? (
+        <VisualJourneyPath
+          activeTopicMeta={activeTopicMeta}
+          activeDay={activeDay}
+          daysBreakdown={daysBreakdown}
+          onSelectDayAndStart={(day) => {
+            onSelectDay(day);
+            setIsPathViewOpen(false);
+          }}
+          onOpenTopicPicker={() => setIsTopicModalOpen(true)}
+          onClosePathView={() => setIsPathViewOpen(false)}
+        />
+      ) : !activeCard ? (
         <div className="bg-white border border-[#E5E0D8] rounded-3xl p-10 text-center max-w-2xl mx-auto">
           <h3 className="text-xl font-bold text-[#181715] mb-2">
             Ngày {activeDay} của chủ đề &ldquo;{activeTopicMeta.titleVi}&rdquo;

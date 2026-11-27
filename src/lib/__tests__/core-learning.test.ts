@@ -8,6 +8,10 @@ import {
 import { segmentSentenceIntoTokens } from "@/lib/word-gloss-dictionary";
 import { INITIAL_VOCAB_CARDS } from "@/lib/seed-data";
 import { computePlacementUnlockDay } from "@/lib/placement-utils";
+import {
+  getStoriesByLanguage,
+  evaluateDictationInput,
+} from "@/lib/bilingual-stories";
 import { VocabCard } from "@/types/language";
 
 const MOCK_CARD: VocabCard = {
@@ -94,11 +98,11 @@ describe("Active Recall Verification & CJK Segmentation", () => {
     expect(computePlacementUnlockDay(6, 6).recommendedDay).toBe(8);
   });
 
-  it("ensures all 5 non-English languages have >= 25 unique words with 0 duplicates per language", () => {
+  it("ensures all 5 non-English languages have >= 50 unique words with 0 duplicates per language", () => {
     const nonEnglishLangs = ["zh-CN", "zh-TW", "ja", "ko", "fr"] as const;
     for (const lang of nonEnglishLangs) {
       const cards = INITIAL_VOCAB_CARDS.filter((c) => c.languageCode === lang);
-      expect(cards.length).toBeGreaterThanOrEqual(25);
+      expect(cards.length).toBeGreaterThanOrEqual(50);
 
       const normalizedTerms = cards.map((c) => c.term.trim().toLowerCase());
       const uniqueTerms = new Set(normalizedTerms);
@@ -122,5 +126,63 @@ describe("Active Recall Verification & CJK Segmentation", () => {
         expect(res.sentenceBuildTarget.trim()).not.toBe(res.clozeFullTarget.trim());
       }
     }
+  });
+});
+
+describe("Bilingual Reader & Daily Dictation Engine", () => {
+  it("provides bilingual stories with valid lines for all 6 languages", () => {
+    const allLangs = ["en", "zh-CN", "zh-TW", "ja", "ko", "fr"] as const;
+    for (const lang of allLangs) {
+      const stories = getStoriesByLanguage(lang);
+      expect(stories.length).toBeGreaterThanOrEqual(1);
+      for (const story of stories) {
+        expect(story.lines.length).toBeGreaterThanOrEqual(5);
+        for (const line of story.lines) {
+          expect(line.target.trim().length).toBeGreaterThan(0);
+          expect(line.vi.trim().length).toBeGreaterThan(0);
+          expect(line.highlightTerm.trim().length).toBeGreaterThan(0);
+        }
+      }
+    }
+  });
+
+  it("evaluates exact and near-exact English dictation inputs and flags mismatched words cleanly", () => {
+    const target = "Good morning! Would you like your usual oat milk latte today?";
+    const exact = evaluateDictationInput(
+      "good morning would you like your usual oat milk latte today",
+      target
+    );
+    expect(exact.accuracyPercent).toBe(100);
+    expect(exact.isPassed).toBe(true);
+    expect(exact.wordDiffs.every((d) => d.matched)).toBe(true);
+
+    const nearExact = evaluateDictationInput(
+      "Good morning would you like your usual milk latte today",
+      target
+    );
+    expect(nearExact.isPassed).toBe(true);
+    expect(nearExact.accuracyPercent).toBeGreaterThanOrEqual(80);
+    expect(nearExact.wordDiffs.find((d) => d.word.toLowerCase() === "oat")?.matched).toBe(false);
+
+    const mismatch = evaluateDictationInput("Hello world completely different", target);
+    expect(mismatch.isPassed).toBe(false);
+    expect(mismatch.accuracyPercent).toBeLessThan(80);
+    expect(mismatch.wordDiffs.some((d) => !d.matched)).toBe(true);
+  });
+
+  it("evaluates unspaced Chinese dictation inputs character-by-character cleanly", () => {
+    const target = "没问题，你先坐一会儿，马上就好。";
+    const exact = evaluateDictationInput("没问题你先坐一会儿马上就好", target);
+    expect(exact.accuracyPercent).toBe(100);
+    expect(exact.isPassed).toBe(true);
+    expect(exact.wordDiffs.every((d) => d.matched)).toBe(true);
+
+    const nearExact = evaluateDictationInput("没问题你先坐一会马上就好", target);
+    expect(nearExact.isPassed).toBe(true);
+    expect(nearExact.wordDiffs.find((d) => d.word === "儿")?.matched).toBe(false);
+
+    const mismatch = evaluateDictationInput("今天天气很好", target);
+    expect(mismatch.isPassed).toBe(false);
+    expect(mismatch.wordDiffs.some((d) => !d.matched)).toBe(true);
   });
 });

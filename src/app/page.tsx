@@ -15,6 +15,7 @@ import {
   LogOut,
   Clock,
   Target,
+  Headphones,
 } from "lucide-react";
 import { isCardDue } from "@/lib/srs";
 import {
@@ -53,6 +54,10 @@ import CoverAuthGate from "@/components/CoverAuthGate";
 const AITutorCoach = dynamic(() => import("@/components/AITutorCoach"), {
   ssr: false,
 });
+const BilingualDictationStudio = dynamic(
+  () => import("@/components/BilingualDictationStudio"),
+  { ssr: false }
+);
 const VocabularyVault = dynamic(() => import("@/components/VocabularyVault"), {
   ssr: false,
 });
@@ -89,7 +94,7 @@ const DailyQuestsModal = dynamic(
   { ssr: false }
 );
 
-type ActiveTab = "study" | "ai-coach" | "vault";
+type ActiveTab = "study" | "reader" | "ai-coach" | "vault";
 
 export default function PolyglotHomePage() {
   const [mounted, setMounted] = useState(false);
@@ -599,7 +604,7 @@ export default function PolyglotHomePage() {
             </div>
           </div>
 
-          {/* Center (Desktop): Primary 3-Module Segmented Navigation */}
+          {/* Center (Desktop): Primary 4-Module Segmented Navigation */}
           <nav
             aria-label="Chế độ học tập"
             className="hidden lg:inline-flex rounded-2xl bg-[#F2EFE9] p-1 border border-[#E5E0D8]/80 gap-1"
@@ -607,33 +612,46 @@ export default function PolyglotHomePage() {
             <button
               type="button"
               onClick={() => setActiveTab("study")}
-              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
                 activeTab === "study"
                   ? "bg-white text-[#181715] shadow-2xs"
                   : "text-[#57534E] hover:text-[#181715]"
               }`}
             >
               <BookOpen className="w-3.5 h-3.5 text-[#1F5E3B]" />
-              <span>Học Từ Vựng (5 Bước)</span>
+              <span>Học 5 Bước</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("reader")}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+                activeTab === "reader"
+                  ? "bg-white text-[#181715] shadow-2xs"
+                  : "text-[#57534E] hover:text-[#181715]"
+              }`}
+            >
+              <Headphones className="w-3.5 h-3.5 text-[#B45309]" />
+              <span>Đọc &amp; Chép</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab("ai-coach")}
-              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
                 activeTab === "ai-coach"
                   ? "bg-white text-[#181715] shadow-2xs"
                   : "text-[#57534E] hover:text-[#181715]"
               }`}
             >
               <MessageSquareText className="w-3.5 h-3.5 text-[#9E2A2B]" />
-              <span>Luyện Nói & Sửa Ngữ Pháp AI</span>
+              <span>Luyện Nói AI</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab("vault")}
-              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
                 activeTab === "vault"
                   ? "bg-white text-[#181715] shadow-2xs"
                   : "text-[#57534E] hover:text-[#181715]"
@@ -704,43 +722,55 @@ export default function PolyglotHomePage() {
         </div>
 
         {/* Mobile/Tablet Navigation Strip (Only visible below lg) */}
-        <div className="lg:hidden px-4 pb-2.5 flex items-center justify-center">
-          <div className="inline-flex w-full sm:w-auto rounded-2xl bg-[#F2EFE9] p-1 border border-[#E5E0D8] gap-1">
+        <div className="lg:hidden px-3 sm:px-4 pb-2.5 flex items-center justify-center">
+          <div className="grid grid-cols-4 sm:inline-flex w-full sm:w-auto rounded-2xl bg-[#F2EFE9] p-1 border border-[#E5E0D8] gap-1">
             <button
               type="button"
               onClick={() => setActiveTab("study")}
-              className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold transition-all whitespace-nowrap ${
                 activeTab === "study"
                   ? "bg-white text-[#181715] shadow-2xs"
                   : "text-[#57534E]"
               }`}
             >
-              <BookOpen className="w-3.5 h-3.5 text-[#1F5E3B]" />
-              <span>Học 5 Bước</span>
+              <BookOpen className="w-3.5 h-3.5 text-[#1F5E3B] shrink-0" />
+              <span className="truncate">Học 5 Bước</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("reader")}
+              className={`inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold transition-all whitespace-nowrap ${
+                activeTab === "reader"
+                  ? "bg-white text-[#181715] shadow-2xs"
+                  : "text-[#57534E]"
+              }`}
+            >
+              <Headphones className="w-3.5 h-3.5 text-[#B45309] shrink-0" />
+              <span className="truncate">Đọc &amp; Chép</span>
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("ai-coach")}
-              className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold transition-all whitespace-nowrap ${
                 activeTab === "ai-coach"
                   ? "bg-white text-[#181715] shadow-2xs"
                   : "text-[#57534E]"
               }`}
             >
-              <MessageSquareText className="w-3.5 h-3.5 text-[#9E2A2B]" />
-              <span>Luyện Nói AI</span>
+              <MessageSquareText className="w-3.5 h-3.5 text-[#9E2A2B] shrink-0" />
+              <span className="truncate">Luyện Nói</span>
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("vault")}
-              className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold transition-all whitespace-nowrap ${
                 activeTab === "vault"
                   ? "bg-white text-[#181715] shadow-2xs"
                   : "text-[#57534E]"
               }`}
             >
-              <Layers className="w-3.5 h-3.5 text-[#57534E]" />
-              <span>Kho Từ ({langStats.total})</span>
+              <Layers className="w-3.5 h-3.5 text-[#57534E] shrink-0" />
+              <span className="truncate">Kho ({langStats.total})</span>
             </button>
           </div>
         </div>
@@ -864,6 +894,15 @@ export default function PolyglotHomePage() {
               setActiveTab("vault");
               setShowQuickAddModal(true);
             }}
+          />
+        )}
+
+        {activeTab === "reader" && (
+          <BilingualDictationStudio
+            userId={user.id}
+            languageCode={activeLang}
+            allCards={cards}
+            onSaveVocabCard={handleAddOrUpdateVocab}
           />
         )}
 
